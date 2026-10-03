@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Container, Typography, Box, Paper, Button, CircularProgress, 
-  Rating, TextField, Divider, Avatar, IconButton, Alert
+  Rating, TextField, Divider, Avatar, IconButton, Alert, Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useAuth } from '../context/AuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -133,6 +135,27 @@ const ProductDetails = () => {
     }
   };
 
+  const handlePrevImage = () => {
+    if (!product || !product.images) return;
+    const currentIndex = product.images.indexOf(mainImage);
+    const prevIndex = (currentIndex - 1 + product.images.length) % product.images.length;
+    setMainImage(product.images[prevIndex]);
+  };
+
+  const handleNextImage = () => {
+    if (!product || !product.images) return;
+    const currentIndex = product.images.indexOf(mainImage);
+    const nextIndex = (currentIndex + 1) % product.images.length;
+    setMainImage(product.images[nextIndex]);
+  };
+
+  const scrollToReviews = () => {
+    const section = document.getElementById('reviews-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress sx={{ color: '#CA8A04' }} /></Box>;
   if (!product) return <Container><Typography sx={{ mt: 5 }}>Product not found</Typography></Container>;
 
@@ -145,9 +168,27 @@ const ProductDetails = () => {
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, mb: 10 }}>
         {/* Product Images Area */}
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#FAF9F6', mb: 2 }}>
+          <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#FAF9F6', mb: 2, position: 'relative' }}>
             {mainImage ? (
-              <Box component="img" src={mainImage} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <>
+                <Box component="img" src={mainImage} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {product.images && product.images.length > 1 && (
+                  <>
+                    <IconButton 
+                      onClick={handlePrevImage}
+                      sx={{ position: 'absolute', top: '50%', left: 8, transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.7)', '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' } }}
+                    >
+                      <ChevronLeftIcon />
+                    </IconButton>
+                    <IconButton 
+                      onClick={handleNextImage}
+                      sx={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', bgcolor: 'rgba(255,255,255,0.7)', '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' } }}
+                    >
+                      <ChevronRightIcon />
+                    </IconButton>
+                  </>
+                )}
+              </>
             ) : (
               <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography color="text.secondary">No image available</Typography>
@@ -187,9 +228,12 @@ const ProductDetails = () => {
             <Typography variant="h5" sx={{ fontWeight: 600, color: '#1C1917', fontFamily: '"Montserrat", sans-serif' }}>
               ₱{parseFloat(product.price).toFixed(2)}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box 
+              onClick={scrollToReviews} 
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:hover *': { color: '#1C1917' } }}
+            >
               <Rating value={product.rating} precision={0.5} readOnly size="small" />
-              <Typography variant="body2" sx={{ color: '#78716C' }}>({product.numReviews} reviews)</Typography>
+              <Typography variant="body2" sx={{ color: '#78716C', textDecoration: 'underline' }}>({product.numReviews} reviews)</Typography>
             </Box>
           </Box>
           <Typography variant="body1" sx={{ color: '#44403C', lineHeight: 1.8, mb: 4, whiteSpace: 'pre-line' }}>
@@ -210,7 +254,7 @@ const ProductDetails = () => {
       </Box>
 
       {/* Reviews Section */}
-      <Box sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 6 }}>
+      <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 6 }}>
         <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
           Customer Reviews
         </Typography>
