@@ -13,13 +13,13 @@ exports.getProducts = async (req, res) => {
 // Create a new product (handles multiple images)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, brand, category, stock } = req.body;
     
     // Extract image URLs from multer's req.files array
     const images = req.files ? req.files.map(file => file.path) : [];
 
     const product = await Product.create({
-      name, description, price, category, stock, images
+      name, description, price, brand, category, stock, images
     });
 
     res.status(201).json(product);
@@ -31,8 +31,8 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, imageOrder } = req.body;
-    const updateData = { name, description, price, category, stock };
+    const { name, description, price, brand, category, stock, imageOrder } = req.body;
+    const updateData = { name, description, price, brand, category, stock };
     
     if (imageOrder) {
       const orderArray = JSON.parse(imageOrder);

@@ -10,6 +10,8 @@ const AdminLayout = ({ children }) => {
     { label: 'Products', path: '/admin/products' },
     { label: 'Transactions', path: '/admin/transactions' },
     { label: 'Users', path: '/admin/users' },
+    { label: 'Categories', path: '/admin/categories' },
+    { label: 'Brands', path: '/admin/brands' },
   ];
 
   return (
@@ -27,8 +29,7 @@ const AdminLayout = ({ children }) => {
           position: 'sticky', 
           top: { xs: 70, md: 90 }, // Navbar height offset
           zIndex: 10,
-          bgcolor: '#FAF9F6', 
-          borderBottom: '1px solid rgba(28, 25, 23, 0.08)',
+          bgcolor: 'transparent',
           overflowX: 'auto', // For mobile scrolling
           whiteSpace: 'nowrap',
           '&::-webkit-scrollbar': { display: 'none' } // Hide scrollbar cleanly

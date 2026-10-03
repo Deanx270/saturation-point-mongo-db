@@ -92,7 +92,7 @@ const Home = () => {
               <MenuItem value=""><em>All Categories</em></MenuItem>
               <MenuItem value="fountain_pens">Fountain Pens</MenuItem>
               <MenuItem value="inks">Inks</MenuItem>
-              <MenuItem value="accessories">Accessories</MenuItem>
+              <MenuItem value="paper">Paper</MenuItem>
             </Select>
             <Button 
               variant="outlined" 

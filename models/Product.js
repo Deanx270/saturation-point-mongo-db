@@ -14,9 +14,13 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Please provide a product price']
   },
+  brand: {
+    type: String,
+    required: [true, 'Please provide a product brand']
+  },
   category: {
     type: String,
-    required: [true, 'Please provide a category (e.g., Fountain Pens, Inks)']
+    required: [true, 'Please provide a category']
   },
   stock: {
     type: Number,
