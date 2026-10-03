@@ -186,13 +186,21 @@ const Home = () => {
       {/* 3. STORYTELLING */}
       <Box sx={{ bgcolor: '#FAF9F6', py: 12 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={8} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Box sx={{ position: 'relative', width: '100%', paddingBottom: '120%', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)' }}>
-                <Box component="img" src="/images/story_ink_flow.png" sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 8, alignItems: 'center' }}>
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' }, width: '100%' }}>
+              <Box 
+                component="img" 
+                src="/images/story_ink_flow.png" 
+                sx={{ 
+                  width: '100%', 
+                  height: 'auto', 
+                  borderRadius: 2, 
+                  boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
+                  display: 'block'
+                }} 
+              />
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' }, width: '100%' }}>
               <Typography variant="overline" sx={{ color: '#CA8A04', letterSpacing: '0.15em', fontWeight: 600, mb: 1, display: 'block' }}>
                 OUR HERITAGE
               </Typography>
@@ -225,8 +233,8 @@ const Home = () => {
                   <Typography variant="caption" sx={{ color: '#6B7280' }}>Heirloom status</Typography>
                 </Box>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Container>
       </Box>
 
