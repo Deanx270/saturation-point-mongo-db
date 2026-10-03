@@ -151,7 +151,6 @@ const Home = () => {
                     border: '1px solid rgba(27, 38, 59, 0.05)', 
                     transition: 'transform 0.3s',
                     width: '100%',
-                    maxWidth: 320,
                     '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' } 
                   }}
                 >
