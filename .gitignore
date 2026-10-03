@@ -1,0 +1,7 @@
+node_modules
+.env
+.DS_Store
+old-system/
+itcp318-ns-2026/
+RULES.md
+firebaseServiceAccountKey.json
