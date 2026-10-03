@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Container, Typography, Button, Paper, Box, TextField, Dialog, DialogTitle, 
@@ -24,9 +24,9 @@ const AdminProducts = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [editingId, setEditingId] = useState(null);
   
-  // File upload state
-  const [images, setImages] = useState([]);
-  const [previewUrls, setPreviewUrls] = useState([]);
+  // File upload state (unified)
+  // Format: { type: 'existing', url: '...' } OR { type: 'new', file: File, url: 'blob...' }
+  const [formImages, setFormImages] = useState([]);
   const [fileError, setFileError] = useState('');
   const fileInputRef = useRef(null);
 
@@ -113,14 +113,9 @@ const AdminProducts = () => {
     });
     
     if (product.images && product.images.length > 0) {
-      // Setup previews for existing images
-      // We don't have File objects for these, so we just show them
-      setPreviewUrls([...product.images]);
-      // But we can't put them in the 'images' array because they aren't Files
-      // The backend expects us to either skip existing images or just upload new ones
-      // For now, we'll keep the UI state clean
+      setFormImages(product.images.map(url => ({ type: 'existing', url })));
     } else {
-      setPreviewUrls([]);
+      setFormImages([]);
     }
     
     setOpen(true);
@@ -152,9 +147,16 @@ const AdminProducts = () => {
         formData.append('category', values.category);
         formData.append('stock', values.stock);
         
-        images.forEach((img) => {
-          formData.append('images', img);
+        const imageOrder = [];
+        formImages.forEach(img => {
+          if (img.type === 'existing') {
+            imageOrder.push(img.url);
+          } else {
+            imageOrder.push('new');
+            formData.append('images', img.file);
+          }
         });
+        formData.append('imageOrder', JSON.stringify(imageOrder));
 
         const token = await currentUser.getIdToken();
         if (editingId) {
@@ -188,8 +190,7 @@ const AdminProducts = () => {
   const handleCloseModal = (resetForm = formik.resetForm) => {
     setOpen(false);
     resetForm();
-    setImages([]);
-    setPreviewUrls([]);
+    setFormImages([]);
     setErrorMsg('');
     setFileError('');
     setEditingId(null);
@@ -199,13 +200,12 @@ const AdminProducts = () => {
     const files = Array.from(e.target.files);
     setFileError('');
     
-    if (images.length + files.length > 5) {
+    if (formImages.length + files.length > 5) {
       setFileError('You can only upload a maximum of 5 images.');
       return;
     }
 
-    const validFiles = [];
-    const validUrls = [];
+    const validNewImages = [];
     let hasError = false;
 
     files.forEach(file => {
@@ -215,8 +215,7 @@ const AdminProducts = () => {
       if (!isValidType || !isValidSize) {
         hasError = true;
       } else {
-        validFiles.push(file);
-        validUrls.push(URL.createObjectURL(file));
+        validNewImages.push({ type: 'new', file, url: URL.createObjectURL(file) });
       }
     });
 
@@ -224,18 +223,24 @@ const AdminProducts = () => {
       setFileError('Some files were rejected. Only images under 5MB are allowed.');
     }
 
-    setImages(prev => [...prev, ...validFiles]);
-    setPreviewUrls(prev => [...prev, ...validUrls]);
+    setFormImages(prev => [...prev, ...validNewImages]);
     
-    // Reset file input so same files can be selected again if removed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   const removeImage = (indexToRemove) => {
-    setImages(images.filter((_, index) => index !== indexToRemove));
-    setPreviewUrls(previewUrls.filter((_, index) => index !== indexToRemove));
+    setFormImages(prev => prev.filter((_, index) => index !== indexToRemove));
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Image removed. Save to apply.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
   };
 
   const columns = [
@@ -348,31 +353,33 @@ const AdminProducts = () => {
         </Box>
 
         <Box sx={{ height: 600, width: '100%', '& .MuiDataGrid-root': { border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 } }}>
-          <DataGrid
-            rows={products}
-            columns={columns}
-            getRowId={(row) => row._id}
-            rowHeight={64}
-            pageSizeOptions={[10, 25, 50]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            loading={fetchLoading}
-            onRowSelectionModelChange={(newSelection) => {
-              setSelectedIds(newSelection);
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#FAF9F6',
-                borderBottom: '1px solid rgba(28, 25, 23, 0.08)',
-                fontFamily: '"Montserrat", sans-serif',
-                fontWeight: 600,
-                color: '#44403C'
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: '1px solid rgba(28, 25, 23, 0.04)'
-              }
-            }}
-          />
+          {React.useMemo(() => (
+            <DataGrid
+              rows={products}
+              columns={columns}
+              getRowId={(row) => row._id}
+              rowHeight={64}
+              pageSizeOptions={[10, 25, 50]}
+              checkboxSelection
+              disableRowSelectionOnClick
+              loading={fetchLoading}
+              onRowSelectionModelChange={(newSelection) => {
+                setSelectedIds(newSelection);
+              }}
+              sx={{
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: '#FAF9F6',
+                  borderBottom: '1px solid rgba(28, 25, 23, 0.08)',
+                  fontFamily: '"Montserrat", sans-serif',
+                  fontWeight: 600,
+                  color: '#44403C'
+                },
+                '& .MuiDataGrid-cell': {
+                  borderBottom: '1px solid rgba(28, 25, 23, 0.04)'
+                }
+              }}
+            />
+          ), [products, fetchLoading])}
         </Box>
       </Paper>
 
@@ -502,13 +509,13 @@ const AdminProducts = () => {
                 </Typography>
               )}
 
-              {previewUrls.length > 0 && (
+              {formImages.length > 0 && (
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {previewUrls.map((url, index) => (
+                  {formImages.map((img, index) => (
                     <Box key={index} sx={{ position: 'relative', width: 80, height: 80 }}>
                       <Box 
                         component="img"
-                        src={url}
+                        src={img.url}
                         alt={`preview-${index}`}
                         sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 1, border: '1px solid rgba(28, 25, 23, 0.1)' }}
                       />

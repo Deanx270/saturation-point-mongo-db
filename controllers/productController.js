@@ -31,13 +31,56 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, imageOrder } = req.body;
     const updateData = { name, description, price, category, stock };
     
-    // If new images are uploaded, add them to the array
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(file => file.path);
-      updateData.$push = { images: { $each: newImages } }; // Append new images
+    if (imageOrder) {
+      const orderArray = JSON.parse(imageOrder);
+      let finalImages = [];
+      let fileIndex = 0;
+      const newImages = req.files ? req.files.map(file => file.path) : [];
+      
+      for (const item of orderArray) {
+        if (item === 'new') {
+          if (fileIndex < newImages.length) {
+            finalImages.push(newImages[fileIndex]);
+            fileIndex++;
+          }
+        } else {
+          finalImages.push(item);
+        }
+      }
+      updateData.images = finalImages;
+
+      // Find old product to compare and delete removed images from Cloudinary
+      const oldProduct = await Product.findById(req.params.id);
+      if (oldProduct && oldProduct.images) {
+        const deletedImages = oldProduct.images.filter(img => !finalImages.includes(img));
+        
+        if (deletedImages.length > 0) {
+          const { cloudinary } = require('../utils/cloudinary');
+          for (const url of deletedImages) {
+            try {
+              const parts = url.split('/');
+              const uploadIndex = parts.indexOf('upload');
+              if (uploadIndex !== -1) {
+                const pathParts = parts.slice(uploadIndex + 2); // skip upload and version
+                const fullPath = pathParts.join('/');
+                const publicId = fullPath.substring(0, fullPath.lastIndexOf('.')) || fullPath;
+                await cloudinary.uploader.destroy(publicId);
+              }
+            } catch (err) {
+              console.error('Failed to delete image from cloudinary:', err);
+            }
+          }
+        }
+      }
+    } else {
+      // Fallback if no imageOrder is provided
+      if (req.files && req.files.length > 0) {
+        const newImages = req.files.map(file => file.path);
+        updateData.$push = { images: { $each: newImages } }; // Append new images
+      }
     }
 
     const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
