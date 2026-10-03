@@ -138,9 +138,9 @@ const Home = () => {
         {loading ? (
           <Box display="flex" justifyContent="center"><CircularProgress sx={{ color: '#CA8A04' }}/></Box>
         ) : (
-          <Grid container spacing={4} justifyContent="center">
-            {featured.map(product => (
-              <Grid item xs={12} sm={6} md={4} key={product._id} sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Grid container spacing={4}>
+            {featured.map((product, index) => (
+              <Grid item xs={12} sm={6} md={4} key={product._id} sx={{ display: 'flex', justifyContent: { xs: 'center', md: index === 0 ? 'flex-start' : (index === featured.length - 1 ? 'flex-end' : 'center') } }}>
                 <Paper 
                   component={Link} 
                   to={`/product/${product._id}`}
