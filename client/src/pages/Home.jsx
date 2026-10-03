@@ -153,11 +153,11 @@ const Home = () => {
                     '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' } 
                   }}
                 >
-                  <Box sx={{ p: 3, bgcolor: '#fff', borderBottom: '1px solid rgba(27,38,59,0.05)', position: 'relative', height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid rgba(27,38,59,0.05)', position: 'relative', aspectRatio: '1 / 1', width: '100%', overflow: 'hidden' }}>
                     {product.images && product.images.length > 0 ? (
-                      <Box component="img" src={product.images[0]} sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
                     ) : (
-                      <Box component="img" src="/images/hero_luxury_pen.png" sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      <Box component="img" src="/images/hero_luxury_pen.png" sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
                     )}
                   </Box>
                   <Box sx={{ p: 3 }}>
@@ -186,9 +186,8 @@ const Home = () => {
         <Container maxWidth="lg">
           <Grid container spacing={8} alignItems="center">
             <Grid item xs={12} md={6}>
-              <Box sx={{ position: 'relative', p: 2 }}>
-                <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', bgcolor: '#E5E7EB', transform: 'translate(-15px, 15px)', zIndex: 0 }} />
-                <Box component="img" src="/images/story_ink_flow.png" sx={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 1, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }} />
+              <Box sx={{ position: 'relative', width: '100%', paddingBottom: '120%', borderRadius: 1, overflow: 'hidden', boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)' }}>
+                <Box component="img" src="/images/story_ink_flow.png" sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
               </Box>
             </Grid>
             <Grid item xs={12} md={6}>

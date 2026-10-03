@@ -531,8 +531,8 @@ const AdminProducts = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           {params.value && params.value.length > 0 ? 
-          <img src={params.value[0]} alt="prod" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }} /> : 
-          <Box sx={{ height: 40, width: 40, bgcolor: '#f5f5f4', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box component="img" src={params.value[0]} alt="prod" sx={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 1 }} /> : 
+          <Box sx={{ height: 40, width: 40, bgcolor: '#f5f5f4', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography variant="caption" sx={{ color: '#a8a29e', fontSize: '0.6rem' }}>No img</Typography>
           </Box>}
         </Box>
@@ -644,6 +644,7 @@ const AdminProducts = () => {
             checkboxSelection
             disableRowSelectionOnClick
             loading={fetchLoading}
+            rowSelectionModel={selectedIds}
             onRowSelectionModelChange={(newSelection) => {
               setSelectedIds(newSelection);
             }}
