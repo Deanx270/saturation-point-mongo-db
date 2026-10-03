@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Container, Typography, Button, Paper, Box, TextField, Dialog, DialogTitle, 
-  DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip
+  DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip, MenuItem
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -25,11 +25,12 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
   const fileInputRef = useRef(null);
 
   const formik = useFormik({
-    initialValues: { name: '', description: '', price: '', category: '', stock: '' },
+    initialValues: { name: '', description: '', price: '', brand: '', category: '', stock: '' },
     validationSchema: Yup.object({
       name: Yup.string().required('Product name is required.'),
       description: Yup.string().required('Description is required.'),
       price: Yup.number().positive('Price must be positive').required('Price is required.'),
+      brand: Yup.string().required('Brand is required.'),
       category: Yup.string().required('Category is required.'),
       stock: Yup.number().integer('Stock must be an integer').min(0, 'Stock cannot be negative').required('Stock is required.')
     }),
@@ -41,6 +42,7 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
         formData.append('name', values.name);
         formData.append('description', values.description);
         formData.append('price', values.price);
+        formData.append('brand', values.brand);
         formData.append('category', values.category);
         formData.append('stock', values.stock);
         
@@ -85,6 +87,7 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
           name: productData.name || '',
           description: productData.description || '',
           price: productData.price || '',
+          brand: productData.brand || '',
           category: productData.category || '',
           stock: productData.stock || ''
         });
@@ -240,20 +243,44 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
             />
           </Box>
 
-          <TextField 
-            fullWidth 
-            id="category"
-            name="category"
-            label="Category" 
-            size="small"
-            margin="normal" 
-            value={formik.values.category}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.category && Boolean(formik.errors.category)}
-            helperText={formik.touched.category && formik.errors.category}
-            sx={{ mb: 2 }}
-          />
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+            <TextField 
+              select
+              fullWidth 
+              id="brand"
+              name="brand"
+              label="Brand" 
+              size="small"
+              value={formik.values.brand}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.brand && Boolean(formik.errors.brand)}
+              helperText={formik.touched.brand && formik.errors.brand}
+            >
+              <MenuItem value="Sonion">Sonion</MenuItem>
+              <MenuItem value="Lamy">Lamy</MenuItem>
+              <MenuItem value="Pilot">Pilot</MenuItem>
+              <MenuItem value="Sailor">Sailor</MenuItem>
+              <MenuItem value="Montblanc">Montblanc</MenuItem>
+            </TextField>
+            <TextField 
+              select
+              fullWidth 
+              id="category"
+              name="category"
+              label="Category" 
+              size="small"
+              value={formik.values.category}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.category && Boolean(formik.errors.category)}
+              helperText={formik.touched.category && formik.errors.category}
+            >
+              <MenuItem value="Fountain Pens">Fountain Pens</MenuItem>
+              <MenuItem value="Inks">Inks</MenuItem>
+              <MenuItem value="Paper">Paper</MenuItem>
+            </TextField>
+          </Box>
 
           <TextField 
             fullWidth 
@@ -512,7 +539,8 @@ const AdminProducts = () => {
       )
     },
     { field: 'name', headerName: 'Name', flex: 1, minWidth: 200 },
-    { field: 'category', headerName: 'Category', width: 150 },
+    { field: 'brand', headerName: 'Brand', width: 120 },
+    { field: 'category', headerName: 'Category', width: 120 },
     { 
       field: 'price', 
       headerName: 'Price', 

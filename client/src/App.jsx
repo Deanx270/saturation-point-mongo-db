@@ -9,6 +9,8 @@ import AdminLayout from './components/AdminLayout';
 import AdminProducts from './pages/AdminProducts';
 import AdminTransactions from './pages/AdminTransactions';
 import AdminUsers from './pages/AdminUsers';
+import AdminCategories from './pages/AdminCategories';
+import AdminBrands from './pages/AdminBrands';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import { Box } from '@mui/material';
@@ -45,6 +47,8 @@ function App() {
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="transactions" element={<AdminTransactions />} />
                   <Route path="users" element={<AdminUsers />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="brands" element={<AdminBrands />} />
                   <Route path="*" element={<Navigate to="products" />} />
                 </Routes>
               </AdminLayout>
