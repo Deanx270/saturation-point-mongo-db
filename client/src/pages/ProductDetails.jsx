@@ -168,10 +168,10 @@ const ProductDetails = () => {
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, mb: 10 }}>
         {/* Product Images Area */}
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#FAF9F6', mb: 2, position: 'relative' }}>
+          <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#fff', mb: 2, position: 'relative' }}>
             {mainImage ? (
               <>
-                <Box component="img" src={mainImage} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <Box component="img" src={mainImage} sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 4, boxSizing: 'border-box' }} />
                 {product.images && product.images.length > 1 && (
                   <>
                     <IconButton 
@@ -190,9 +190,7 @@ const ProductDetails = () => {
                 )}
               </>
             ) : (
-              <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography color="text.secondary">No image available</Typography>
-              </Box>
+              <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 4, boxSizing: 'border-box' }} />
             )}
           </Box>
           {/* Thumbnails */}
