@@ -12,6 +12,7 @@ import AdminUsers from './pages/AdminUsers';
 import AdminCategories from './pages/AdminCategories';
 import AdminBrands from './pages/AdminBrands';
 import Home from './pages/Home';
+import Catalog from './pages/Catalog';
 import ProductDetails from './pages/ProductDetails';
 import { Box } from '@mui/material';
 
@@ -30,7 +31,7 @@ function App() {
       <Box component="main" sx={{ flexGrow: 1 }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/catalog" element={<Home />} />
+          <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
