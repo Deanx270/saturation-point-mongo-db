@@ -117,9 +117,12 @@ const Catalog = () => {
                     sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#FAF9F6' }}>
-                    <Box component="img" src="/images/default-avatar.png" sx={{ width: '40%', height: '40%', objectFit: 'contain', opacity: 0.3 }} />
-                  </Box>
+                  <Box 
+                    component="img"
+                    src="/images/default-avatar.png"
+                    alt="default"
+                    sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
+                  />
                 )}
               </Box>
               

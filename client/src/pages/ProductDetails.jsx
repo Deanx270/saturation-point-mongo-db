@@ -190,9 +190,7 @@ const ProductDetails = () => {
                 )}
               </>
             ) : (
-              <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#FAF9F6' }}>
-                <Box component="img" src="/images/default-avatar.png" sx={{ width: '25%', height: '25%', objectFit: 'contain', opacity: 0.3 }} />
-              </Box>
+              <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 4, boxSizing: 'border-box' }} />
             )}
           </Box>
           {/* Thumbnails */}
