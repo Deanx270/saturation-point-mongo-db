@@ -16,7 +16,7 @@ const AdminLayout = ({ children }) => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
-      <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
+      <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 2, color: '#1C1917' }}>
         Admin Dashboard
       </Typography>
       
@@ -24,7 +24,7 @@ const AdminLayout = ({ children }) => {
         sx={{ 
           display: 'flex', 
           gap: 2, 
-          mb: 4, 
+          mb: 5, 
           py: 2,
           position: 'sticky', 
           top: { xs: 70, md: 90 }, // Navbar height offset
