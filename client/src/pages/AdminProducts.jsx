@@ -9,6 +9,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import StarIcon from '@mui/icons-material/Star';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -240,6 +241,40 @@ const AdminProducts = () => {
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true
+    });
+  };
+
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.setData('dragIndex', index);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    const dragIndex = parseInt(e.dataTransfer.getData('dragIndex'));
+    if (isNaN(dragIndex) || dragIndex === dropIndex) return;
+
+    setFormImages(prev => {
+      const newArr = [...prev];
+      const draggedItem = newArr[dragIndex];
+      newArr.splice(dragIndex, 1);
+      newArr.splice(dropIndex, 0, draggedItem);
+      return newArr;
+    });
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const setAsMain = (e, index) => {
+    e.stopPropagation();
+    if (index === 0) return;
+    setFormImages(prev => {
+      const newArr = [...prev];
+      const item = newArr[index];
+      newArr.splice(index, 1);
+      newArr.unshift(item);
+      return newArr;
     });
   };
 
@@ -512,22 +547,50 @@ const AdminProducts = () => {
               {formImages.length > 0 && (
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   {formImages.map((img, index) => (
-                    <Box key={index} sx={{ position: 'relative', width: 80, height: 80 }}>
+                    <Box 
+                      key={index} 
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragOver={handleDragOver}
+                      sx={{ position: 'relative', width: 90, height: 90, cursor: 'grab', '&:active': { cursor: 'grabbing' } }}
+                    >
                       <Box 
                         component="img"
                         src={img.url}
                         alt={`preview-${index}`}
-                        sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 1, border: '1px solid rgba(28, 25, 23, 0.1)' }}
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 1, border: index === 0 ? '2px solid #CA8A04' : '1px solid rgba(28, 25, 23, 0.1)' }}
                       />
+                      
+                      {/* Main Image Overlay */}
+                      {index === 0 && (
+                        <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, bgcolor: 'rgba(202, 138, 4, 0.9)', color: '#fff', fontSize: '0.6rem', textAlign: 'center', py: 0.5, borderBottomLeftRadius: 4, borderBottomRightRadius: 4 }}>
+                          MAIN
+                        </Box>
+                      )}
+
+                      {/* Set as Main Button (Hover) */}
+                      {index > 0 && (
+                        <Tooltip title="Set as Main">
+                          <IconButton 
+                            size="small" 
+                            onClick={(e) => setAsMain(e, index)}
+                            sx={{ position: 'absolute', top: -8, left: -8, bgcolor: '#CA8A04', color: '#fff', width: 22, height: 22, '&:hover': { bgcolor: '#a16207' }, boxShadow: 1 }}
+                          >
+                            <StarIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+
                       <IconButton 
                         size="small" 
                         onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                         sx={{ 
                           position: 'absolute', top: -8, right: -8, bgcolor: '#e11d48', color: '#fff',
-                          width: 20, height: 20, '&:hover': { bgcolor: '#be123c' }
+                          width: 22, height: 22, '&:hover': { bgcolor: '#be123c' }, boxShadow: 1
                         }}
                       >
-                        <AddIcon sx={{ fontSize: 14, transform: 'rotate(45deg)' }} />
+                        <AddIcon sx={{ fontSize: 16, transform: 'rotate(45deg)' }} />
                       </IconButton>
                     </Box>
                   ))}
