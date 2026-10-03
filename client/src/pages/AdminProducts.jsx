@@ -571,7 +571,7 @@ const AdminProducts = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Box>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -642,7 +642,7 @@ const AdminProducts = () => {
         editingId={editingId}
         productData={productData}
       />
-    </Container>
+    </Box>
   );
 };
 

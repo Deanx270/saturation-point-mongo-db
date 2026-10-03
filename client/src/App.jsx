@@ -5,7 +5,10 @@ import Footer from './components/Footer';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import AdminLayout from './components/AdminLayout';
 import AdminProducts from './pages/AdminProducts';
+import AdminTransactions from './pages/AdminTransactions';
+import AdminUsers from './pages/AdminUsers';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import { Box } from '@mui/material';
@@ -34,9 +37,17 @@ function App() {
               <Profile />
             </ProtectedRoute>
           } />
-          <Route path="/admin/products" element={
+          
+          <Route path="/admin/*" element={
             <ProtectedRoute>
-              <AdminProducts />
+              <AdminLayout>
+                <Routes>
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="transactions" element={<AdminTransactions />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="*" element={<Navigate to="products" />} />
+                </Routes>
+              </AdminLayout>
             </ProtectedRoute>
           } />
         </Routes>
