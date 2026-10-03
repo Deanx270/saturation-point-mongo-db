@@ -138,9 +138,9 @@ const Home = () => {
         {loading ? (
           <Box display="flex" justifyContent="center"><CircularProgress sx={{ color: '#CA8A04' }}/></Box>
         ) : (
-          <Grid container spacing={4}>
-            {featured.map((product, index) => (
-              <Grid item xs={12} sm={6} md={4} key={product._id} sx={{ display: 'flex', justifyContent: { xs: 'center', md: index === 0 ? 'flex-start' : (index === featured.length - 1 ? 'flex-end' : 'center') } }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'space-between' }, gap: 4 }}>
+            {featured.map((product) => (
+              <Box key={product._id} sx={{ display: 'flex', width: '100%', maxWidth: { xs: '100%', sm: 320 } }}>
                 <Paper 
                   component={Link} 
                   to={`/product/${product._id}`}
@@ -177,9 +177,9 @@ const Home = () => {
                     </Box>
                   </Box>
                 </Paper>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         )}
       </Container>
 
