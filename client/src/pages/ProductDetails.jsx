@@ -1,0 +1,312 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { 
+  Container, Typography, Box, Paper, Button, CircularProgress, 
+  Rating, TextField, Divider, Avatar, IconButton, Alert
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useAuth } from '../context/AuthContext';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const ProductDetails = () => {
+  const { id } = useParams();
+  const { currentUser } = useAuth();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Track existing review
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const [isEditingReview, setIsEditingReview] = useState(false);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/products');
+      // For now, get all and find. Best practice is to have a GET /api/products/:id endpoint.
+      const found = res.data.find(p => p._id === id);
+      setProduct(found);
+      
+      if (currentUser && found) {
+        // Check if user is admin via token
+        const tokenResult = await currentUser.getIdTokenResult();
+        // Since we don't store role in custom claims yet, we can check email
+        if (currentUser.email === 'admin@admin.com') {
+          setIsAdmin(true);
+        }
+
+        // Check if user has already reviewed
+        const userReview = found.reviews.find(r => r.name === currentUser.displayName || r.name === currentUser.email);
+        // Better check would be user ID, but we only have firebase UID on frontend right now.
+        // Let's rely on the backend to tell us by doing a dry-run check or we can map it via an API.
+        // For this MP3 requirement, we'll populate formik if they already reviewed based on name match for simplicity.
+        if (userReview) {
+          setHasReviewed(true);
+          formik.setValues({
+            rating: userReview.rating,
+            comment: userReview.comment
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching product', error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProduct();
+    // eslint-disable-next-line
+  }, [id, currentUser]);
+
+  const formik = useFormik({
+    initialValues: {
+      rating: 0,
+      comment: ''
+    },
+    validationSchema: Yup.object({
+      rating: Yup.number().min(1, 'Please provide a rating').required('Rating is required'),
+      comment: Yup.string().required('Please write a review comment')
+    }),
+    onSubmit: async (values, { resetForm }) => {
+      setReviewLoading(true);
+      try {
+        const token = await currentUser.getIdToken();
+        await axios.post(`http://localhost:5000/api/products/${id}/reviews`, {
+          rating: values.rating,
+          comment: values.comment,
+          name: currentUser.displayName || currentUser.email
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: hasReviewed ? 'Review updated!' : 'Review added!',
+          showConfirmButton: false,
+          timer: 3000
+        });
+        
+        setHasReviewed(true);
+        setIsEditingReview(false);
+        fetchProduct(); // Refresh reviews
+      } catch (error) {
+        Swal.fire('Error', error.response?.data?.message || 'Failed to submit review', 'error');
+      }
+      setReviewLoading(false);
+    }
+  });
+
+  const handleDeleteReview = async (reviewId) => {
+    const result = await Swal.fire({
+      title: 'Delete Review?',
+      text: "Are you sure you want to remove this review?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#9f1239',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const token = await currentUser.getIdToken();
+      await axios.delete(`http://localhost:5000/api/products/${id}/reviews/${reviewId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      Swal.fire('Deleted!', 'Review has been deleted.', 'success');
+      fetchProduct();
+    } catch (error) {
+      Swal.fire('Error', 'Failed to delete review.', 'error');
+    }
+  };
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress sx={{ color: '#CA8A04' }} /></Box>;
+  if (!product) return <Container><Typography sx={{ mt: 5 }}>Product not found</Typography></Container>;
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+      <Button component={Link} to="/" sx={{ mb: 4, color: '#78716C', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+        &larr; Back to Products
+      </Button>
+
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, mb: 10 }}>
+        {/* Product Images Area */}
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#FAF9F6', mb: 2 }}>
+            {product.images && product.images.length > 0 ? (
+              <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography color="text.secondary">No image available</Typography>
+              </Box>
+            )}
+          </Box>
+          {/* Thumbnails could go here */}
+          {product.images && product.images.length > 1 && (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {product.images.slice(1).map((img, idx) => (
+                <Box key={idx} component="img" src={img} sx={{ width: 80, height: 80, objectFit: 'cover', cursor: 'pointer' }} />
+              ))}
+            </Box>
+          )}
+        </Box>
+
+        {/* Product Info Area */}
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>
+            {product.category}
+          </Typography>
+          <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
+            {product.name}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1C1917' }}>
+              ₱{parseFloat(product.price).toFixed(2)}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Rating value={product.rating} precision={0.5} readOnly size="small" />
+              <Typography variant="body2" sx={{ color: '#78716C' }}>({product.numReviews} reviews)</Typography>
+            </Box>
+          </Box>
+          <Typography variant="body1" sx={{ color: '#44403C', lineHeight: 1.8, mb: 4, whiteSpace: 'pre-line' }}>
+            {product.description}
+          </Typography>
+          <Typography variant="body2" sx={{ color: product.stock > 0 ? '#15803d' : '#9f1239', fontWeight: 500, mb: 4 }}>
+            {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+          </Typography>
+          <Button 
+            variant="contained" 
+            fullWidth 
+            disabled={product.stock === 0}
+            sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
+          >
+            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Reviews Section */}
+      <Box sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 6 }}>
+        <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
+          Customer Reviews
+        </Typography>
+
+        {/* Write a Review Form */}
+        {currentUser ? (
+          <Paper elevation={0} sx={{ p: 4, bgcolor: '#FAF9F6', borderRadius: 2, mb: 6 }}>
+            {hasReviewed && !isEditingReview ? (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body1" sx={{ color: '#44403C' }}>You have already reviewed this product.</Typography>
+                <Button 
+                  onClick={() => setIsEditingReview(true)} 
+                  startIcon={<EditIcon />}
+                  sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
+                >
+                  Edit your review
+                </Button>
+              </Box>
+            ) : (
+              <form onSubmit={formik.handleSubmit}>
+                <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Cormorant", serif' }}>
+                  {hasReviewed ? 'Update your review' : 'Write a review'}
+                </Typography>
+                <Box sx={{ mb: 3 }}>
+                  <Typography component="legend" variant="body2" sx={{ color: '#44403C', mb: 1 }}>Rating</Typography>
+                  <Rating
+                    name="rating"
+                    value={formik.values.rating}
+                    onChange={(event, newValue) => formik.setFieldValue('rating', newValue)}
+                  />
+                  {formik.touched.rating && formik.errors.rating && (
+                    <Typography variant="caption" color="error" sx={{ display: 'block' }}>{formik.errors.rating}</Typography>
+                  )}
+                </Box>
+                <TextField
+                  fullWidth
+                  id="comment"
+                  name="comment"
+                  label="Your Review"
+                  multiline
+                  rows={4}
+                  value={formik.values.comment}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.comment && Boolean(formik.errors.comment)}
+                  helperText={formik.touched.comment && formik.errors.comment}
+                  sx={{ mb: 3, '& .MuiOutlinedInput-root': { bgcolor: '#fff' } }}
+                />
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button 
+                    type="submit" 
+                    variant="contained" 
+                    disabled={reviewLoading}
+                    sx={{ bgcolor: '#CA8A04', '&:hover': { bgcolor: '#a16207' }, textTransform: 'none', px: 4 }}
+                  >
+                    {reviewLoading ? <CircularProgress size={24} color="inherit" /> : (hasReviewed ? 'Update Review' : 'Submit Review')}
+                  </Button>
+                  {hasReviewed && isEditingReview && (
+                    <Button onClick={() => setIsEditingReview(false)} sx={{ color: '#78716C', textTransform: 'none' }}>
+                      Cancel
+                    </Button>
+                  )}
+                </Box>
+              </form>
+            )}
+          </Paper>
+        ) : (
+          <Alert severity="info" sx={{ mb: 6, borderRadius: 1 }}>
+            Please <Link to="/login" style={{ color: 'inherit', fontWeight: 'bold' }}>log in</Link> to write a review.
+          </Alert>
+        )}
+
+        {/* Display Reviews */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {product.reviews.length === 0 ? (
+            <Typography variant="body1" sx={{ color: '#78716C' }}>No reviews yet. Be the first to review!</Typography>
+          ) : (
+            product.reviews.map(review => (
+              <Box key={review._id} sx={{ pb: 4, borderBottom: '1px solid rgba(28, 25, 23, 0.04)' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
+                      {review.name.charAt(0).toUpperCase()}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{review.name}</Typography>
+                      <Rating value={review.rating} readOnly size="small" sx={{ mt: 0.5 }} />
+                    </Box>
+                  </Box>
+                  
+                  {isAdmin && (
+                    <Tooltip title="Delete Review (Admin)">
+                      <IconButton onClick={() => handleDeleteReview(review._id)} size="small" sx={{ color: '#9f1239' }}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+                <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
+                  {review.comment}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
+                  {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </Typography>
+              </Box>
+            ))
+          )}
+        </Box>
+      </Box>
+    </Container>
+  );
+};
+
+export default ProductDetails;

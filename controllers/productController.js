@@ -114,3 +114,69 @@ exports.bulkDeleteProducts = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Create or update a review
+exports.createProductReview = async (req, res) => {
+  try {
+    const { rating, comment, name } = req.body;
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    const alreadyReviewed = product.reviews.find(r => r.user.toString() === req.mongoUser._id.toString());
+
+    if (alreadyReviewed) {
+      // Update existing review (MP3 Requirement: Users can update their own review/rating)
+      alreadyReviewed.rating = Number(rating);
+      alreadyReviewed.comment = comment;
+      alreadyReviewed.name = name;
+    } else {
+      // Create new review
+      const review = {
+        name,
+        rating: Number(rating),
+        comment,
+        user: req.mongoUser._id
+      };
+      product.reviews.push(review);
+      product.numReviews = product.reviews.length;
+    }
+
+    product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+    
+    await product.save();
+    res.status(201).json({ message: alreadyReviewed ? 'Review updated' : 'Review added' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete a review (Admin)
+exports.deleteReview = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const reviewId = req.params.reviewId;
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    const reviewIndex = product.reviews.findIndex(r => r._id.toString() === reviewId);
+    if (reviewIndex === -1) return res.status(404).json({ message: 'Review not found' });
+
+    // Ensure it's the admin deleting (this will be protected by verifyAdmin in routes anyway)
+    product.reviews.splice(reviewIndex, 1);
+    
+    product.numReviews = product.reviews.length;
+    if (product.numReviews > 0) {
+      product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
+    } else {
+      product.rating = 0;
+    }
+
+    await product.save();
+    res.status(200).json({ message: 'Review deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

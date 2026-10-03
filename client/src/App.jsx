@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AdminProducts from './pages/AdminProducts';
+import Home from './pages/Home';
+import ProductDetails from './pages/ProductDetails';
 import { Box } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
@@ -22,9 +24,8 @@ function App() {
       <Navbar />
       <Box component="main" sx={{ flexGrow: 1 }}>
         <Routes>
-          <Route path="/" element={
-            currentUser ? <Navigate to="/profile" /> : <Navigate to="/login" />
-          } />
+          <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={
