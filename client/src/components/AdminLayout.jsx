@@ -1,14 +1,16 @@
 import React from 'react';
-import { Box, Container, Tabs, Tab, Typography } from '@mui/material';
+import { Box, Container, Typography, Button } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleTabChange = (event, newValue) => {
-    navigate(newValue);
-  };
+  const tabs = [
+    { label: 'Products', path: '/admin/products' },
+    { label: 'Transactions', path: '/admin/transactions' },
+    { label: 'Users', path: '/admin/users' },
+  ];
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
@@ -16,27 +18,49 @@ const AdminLayout = ({ children }) => {
         Admin Dashboard
       </Typography>
       
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
-        <Tabs 
-          value={location.pathname} 
-          onChange={handleTabChange} 
-          TabIndicatorProps={{ style: { backgroundColor: '#1C1917' } }}
-          sx={{
-            '& .MuiTab-root': {
-              fontFamily: '"Montserrat", sans-serif',
-              fontWeight: 500,
-              textTransform: 'none',
-              color: '#78716C',
-              '&.Mui-selected': {
-                color: '#1C1917'
-              }
-            }
-          }}
-        >
-          <Tab label="Products" value="/admin/products" />
-          <Tab label="Transactions (Pending)" value="/admin/transactions" />
-          <Tab label="Users (Pending)" value="/admin/users" />
-        </Tabs>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          mb: 4, 
+          py: 2,
+          position: 'sticky', 
+          top: { xs: 70, md: 90 }, // Navbar height offset
+          zIndex: 10,
+          bgcolor: '#FAF9F6', 
+          borderBottom: '1px solid rgba(28, 25, 23, 0.08)',
+          overflowX: 'auto', // For mobile scrolling
+          whiteSpace: 'nowrap',
+          '&::-webkit-scrollbar': { display: 'none' } // Hide scrollbar cleanly
+        }}
+      >
+        {tabs.map(tab => {
+          const isActive = location.pathname.startsWith(tab.path);
+          return (
+            <Button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              sx={{
+                borderRadius: '50px',
+                px: 3,
+                py: 1,
+                textTransform: 'none',
+                fontFamily: '"Montserrat", sans-serif',
+                fontWeight: 500,
+                color: isActive ? '#fff' : '#44403C',
+                bgcolor: isActive ? '#1C1917' : 'rgba(28, 25, 23, 0.05)',
+                boxShadow: isActive ? '0 4px 14px rgba(28, 25, 23, 0.2)' : 'none',
+                '&:hover': {
+                  bgcolor: isActive ? '#292524' : 'rgba(28, 25, 23, 0.1)',
+                  boxShadow: isActive ? '0 6px 20px rgba(28, 25, 23, 0.23)' : 'none'
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              {tab.label}
+            </Button>
+          );
+        })}
       </Box>
 
       {children}
