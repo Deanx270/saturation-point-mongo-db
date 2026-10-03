@@ -16,6 +16,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const { currentUser } = useAuth();
   const [product, setProduct] = useState(null);
+  const [mainImage, setMainImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -30,6 +31,9 @@ const ProductDetails = () => {
       // For now, get all and find. Best practice is to have a GET /api/products/:id endpoint.
       const found = res.data.find(p => p._id === id);
       setProduct(found);
+      if (found && found.images && found.images.length > 0) {
+        setMainImage(found.images[0]);
+      }
       
       if (currentUser && found) {
         // Check if user is admin via token
@@ -142,19 +146,30 @@ const ProductDetails = () => {
         {/* Product Images Area */}
         <Box sx={{ flex: 1 }}>
           <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#FAF9F6', mb: 2 }}>
-            {product.images && product.images.length > 0 ? (
-              <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {mainImage ? (
+              <Box component="img" src={mainImage} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography color="text.secondary">No image available</Typography>
               </Box>
             )}
           </Box>
-          {/* Thumbnails could go here */}
+          {/* Thumbnails */}
           {product.images && product.images.length > 1 && (
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              {product.images.slice(1).map((img, idx) => (
-                <Box key={idx} component="img" src={img} sx={{ width: 80, height: 80, objectFit: 'cover', cursor: 'pointer' }} />
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {product.images.map((img, idx) => (
+                <Box 
+                  key={idx} 
+                  component="img" 
+                  src={img} 
+                  onClick={() => setMainImage(img)}
+                  sx={{ 
+                    width: 80, height: 80, objectFit: 'cover', cursor: 'pointer',
+                    border: mainImage === img ? '2px solid #CA8A04' : '1px solid transparent',
+                    opacity: mainImage === img ? 1 : 0.6,
+                    '&:hover': { opacity: 1 }
+                  }} 
+                />
               ))}
             </Box>
           )}
@@ -169,7 +184,7 @@ const ProductDetails = () => {
             {product.name}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1C1917' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#1C1917', fontFamily: '"Montserrat", sans-serif' }}>
               ₱{parseFloat(product.price).toFixed(2)}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
