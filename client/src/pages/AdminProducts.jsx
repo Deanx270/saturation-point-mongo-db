@@ -640,6 +640,11 @@ const AdminProducts = () => {
             columns={columns}
             getRowId={(row) => row._id}
             rowHeight={64}
+            initialState={{
+              pagination: {
+                paginationModel: { pageSize: 10 },
+              },
+            }}
             pageSizeOptions={[10, 25, 50]}
             checkboxSelection
             disableRowSelectionOnClick
