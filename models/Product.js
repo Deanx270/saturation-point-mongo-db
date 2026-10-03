@@ -24,7 +24,25 @@ const productSchema = new mongoose.Schema({
   },
   images: [{
     type: String // Array of Cloudinary image URLs
-  }]
+  }],
+  reviews: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      name: { type: String, required: true },
+      rating: { type: Number, required: true, min: 1, max: 5 },
+      comment: { type: String, required: true }
+    }
+  ],
+  rating: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  numReviews: {
+    type: Number,
+    required: true,
+    default: 0
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);
