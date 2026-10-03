@@ -49,11 +49,12 @@ const AdminLayout = ({ children }) => {
                 fontFamily: '"Montserrat", sans-serif',
                 fontWeight: 500,
                 color: isActive ? '#fff' : '#44403C',
-                bgcolor: isActive ? '#1C1917' : 'rgba(28, 25, 23, 0.05)',
-                boxShadow: isActive ? '0 4px 14px rgba(28, 25, 23, 0.2)' : 'none',
+                bgcolor: isActive ? '#1C1917' : '#F5F5F4',
+                boxShadow: isActive ? '0 4px 14px rgba(28, 25, 23, 0.2)' : '0 2px 8px rgba(0,0,0,0.05)',
+                border: isActive ? '1px solid #1C1917' : '1px solid #E7E5E4',
                 '&:hover': {
-                  bgcolor: isActive ? '#292524' : 'rgba(28, 25, 23, 0.1)',
-                  boxShadow: isActive ? '0 6px 20px rgba(28, 25, 23, 0.23)' : 'none'
+                  bgcolor: isActive ? '#292524' : '#E7E5E4',
+                  boxShadow: isActive ? '0 6px 20px rgba(28, 25, 23, 0.23)' : '0 4px 12px rgba(0,0,0,0.08)'
                 },
                 transition: 'all 0.2s ease-in-out'
               }}
