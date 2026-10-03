@@ -3,6 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Container, Typography, Button, Paper, Box, TextField, Dialog, DialogTitle, 
   DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip
+} from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -243,10 +246,12 @@ const AdminProducts = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        params.value && params.value.length > 0 ? 
-        <img src={params.value[0]} alt="prod" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }} /> : 
-        <Box sx={{ height: 40, width: 40, bgcolor: '#f5f5f4', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Typography variant="caption" sx={{ color: '#a8a29e', fontSize: '0.6rem' }}>No img</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+          {params.value && params.value.length > 0 ? 
+          <img src={params.value[0]} alt="prod" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: '4px' }} /> : 
+          <Box sx={{ height: 40, width: 40, bgcolor: '#f5f5f4', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="caption" sx={{ color: '#a8a29e', fontSize: '0.6rem' }}>No img</Typography>
+          </Box>}
         </Box>
       )
     },
@@ -262,21 +267,45 @@ const AdminProducts = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 140,
+      width: 180,
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', height: '100%' }}>
-          <Tooltip title="Edit Product">
-            <IconButton size="small" onClick={() => handleEditClick(params.row)} sx={{ color: '#0284c7', bgcolor: 'rgba(2, 132, 199, 0.1)', '&:hover': { bgcolor: 'rgba(2, 132, 199, 0.2)' } }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Product">
-            <IconButton size="small" onClick={() => handleSingleDelete(params.id)} sx={{ color: '#e11d48', bgcolor: 'rgba(225, 29, 72, 0.1)', '&:hover': { bgcolor: 'rgba(225, 29, 72, 0.2)' } }}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', height: '100%' }}>
+          <Button 
+            size="small" 
+            onClick={() => handleEditClick(params.row)} 
+            startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
+            sx={{ 
+              color: '#CA8A04', 
+              fontFamily: '"Montserrat", sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              p: 0,
+              minWidth: 'auto',
+              '&:hover': { bgcolor: 'transparent', color: '#a16207' }
+            }}
+          >
+            Edit
+          </Button>
+          <Button 
+            size="small" 
+            onClick={() => handleSingleDelete(params.id)} 
+            startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />}
+            sx={{ 
+              color: '#991b1b', 
+              fontFamily: '"Montserrat", sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              p: 0,
+              minWidth: 'auto',
+              '&:hover': { bgcolor: 'transparent', color: '#7f1d1d' }
+            }}
+          >
+            Delete
+          </Button>
         </Box>
       )
     }
@@ -323,6 +352,7 @@ const AdminProducts = () => {
             rows={products}
             columns={columns}
             getRowId={(row) => row._id}
+            rowHeight={64}
             pageSizeOptions={[10, 25, 50]}
             checkboxSelection
             disableRowSelectionOnClick
