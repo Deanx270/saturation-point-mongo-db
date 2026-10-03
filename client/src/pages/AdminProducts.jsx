@@ -402,6 +402,7 @@ const AdminProducts = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [open, setOpen] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [productData, setProductData] = useState(null);
   
@@ -436,6 +437,7 @@ const AdminProducts = () => {
 
     if (!result.isConfirmed) return;
 
+    setDeleteLoading(true);
     try {
       const token = await currentUser.getIdToken();
       await axios.post('http://localhost:5000/api/products/bulk-delete', { ids: selectedIds }, {
@@ -448,6 +450,7 @@ const AdminProducts = () => {
       console.error("Error bulk deleting", error);
       Swal.fire('Error!', 'Failed to delete. Make sure you are an admin.', 'error');
     }
+    setDeleteLoading(false);
   };
 
   const handleSingleDelete = async (id) => {
@@ -464,6 +467,7 @@ const AdminProducts = () => {
 
     if (!result.isConfirmed) return;
 
+    setDeleteLoading(true);
     try {
       const token = await currentUser.getIdToken();
       await axios.delete(`http://localhost:5000/api/products/${id}`, {
@@ -475,6 +479,7 @@ const AdminProducts = () => {
       console.error("Error deleting product", error);
       Swal.fire('Error!', 'Failed to delete product.', 'error');
     }
+    setDeleteLoading(false);
   };
 
   const handleEditClick = (product) => {
@@ -525,10 +530,12 @@ const AdminProducts = () => {
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', height: '100%' }}>
           <Button 
             size="small" 
+            disabled={deleteLoading}
             onClick={() => handleEditClick(params.row)} 
             startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
             sx={{ 
               color: '#CA8A04', 
+
               fontFamily: '"Montserrat", sans-serif',
               fontSize: '0.8rem',
               fontWeight: 500,
@@ -542,6 +549,7 @@ const AdminProducts = () => {
           </Button>
           <Button 
             size="small" 
+            disabled={deleteLoading}
             onClick={() => handleSingleDelete(params.id)} 
             startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />}
             sx={{ 
@@ -582,7 +590,7 @@ const AdminProducts = () => {
               variant="outlined" 
               color="error"
               onClick={handleBulkDelete}
-              disabled={selectedIds.length === 0}
+              disabled={selectedIds.length === 0 || deleteLoading || fetchLoading}
               sx={{ textTransform: 'none', px: 3, mr: 2 }}
             >
               Bulk Delete ({selectedIds.length})
