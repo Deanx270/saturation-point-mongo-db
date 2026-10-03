@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Paper, Button, CircularProgress } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -13,10 +14,11 @@ const Catalog = () => {
       try {
         const res = await axios.get('http://localhost:5000/api/products');
         setProducts(res.data);
-      } catch (error) {
-        console.error('Error fetching products', error);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchProducts();
   }, []);
@@ -106,7 +108,7 @@ const Catalog = () => {
               to={`/product/${product._id}`}
               sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
             >
-              <Box sx={{ height: 280, bgcolor: '#FAF9F6', overflow: 'hidden' }}>
+              <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#FAF9F6', overflow: 'hidden' }}>
                 {product.images && product.images.length > 0 ? (
                   <Box 
                     component="img"

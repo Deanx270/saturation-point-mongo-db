@@ -32,6 +32,7 @@ const AdminLayout = ({ children }) => {
           bgcolor: 'transparent',
           overflowX: 'auto', // For mobile scrolling
           whiteSpace: 'nowrap',
+          pointerEvents: 'none',
           '&::-webkit-scrollbar': { display: 'none' } // Hide scrollbar cleanly
         }}
       >
@@ -42,6 +43,7 @@ const AdminLayout = ({ children }) => {
               key={tab.path}
               onClick={() => navigate(tab.path)}
               sx={{
+                pointerEvents: 'auto',
                 borderRadius: '50px',
                 px: 3,
                 py: 1,
