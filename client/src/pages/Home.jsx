@@ -140,7 +140,7 @@ const Home = () => {
         ) : (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'space-between' }, gap: 4 }}>
             {featured.map((product) => (
-              <Box key={product._id} sx={{ display: 'flex', width: '100%', maxWidth: { xs: '100%', sm: 320 } }}>
+              <Box key={product._id} sx={{ display: 'flex', width: '100%', maxWidth: { xs: '100%', sm: 360 } }}>
                 <Paper 
                   component={Link} 
                   to={`/product/${product._id}`}
