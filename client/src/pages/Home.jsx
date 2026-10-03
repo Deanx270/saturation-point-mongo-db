@@ -157,7 +157,7 @@ const Home = () => {
                     {product.images && product.images.length > 0 ? (
                       <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
                     ) : (
-                      <Box component="img" src="/images/hero_luxury_pen.png" sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
+                      <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
                     )}
                   </Box>
                   <Box sx={{ p: 3 }}>

@@ -117,9 +117,12 @@ const Catalog = () => {
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="body2" color="text.secondary">No image available</Typography>
-                  </Box>
+                  <Box 
+                    component="img"
+                    src="/images/default-avatar.png"
+                    alt="default"
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                 )}
               </Box>
               

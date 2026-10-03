@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { theme } from './theme';
 import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './ErrorBoundary.jsx';
 import './index.css';
 import App from './App.jsx';
 
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

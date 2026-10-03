@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Container, Typography, Button, Paper, Box, TextField, Dialog, DialogTitle, 
-  DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip, MenuItem
+  DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip, MenuItem,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -521,82 +521,19 @@ const AdminProducts = () => {
     setOpen(true);
   };
 
-  const columns = [
-    { 
-      field: 'images', 
-      headerName: 'Image', 
-      width: 80,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          {params.value && params.value.length > 0 ? 
-          <Box component="img" src={params.value[0]} alt="prod" sx={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 1 }} /> : 
-          <Box sx={{ height: 40, width: 40, bgcolor: '#f5f5f4', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography variant="caption" sx={{ color: '#a8a29e', fontSize: '0.6rem' }}>No img</Typography>
-          </Box>}
-        </Box>
-      )
-    },
-    { field: 'name', headerName: 'Name', flex: 1, minWidth: 200 },
-    { field: 'brand', headerName: 'Brand', width: 120 },
-    { field: 'category', headerName: 'Category', width: 120 },
-    { 
-      field: 'price', 
-      headerName: 'Price', 
-      width: 120,
-      renderCell: (params) => `₱${parseFloat(params.value).toFixed(2)}`
-    },
-    { field: 'stock', headerName: 'Stock', width: 100 },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 180,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', height: '100%' }}>
-          <Button 
-            size="small" 
-            disabled={deleteLoading}
-            onClick={() => handleEditClick(params.row)} 
-            startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-            sx={{ 
-              color: '#CA8A04', 
-
-              fontFamily: '"Montserrat", sans-serif',
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              p: 0,
-              minWidth: 'auto',
-              '&:hover': { bgcolor: 'transparent', color: '#a16207' }
-            }}
-          >
-            Edit
-          </Button>
-          <Button 
-            size="small" 
-            disabled={deleteLoading}
-            onClick={() => handleSingleDelete(params.id)} 
-            startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />}
-            sx={{ 
-              color: '#991b1b', 
-              fontFamily: '"Montserrat", sans-serif',
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              p: 0,
-              minWidth: 'auto',
-              '&:hover': { bgcolor: 'transparent', color: '#7f1d1d' }
-            }}
-          >
-            Delete
-          </Button>
-        </Box>
-      )
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(products.map(p => p._id));
+    } else {
+      setSelectedIds([]);
     }
-  ];
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   return (
     <Box>
@@ -634,39 +571,75 @@ const AdminProducts = () => {
           </Box>
         </Box>
 
-        <Box sx={{ height: 600, width: '100%', '& .MuiDataGrid-root': { border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 } }}>
-          <DataGrid
-            rows={products}
-            columns={columns}
-            getRowId={(row) => row._id}
-            rowHeight={64}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 10 },
-              },
-            }}
-            pageSizeOptions={[10, 25, 50]}
-            checkboxSelection
-            disableRowSelectionOnClick
-            loading={fetchLoading}
-            rowSelectionModel={selectedIds}
-            onRowSelectionModelChange={(newSelection) => {
-              setSelectedIds(newSelection);
-            }}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#FAF9F6',
-                borderBottom: '1px solid rgba(28, 25, 23, 0.08)',
-                fontFamily: '"Montserrat", sans-serif',
-                fontWeight: 600,
-                color: '#44403C'
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: '1px solid rgba(28, 25, 23, 0.04)'
-              }
-            }}
-          />
-        </Box>
+        <TableContainer sx={{ maxHeight: 600, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 }}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    indeterminate={selectedIds.length > 0 && selectedIds.length < products.length}
+                    checked={products.length > 0 && selectedIds.length === products.length}
+                    onChange={handleSelectAll}
+                  />
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Image</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Brand</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Price</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Stock</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetchLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 5 }}>
+                    <CircularProgress sx={{ color: '#CA8A04' }} />
+                  </TableCell>
+                </TableRow>
+              ) : products.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 5, color: '#78716C' }}>
+                    No products found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                products.map((product) => (
+                  <TableRow key={product._id} hover selected={selectedIds.includes(product._id)}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedIds.includes(product._id)}
+                        onChange={() => handleSelectOne(product._id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {product.images && product.images.length > 0 ? 
+                        <Box component="img" src={product.images[0]} alt="prod" sx={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 1 }} /> : 
+                        <Box component="img" src="/images/default-avatar.png" alt="default" sx={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 1 }} />
+                      }
+                    </TableCell>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell>{product.brand}</TableCell>
+                    <TableCell>{product.category}</TableCell>
+                    <TableCell>₱{parseFloat(product.price).toFixed(2)}</TableCell>
+                    <TableCell>{product.stock}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                        <Button size="small" disabled={deleteLoading} onClick={() => handleEditClick(product)} startIcon={<EditIcon sx={{ width: 16, height: 16 }} />} sx={{ color: '#CA8A04', textTransform: 'none', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', color: '#a16207' } }}>
+                          Edit
+                        </Button>
+                        <Button size="small" disabled={deleteLoading} onClick={() => handleSingleDelete(product._id)} startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />} sx={{ color: '#991b1b', textTransform: 'none', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', color: '#7f1d1d' } }}>
+                          Delete
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
 
       <ProductFormModal 
