@@ -108,20 +108,20 @@ const Catalog = () => {
               to={`/product/${product._id}`}
               sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
             >
-              <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#FAF9F6', overflow: 'hidden' }}>
+              <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#fff', overflow: 'hidden' }}>
                 {product.images && product.images.length > 0 ? (
                   <Box 
                     component="img"
                     src={product.images[0]}
                     alt={product.name}
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
                   />
                 ) : (
                   <Box 
                     component="img"
                     src="/images/default-avatar.png"
                     alt="default"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
                   />
                 )}
               </Box>

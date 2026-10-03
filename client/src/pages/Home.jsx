@@ -155,9 +155,9 @@ const Home = () => {
                 >
                   <Box sx={{ bgcolor: '#fff', borderBottom: '1px solid rgba(27,38,59,0.05)', position: 'relative', aspectRatio: '1 / 1', width: '100%', overflow: 'hidden' }}>
                     {product.images && product.images.length > 0 ? (
-                      <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
+                      <Box component="img" src={product.images[0]} sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }} />
                     ) : (
-                      <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'cover', p: 3 }} />
+                      <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }} />
                     )}
                   </Box>
                   <Box sx={{ p: 3 }}>
