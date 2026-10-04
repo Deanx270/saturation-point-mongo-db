@@ -436,8 +436,8 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     setFetchLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/products');
-      setProducts(res.data);
+      const res = await axios.get('http://localhost:5000/api/products?limit=1000');
+      setProducts(res.data.products || []);
     } catch (error) {
       console.error("Error fetching products", error);
     }

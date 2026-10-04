@@ -26,8 +26,8 @@ const Home = () => {
     // Fetch only up to 3 products for the featured section
     const fetchFeatured = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products');
-        setFeatured(res.data.slice(0, 3));
+        const res = await axios.get('http://localhost:5000/api/products?limit=3');
+        setFeatured(res.data.products);
       } catch (err) {
         console.error(err);
       } finally {
