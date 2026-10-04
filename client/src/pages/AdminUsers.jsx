@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, IconButton, Select, 
-  MenuItem, CircularProgress 
+  TableContainer, TableHead, TableRow, Button, Select, 
+  MenuItem, CircularProgress, Tooltip 
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
@@ -85,52 +85,71 @@ const AdminUsers = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, color: '#1C1917' }}>
-          User Management
-        </Typography>
-        {/* No Add User button per design constraints (Firebase Auth flow handles registration) */}
-      </Box>
-
       <Paper 
         elevation={0} 
         sx={{ 
+          p: { xs: 3, sm: 5 }, 
           border: '1px solid rgba(28, 25, 23, 0.08)',
           boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
-          borderRadius: 2,
-          overflow: 'hidden'
+          borderRadius: 2
         }}
       >
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-            <CircularProgress sx={{ color: '#CA8A04' }} />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table sx={{ minWidth: 650 }}>
-              <TableHead sx={{ bgcolor: '#F5F5F4' }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 4 }}>
+          <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, fontSize: { xs: '2rem', sm: '2.5rem' }, color: '#1C1917' }}>
+            User Management
+          </Typography>
+        </Box>
+
+        <TableContainer sx={{ maxHeight: 600, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 }}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Display Name</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Display Name</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Role</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Actions</TableCell>
+                  <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
+                    <CircularProgress sx={{ color: '#CA8A04' }} />
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
+              ) : users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 5, color: '#78716C' }}>
+                    No users found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                users.map((user) => (
                   <TableRow key={user._id} hover>
                     <TableCell sx={{ fontFamily: 'monospace', color: '#78716C' }}>
-                      {user._id.substring(0, 8)}...
+                      <Tooltip title={`Copy ${user._id}`}>
+                        <span 
+                          onClick={() => {
+                            navigator.clipboard.writeText(user._id);
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ID copied!', showConfirmButton: false, timer: 2000, customClass: { popup: 'swal2-toast' } });
+                          }}
+                          style={{ cursor: 'pointer', borderBottom: '1px dotted #ccc', color: '#CA8A04', transition: 'color 0.2s ease' }}
+                        >
+                          {user._id.substring(0, 8)}...
+                        </span>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box 
-                        component="img" 
-                        src={user.photoURL} 
-                        alt={user.displayName}
-                        sx={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
-                      />
-                      {user.displayName}
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box 
+                          component="img" 
+                          src={user.photoURL || '/images/default-avatar.png'} 
+                          alt={user.displayName}
+                          sx={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <Typography variant="body2">{user.displayName}</Typography>
+                      </Box>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
@@ -139,34 +158,29 @@ const AdminUsers = () => {
                         value={user.role}
                         onChange={(e) => handleRoleChange(user._id, e.target.value)}
                         sx={{ minWidth: 120, fontSize: '0.875rem' }}
-                        disabled={currentUser.email === user.email} // prevent changing own role
+                        disabled={currentUser.email === user.email}
                       >
                         <MenuItem value="user">User</MenuItem>
                         <MenuItem value="admin">Admin</MenuItem>
                       </Select>
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton 
-                        color="error" 
-                        onClick={() => handleDelete(user._id)}
-                        disabled={currentUser.email === user.email} // prevent self-deletion
+                      <Button 
+                        size="small" 
+                        disabled={currentUser.email === user.email} 
+                        onClick={() => handleDelete(user._id)} 
+                        startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />} 
+                        sx={{ color: '#991b1b', textTransform: 'none', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', color: '#7f1d1d' } }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-                {users.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 3, color: '#78716C' }}>
-                      No users found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );

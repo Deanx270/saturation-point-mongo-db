@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Select, MenuItem, CircularProgress,
-  Dialog, DialogTitle, DialogContent, Divider, Chip
+  Dialog, DialogTitle, DialogContent, Divider, Chip, Tooltip, Button
 } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -61,48 +62,63 @@ const AdminTransactions = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, color: '#1C1917' }}>
-          Transaction Management
-        </Typography>
-      </Box>
-
       <Paper 
         elevation={0} 
         sx={{ 
+          p: { xs: 3, sm: 5 }, 
           border: '1px solid rgba(28, 25, 23, 0.08)',
           boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
-          borderRadius: 2,
-          overflow: 'hidden'
+          borderRadius: 2
         }}
       >
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-            <CircularProgress sx={{ color: '#CA8A04' }} />
-          </Box>
-        ) : (
-          <TableContainer>
-            <Table sx={{ minWidth: 800 }}>
-              <TableHead sx={{ bgcolor: '#F5F5F4' }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 4 }}>
+          <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, fontSize: { xs: '2rem', sm: '2.5rem' }, color: '#1C1917' }}>
+            Transaction Management
+          </Typography>
+        </Box>
+
+        <TableContainer sx={{ maxHeight: 600, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 }}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Total Amount</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Order ID</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Customer</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Total Amount</TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontFamily: '"Montserrat", sans-serif', color: '#1C1917' }}>Status</TableCell>
+                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
+                    <CircularProgress sx={{ color: '#CA8A04' }} />
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {orders.map((order) => (
-                  <TableRow 
-                    key={order._id} 
-                    hover 
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell onClick={() => setSelectedOrder(order)} sx={{ fontFamily: 'monospace', color: '#78716C' }}>
-                      {order._id.substring(0, 8)}...
+              ) : orders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 5, color: '#78716C' }}>
+                    No transactions found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                orders.map((order) => (
+                  <TableRow key={order._id} hover>
+                    <TableCell sx={{ fontFamily: 'monospace', color: '#78716C' }}>
+                      <Tooltip title={`Copy ${order._id}`}>
+                        <span 
+                          onClick={() => {
+                            navigator.clipboard.writeText(order._id);
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ID copied!', showConfirmButton: false, timer: 2000, customClass: { popup: 'swal2-toast' } });
+                          }}
+                          style={{ cursor: 'pointer', borderBottom: '1px dotted #ccc', color: '#CA8A04', transition: 'color 0.2s ease' }}
+                        >
+                          {order._id.substring(0, 8)}...
+                        </span>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell onClick={() => setSelectedOrder(order)}>
+                    <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: 500, color: '#1C1917' }}>
                         {order.user?.displayName || 'Unknown'}
                       </Typography>
@@ -110,10 +126,10 @@ const AdminTransactions = () => {
                         {order.user?.email || 'N/A'}
                       </Typography>
                     </TableCell>
-                    <TableCell onClick={() => setSelectedOrder(order)} sx={{ color: '#78716C' }}>
+                    <TableCell sx={{ color: '#78716C' }}>
                       {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' })}
                     </TableCell>
-                    <TableCell onClick={() => setSelectedOrder(order)} sx={{ fontWeight: 500, color: '#1C1917' }}>
+                    <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
                       ₱{parseFloat(order.totalAmount).toFixed(2)}
                     </TableCell>
                     <TableCell>
@@ -134,19 +150,22 @@ const AdminTransactions = () => {
                         <MenuItem value="cancelled">Cancelled</MenuItem>
                       </Select>
                     </TableCell>
-                  </TableRow>
-                ))}
-                {orders.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 3, color: '#78716C' }}>
-                      No transactions found.
+                    <TableCell align="right">
+                      <Button 
+                        size="small" 
+                        onClick={() => setSelectedOrder(order)} 
+                        startIcon={<VisibilityIcon sx={{ width: 16, height: 16 }} />} 
+                        sx={{ color: '#1C1917', textTransform: 'none', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', color: '#292524' } }}
+                      >
+                        View
+                      </Button>
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
 
       {/* Transaction Details Modal */}
