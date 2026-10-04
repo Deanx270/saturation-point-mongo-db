@@ -15,7 +15,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData }) => {
+const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData, categories, brands }) => {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -257,11 +257,9 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
               error={formik.touched.brand && Boolean(formik.errors.brand)}
               helperText={formik.touched.brand && formik.errors.brand}
             >
-              <MenuItem value="Sonion">Sonion</MenuItem>
-              <MenuItem value="Lamy">Lamy</MenuItem>
-              <MenuItem value="Pilot">Pilot</MenuItem>
-              <MenuItem value="Sailor">Sailor</MenuItem>
-              <MenuItem value="Montblanc">Montblanc</MenuItem>
+              {(brands || []).map((b) => (
+                <MenuItem key={b._id} value={b.name}>{b.name}</MenuItem>
+              ))}
             </TextField>
             <TextField 
               select
@@ -276,9 +274,9 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
               error={formik.touched.category && Boolean(formik.errors.category)}
               helperText={formik.touched.category && formik.errors.category}
             >
-              <MenuItem value="Fountain Pens">Fountain Pens</MenuItem>
-              <MenuItem value="Inks">Inks</MenuItem>
-              <MenuItem value="Paper">Paper</MenuItem>
+              {(categories || []).map((c) => (
+                <MenuItem key={c._id} value={c.name}>{c.name}</MenuItem>
+              ))}
             </TextField>
           </Box>
 
@@ -432,6 +430,8 @@ const AdminProducts = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [productData, setProductData] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   
   const fetchProducts = async () => {
     setFetchLoading(true);
@@ -444,8 +444,20 @@ const AdminProducts = () => {
     setFetchLoading(false);
   };
 
+  const fetchOptions = async () => {
+    try {
+      const catRes = await axios.get('http://localhost:5000/api/categories');
+      setCategories(catRes.data);
+      const brandRes = await axios.get('http://localhost:5000/api/brands');
+      setBrands(brandRes.data);
+    } catch (error) {
+      console.error("Error fetching categories or brands", error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchOptions();
   }, []);
 
   const handleBulkDelete = async () => {
@@ -648,6 +660,8 @@ const AdminProducts = () => {
         fetchProducts={fetchProducts}
         editingId={editingId}
         productData={productData}
+        categories={categories}
+        brands={brands}
       />
     </Box>
   );
