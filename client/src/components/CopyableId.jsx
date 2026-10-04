@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tooltip, Box } from '@mui/material';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const CopyableId = ({ id }) => {
   const [copied, setCopied] = useState(false);
@@ -30,7 +30,7 @@ const CopyableId = ({ id }) => {
       >
         {copied ? (
           <>
-            <CheckCircleOutlineIcon sx={{ fontSize: 16 }} />
+            <CheckCircleIcon sx={{ fontSize: 16 }} />
             Copied!
           </>
         ) : (
