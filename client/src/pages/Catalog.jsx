@@ -63,7 +63,7 @@ const Catalog = () => {
 
   // Debounce search effect
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedKeyword(keyword), 500);
+    const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
     return () => clearTimeout(timer);
   }, [keyword]);
 
