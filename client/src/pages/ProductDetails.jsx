@@ -29,9 +29,8 @@ const ProductDetails = () => {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products');
-      // For now, get all and find. Best practice is to have a GET /api/products/:id endpoint.
-      const found = res.data.find(p => p._id === id);
+      const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+      const found = res.data;
       setProduct(found);
       if (found && found.images && found.images.length > 0) {
         setMainImage(found.images[0]);

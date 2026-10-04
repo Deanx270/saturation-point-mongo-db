@@ -1,10 +1,80 @@
 const Product = require('../models/Product');
 
-// Get all products
+// Get all products (with search, filter, and pagination)
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
-    res.status(200).json(products);
+    const { keyword, category, minPrice, maxPrice, minRating, page, limit } = req.query;
+    
+    // Build query object
+    let query = {};
+    
+    // Search by name or description
+    if (keyword) {
+      query.$or = [
+        { name: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } }
+      ];
+    }
+    
+    // Filter by category
+    if (category) {
+      // split by comma if multiple categories are passed
+      const categories = category.split(',').map(c => c.trim());
+      if (categories.length > 0) {
+        query.category = { $in: categories };
+      }
+    }
+    
+    // Filter by price
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    
+    // Filter by rating
+    if (minRating) {
+      query.rating = { $gte: Number(minRating) };
+    }
+
+    // Pagination setup
+    const pageNum = Number(page) || 1;
+    const pageSize = Number(limit) || 12; // Default 12 products per page
+    const skip = (pageNum - 1) * pageSize;
+
+    const total = await Product.countDocuments(query);
+    const products = await Product.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize);
+
+    res.status(200).json({
+      products,
+      page: pageNum,
+      pages: Math.ceil(total / pageSize),
+      total
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get single product
+exports.getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all distinct categories
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct('category');
+    res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -7,13 +7,17 @@ const {
   deleteProduct, 
   bulkDeleteProducts,
   createProductReview,
-  deleteReview
+  deleteReview,
+  getProductById,
+  getCategories
 } = require('../controllers/productController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { upload } = require('../utils/cloudinary');
 
 // Public route to view products
 router.get('/', getProducts);
+router.get('/categories', getCategories);
+router.get('/:id', getProductById);
 
 // Reviews (MP3 Requirement)
 router.post('/:id/reviews', verifyToken, createProductReview);
