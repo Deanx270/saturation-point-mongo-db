@@ -10,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import CopyableId from '../components/CopyableId';
 
 const AdminCategories = () => {
   const { currentUser } = useAuth();
@@ -151,18 +152,8 @@ const AdminCategories = () => {
               ) : (
                 categories.map((category) => (
                   <TableRow key={category._id} hover>
-                    <TableCell sx={{ fontFamily: 'monospace', color: '#78716C' }}>
-                      <Tooltip title={`Copy ${category._id}`}>
-                        <span 
-                          onClick={() => {
-                            navigator.clipboard.writeText(category._id);
-                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ID copied!', showConfirmButton: false, timer: 2000, customClass: { popup: 'swal2-toast' } });
-                          }}
-                          style={{ cursor: 'pointer', borderBottom: '1px dotted #ccc', color: '#CA8A04', transition: 'color 0.2s ease' }}
-                        >
-                          {category._id.substring(0, 8)}...
-                        </span>
-                      </Tooltip>
+                    <TableCell sx={{ color: '#78716C' }}>
+                      <CopyableId id={category._id} />
                     </TableCell>
                     <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>{category.name}</TableCell>
                     <TableCell sx={{ color: '#78716C' }}>{category.description || '-'}</TableCell>

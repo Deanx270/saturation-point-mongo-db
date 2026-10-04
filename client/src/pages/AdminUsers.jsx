@@ -8,6 +8,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import CopyableId from '../components/CopyableId';
 
 const AdminUsers = () => {
   const { currentUser } = useAuth();
@@ -127,18 +128,8 @@ const AdminUsers = () => {
               ) : (
                 users.map((user) => (
                   <TableRow key={user._id} hover>
-                    <TableCell sx={{ fontFamily: 'monospace', color: '#78716C' }}>
-                      <Tooltip title={`Copy ${user._id}`}>
-                        <span 
-                          onClick={() => {
-                            navigator.clipboard.writeText(user._id);
-                            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'ID copied!', showConfirmButton: false, timer: 2000, customClass: { popup: 'swal2-toast' } });
-                          }}
-                          style={{ cursor: 'pointer', borderBottom: '1px dotted #ccc', color: '#CA8A04', transition: 'color 0.2s ease' }}
-                        >
-                          {user._id.substring(0, 8)}...
-                        </span>
-                      </Tooltip>
+                    <TableCell sx={{ color: '#78716C' }}>
+                      <CopyableId id={user._id} />
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
