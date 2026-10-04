@@ -34,5 +34,50 @@ const updateUserProfile = async (req, res) => {
     res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 };
+// ADMIN: Get all users
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+};
 
-module.exports = { getUserProfile, updateUserProfile };
+// ADMIN: Update user role
+const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!['user', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
+    }
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
+    res.status(200).json({ message: 'User role updated', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating role', error: error.message });
+  }
+};
+
+// ADMIN: Delete user
+const { auth } = require('../utils/firebaseAdmin');
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    // Delete from Firebase Auth
+    try {
+      await auth.deleteUser(user.firebaseUid);
+    } catch (firebaseErr) {
+      console.error('Failed to delete from Firebase:', firebaseErr);
+    }
+    
+    // Delete from MongoDB
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
+  }
+};
+
+module.exports = { getUserProfile, updateUserProfile, getAllUsers, updateUserRole, deleteUser };
