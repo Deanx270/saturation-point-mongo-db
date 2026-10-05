@@ -32,6 +32,7 @@ const Login = () => {
   };
 
   const formik = useFormik({
+    validateOnChange: false,
     initialValues: {
       identifier: '',
       password: '',

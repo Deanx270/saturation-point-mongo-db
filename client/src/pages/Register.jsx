@@ -50,6 +50,7 @@ const Register = () => {
   };
 
   const formik = useFormik({
+    validateOnChange: false,
     initialValues: {
       firstName: '',
       lastName: '',

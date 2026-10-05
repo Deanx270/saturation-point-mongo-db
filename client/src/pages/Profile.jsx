@@ -34,6 +34,7 @@ const Profile = () => {
 
   const formik = useFormik({
     enableReinitialize: true,
+    validateOnChange: false,
     initialValues: {
       firstName: mongoUser?.displayName?.split(' ')[0] || '',
       lastName: mongoUser?.displayName?.split(' ').slice(1).join(' ') || '',
