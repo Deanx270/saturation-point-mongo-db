@@ -6,6 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, Divider, Chip, Tooltip, Button
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import CopyableId from '../components/CopyableId';
@@ -15,6 +16,7 @@ const AdminTransactions = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [updatingStatuses, setUpdatingStatuses] = useState({});
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -38,16 +40,23 @@ const AdminTransactions = () => {
   }, [currentUser]);
 
   const handleStatusChange = async (orderId, newStatus) => {
+    setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+    setUpdatingStatuses(prev => ({ ...prev, [orderId]: 'loading' }));
+    
     try {
       const token = await currentUser.getIdToken();
       await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      Swal.fire({ toast: true, position: 'bottom-end', icon: 'success', title: 'Status updated', showConfirmButton: false, timer: 3000 });
-      fetchOrders();
+      setUpdatingStatuses(prev => ({ ...prev, [orderId]: 'success' }));
+      setTimeout(() => {
+        setUpdatingStatuses(prev => ({ ...prev, [orderId]: null }));
+      }, 1500);
     } catch (error) {
       console.error("Error updating order status", error);
+      fetchOrders();
       Swal.fire('Error', 'Failed to update order status', 'error');
+      setUpdatingStatuses(prev => ({ ...prev, [orderId]: null }));
     }
   };
 
@@ -124,22 +133,27 @@ const AdminTransactions = () => {
                       ₱{parseFloat(order.totalAmount).toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Select
-                        size="small"
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                        sx={{ 
-                          minWidth: 120, 
-                          fontSize: '0.875rem',
-                          bgcolor: 'transparent',
-                          '& .MuiSelect-select': { py: 0.5 }
-                        }}
-                      >
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="shipped">Shipped</MenuItem>
-                        <MenuItem value="delivered">Delivered</MenuItem>
-                        <MenuItem value="cancelled">Cancelled</MenuItem>
-                      </Select>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Select
+                          size="small"
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                          disabled={updatingStatuses[order._id] === 'loading'}
+                          sx={{ 
+                            minWidth: 120, 
+                            fontSize: '0.875rem',
+                            bgcolor: 'transparent',
+                            '& .MuiSelect-select': { py: 0.5 }
+                          }}
+                        >
+                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem value="shipped">Shipped</MenuItem>
+                          <MenuItem value="delivered">Delivered</MenuItem>
+                          <MenuItem value="cancelled">Cancelled</MenuItem>
+                        </Select>
+                        {updatingStatuses[order._id] === 'loading' && <CircularProgress size={16} sx={{ color: '#CA8A04' }} />}
+                        {updatingStatuses[order._id] === 'success' && <CheckCircleIcon sx={{ fontSize: 18, color: '#16a34a' }} />}
+                      </Box>
                     </TableCell>
                     <TableCell align="right">
                       <Button 

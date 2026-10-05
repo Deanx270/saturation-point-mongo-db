@@ -5,6 +5,7 @@ import {
   TableContainer, TableHead, TableRow, Button, Select, 
   MenuItem, CircularProgress, Tooltip 
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -14,6 +15,7 @@ const AdminUsers = () => {
   const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingRoles, setUpdatingRoles] = useState({});
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -38,23 +40,23 @@ const AdminUsers = () => {
   }, [currentUser]);
 
   const handleRoleChange = async (userId, newRole) => {
+    setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+    setUpdatingRoles(prev => ({ ...prev, [userId]: 'loading' }));
+
     try {
       const token = await currentUser.getIdToken();
       await axios.put(`http://localhost:5000/api/users/${userId}/role`, { role: newRole }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      Swal.fire({
-        toast: true,
-        position: 'bottom-end',
-        icon: 'success',
-        title: 'Role updated',
-        showConfirmButton: false,
-        timer: 3000
-      });
-      fetchUsers();
+      setUpdatingRoles(prev => ({ ...prev, [userId]: 'success' }));
+      setTimeout(() => {
+        setUpdatingRoles(prev => ({ ...prev, [userId]: null }));
+      }, 1500);
     } catch (error) {
       console.error("Error updating role", error);
+      fetchUsers();
       Swal.fire('Error', 'Failed to update user role', 'error');
+      setUpdatingRoles(prev => ({ ...prev, [userId]: null }));
     }
   };
 
@@ -144,16 +146,20 @@ const AdminUsers = () => {
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Select
-                        size="small"
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                        sx={{ minWidth: 120, fontSize: '0.875rem' }}
-                        disabled={currentUser.email === user.email}
-                      >
-                        <MenuItem value="user">User</MenuItem>
-                        <MenuItem value="admin">Admin</MenuItem>
-                      </Select>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Select
+                          size="small"
+                          value={user.role}
+                          onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                          sx={{ minWidth: 120, fontSize: '0.875rem' }}
+                          disabled={currentUser.email === user.email || updatingRoles[user._id] === 'loading'}
+                        >
+                          <MenuItem value="user">User</MenuItem>
+                          <MenuItem value="admin">Admin</MenuItem>
+                        </Select>
+                        {updatingRoles[user._id] === 'loading' && <CircularProgress size={16} sx={{ color: '#CA8A04' }} />}
+                        {updatingRoles[user._id] === 'success' && <CheckCircleIcon sx={{ fontSize: 18, color: '#16a34a' }} />}
+                      </Box>
                     </TableCell>
                     <TableCell align="right">
                       <Button 
