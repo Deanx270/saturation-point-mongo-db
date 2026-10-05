@@ -11,6 +11,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import axios from 'axios';
 
 const Login = () => {
   const { login, loginWithGoogle, loginWithFacebook } = useAuth();
@@ -32,18 +33,30 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
     validationSchema: Yup.object({
-      email: Yup.string().email('Please enter a valid email address.').required('Email address is required.'),
+      identifier: Yup.string().required('Email or Username is required.'),
       password: Yup.string().required('Password is required.'),
     }),
     onSubmit: async (values) => {
       setLoading(true);
       setAuthError('');
       try {
-        await login(values.email, values.password);
+        let loginEmail = values.identifier;
+
+        // If it doesn't look like an email, assume it's a username and fetch the email from backend
+        if (!loginEmail.includes('@')) {
+          try {
+            const res = await axios.get(`http://localhost:5000/api/users/email-by-username/${loginEmail}`);
+            loginEmail = res.data.email;
+          } catch (err) {
+            throw new Error('Firebase: User not found with that username.');
+          }
+        }
+
+        await login(loginEmail, values.password);
         navigate('/profile');
       } catch (err) {
         setAuthError(formatFirebaseError(err.message));
@@ -89,16 +102,16 @@ const Login = () => {
         <form onSubmit={formik.handleSubmit} noValidate>
           <TextField
             fullWidth
-            id="email"
-            name="email"
-            label="Email Address"
+            id="identifier"
+            name="identifier"
+            label="Email or Username"
             variant="outlined"
             margin="normal"
-            value={formik.values.email}
+            value={formik.values.identifier}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
+            error={formik.touched.identifier && Boolean(formik.errors.identifier)}
+            helperText={formik.touched.identifier && formik.errors.identifier}
             size="small"
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
             inputProps={{ style: { fontSize: '0.9rem' } }}

@@ -13,10 +13,11 @@ const getUserProfile = async (req, res) => {
 // Update User Profile (MP2 Requirement)
 const updateUserProfile = async (req, res) => {
   try {
-    const { displayName } = req.body;
+    const { displayName, username } = req.body;
     const updateData = {};
 
     if (displayName) updateData.displayName = displayName;
+    if (username) updateData.username = username;
     
     // If a file was uploaded to Cloudinary, update the photoURL
     if (req.file) {
@@ -31,7 +32,34 @@ const updateUserProfile = async (req, res) => {
 
     res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Username is already taken' });
+    }
     res.status(500).json({ message: 'Error updating profile', error: error.message });
+  }
+};
+
+// Check if username is available (Public)
+const checkUsername = async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ message: 'Username required' });
+    const user = await User.findOne({ username });
+    res.status(200).json({ available: !user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error checking username', error: error.message });
+  }
+};
+
+// Get email by username (Public, for login)
+const getEmailByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ email: user.email });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user email', error: error.message });
   }
 };
 // ADMIN: Get all users
@@ -80,4 +108,12 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getUserProfile, updateUserProfile, getAllUsers, updateUserRole, deleteUser };
+module.exports = { 
+  getUserProfile, 
+  updateUserProfile, 
+  getAllUsers, 
+  updateUserRole, 
+  deleteUser,
+  checkUsername,
+  getEmailByUsername
+};

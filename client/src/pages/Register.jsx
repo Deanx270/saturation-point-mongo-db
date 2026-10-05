@@ -53,6 +53,7 @@ const Register = () => {
     initialValues: {
       firstName: '',
       lastName: '',
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -61,6 +62,7 @@ const Register = () => {
     validationSchema: Yup.object({
       firstName: Yup.string().max(50, 'Must be 50 characters or less').required('First Name is required.'),
       lastName: Yup.string().max(50, 'Must be 50 characters or less').required('Last Name is required.'),
+      username: Yup.string().min(3, 'Must be at least 3 characters').matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores').required('Username is required.'),
       email: Yup.string().email('Please enter a valid email address.').required('Email address is required.'),
       password: Yup.string().min(6, 'Password must be at least 6 characters.').required('Password is required.'),
       confirmPassword: Yup.string()
@@ -71,11 +73,19 @@ const Register = () => {
       setLoading(true);
       setAuthError('');
       try {
+        const usernameCheck = await axios.get(`http://localhost:5000/api/users/check-username?username=${values.username}`);
+        if (!usernameCheck.data.available) {
+          formik.setFieldError('username', 'Username is already taken.');
+          setLoading(false);
+          return;
+        }
+
         const userCredential = await signup(values.email, values.password);
         const token = await userCredential.user.getIdToken();
 
         const formData = new FormData();
         formData.append('displayName', `${values.firstName} ${values.lastName}`);
+        formData.append('username', values.username);
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
         }
@@ -232,6 +242,23 @@ const Register = () => {
               </Typography>
             )}
           </Box>
+
+          <TextField
+            fullWidth
+            id="username"
+            name="username"
+            label="Username"
+            variant="outlined"
+            margin="normal"
+            value={formik.values.username}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.username && Boolean(formik.errors.username)}
+            helperText={formik.touched.username && formik.errors.username}
+            size="small"
+            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
+            inputProps={{ style: { fontSize: '0.9rem' } }}
+          />
 
           <TextField
             fullWidth

@@ -37,6 +37,7 @@ const Profile = () => {
     initialValues: {
       firstName: mongoUser?.displayName?.split(' ')[0] || '',
       lastName: mongoUser?.displayName?.split(' ').slice(1).join(' ') || '',
+      username: mongoUser?.username || '',
       email: currentUser?.email || '',
       password: '',
       confirmPassword: '',
@@ -49,6 +50,10 @@ const Profile = () => {
       lastName: Yup.string()
         .max(50, 'Must be 50 characters or less')
         .required('Last Name is required.'),
+      username: Yup.string()
+        .min(3, 'Must be at least 3 characters')
+        .matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores')
+        .required('Username is required.'),
       password: Yup.string().min(6, 'Password must be at least 6 characters.'),
       confirmPassword: Yup.string().when('password', (password, field) =>
         password && password.length > 0
@@ -66,6 +71,7 @@ const Profile = () => {
 
         const formData = new FormData();
         formData.append('displayName', `${values.firstName} ${values.lastName}`.trim());
+        formData.append('username', values.username);
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
         }
@@ -204,6 +210,24 @@ const Profile = () => {
             margin="normal"
             value={formik.values.email}
             disabled
+            size="small"
+            sx={{ mb: 1 }}
+            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
+            inputProps={{ style: { fontSize: '0.9rem' } }}
+          />
+
+          <TextField
+            fullWidth
+            id="username"
+            name="username"
+            label="Username"
+            variant="outlined"
+            margin="normal"
+            value={formik.values.username}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.username && Boolean(formik.errors.username)}
+            helperText={formik.touched.username && formik.errors.username}
             size="small"
             sx={{ mb: 1 }}
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
