@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   photoURL: {
     type: String,
-    default: 'https://res.cloudinary.com/dgqsfys8/image/upload/v1/default_avatar' // We can change this default later
+    default: '/images/default-avatar.png'
   },
   role: {
     type: String,
