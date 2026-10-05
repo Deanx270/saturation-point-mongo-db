@@ -244,6 +244,7 @@ const Profile = () => {
                     onMouseDown={(e) => e.preventDefault()}
                     edge="end"
                     size="small"
+                    tabIndex={-1}
                   >
                     {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                   </IconButton>
@@ -273,6 +274,7 @@ const Profile = () => {
                     onMouseDown={(e) => e.preventDefault()}
                     edge="end"
                     size="small"
+                    tabIndex={-1}
                   >
                     {showConfirmPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
                   </IconButton>
