@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getUserProfile, updateUserProfile, getAllUsers, updateUserRole, deleteUser } = require('../controllers/userController');
+const { getUserProfile, updateUserProfile, getAllUsers, updateUserRole, deleteUser, checkUsername, getEmailByUsername } = require('../controllers/userController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { upload } = require('../utils/cloudinary');
+
+// Public Routes
+router.get('/check-username', checkUsername);
+router.get('/email-by-username/:username', getEmailByUsername);
 
 // Protected Routes (Require Firebase Token)
 router.get('/profile', verifyToken, getUserProfile);
