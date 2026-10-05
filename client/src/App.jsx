@@ -14,11 +14,21 @@ import AdminBrands from './pages/AdminBrands';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetails from './pages/ProductDetails';
-import { Box } from '@mui/material';
+import ErrorPage from './pages/ErrorPage';
+import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
   if (!currentUser) return <Navigate to="/login" />;
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { currentUser, mongoUser } = useAuth();
+  
+  if (!currentUser) return <Navigate to="/login" />;
+  if (mongoUser && mongoUser.role !== 'admin') return <Navigate to="/403" />;
+  
   return children;
 };
 
@@ -41,8 +51,11 @@ function App() {
             </ProtectedRoute>
           } />
           
+          <Route path="/403" element={<ErrorPage code={403} />} />
+          <Route path="*" element={<ErrorPage code={404} />} />
+          
           <Route path="/admin/*" element={
-            <ProtectedRoute>
+            <AdminRoute>
               <AdminLayout>
                 <Routes>
                   <Route path="products" element={<AdminProducts />} />
@@ -53,7 +66,7 @@ function App() {
                   <Route path="*" element={<Navigate to="products" />} />
                 </Routes>
               </AdminLayout>
-            </ProtectedRoute>
+            </AdminRoute>
           } />
         </Routes>
       </Box>
