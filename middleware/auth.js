@@ -20,7 +20,7 @@ const verifyToken = async (req, res, next) => {
         firebaseUid: decodedToken.uid,
         email: decodedToken.email,
         displayName: decodedToken.name || decodedToken.email.split('@')[0],
-        photoURL: decodedToken.picture || 'https://res.cloudinary.com/dgqsfys8/image/upload/v1/default_avatar',
+        photoURL: decodedToken.picture || '/images/default-avatar.png',
         role: decodedToken.email === 'admin@admin.com' ? 'admin' : 'user'
       });
     }
