@@ -35,16 +35,20 @@ const Profile = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      displayName: mongoUser?.displayName || '',
+      firstName: mongoUser?.displayName?.split(' ')[0] || '',
+      lastName: mongoUser?.displayName?.split(' ').slice(1).join(' ') || '',
       email: currentUser?.email || '',
       password: '',
       confirmPassword: '',
       profilePicture: null
     },
     validationSchema: Yup.object({
-      displayName: Yup.string()
+      firstName: Yup.string()
         .max(50, 'Must be 50 characters or less')
-        .required('Display Name is required.'),
+        .required('First Name is required.'),
+      lastName: Yup.string()
+        .max(50, 'Must be 50 characters or less')
+        .required('Last Name is required.'),
       password: Yup.string().min(6, 'Password must be at least 6 characters.'),
       confirmPassword: Yup.string().when('password', (password, field) =>
         password && password.length > 0
@@ -61,7 +65,7 @@ const Profile = () => {
         }
 
         const formData = new FormData();
-        formData.append('displayName', values.displayName);
+        formData.append('displayName', `${values.firstName} ${values.lastName}`.trim());
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
         }
@@ -206,23 +210,38 @@ const Profile = () => {
             inputProps={{ style: { fontSize: '0.9rem' } }}
           />
 
-          <TextField
-            fullWidth
-            id="displayName"
-            name="displayName"
-            label="Display Name"
-            variant="outlined"
-            margin="normal"
-            value={formik.values.displayName}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.displayName && Boolean(formik.errors.displayName)}
-            helperText={formik.touched.displayName && formik.errors.displayName}
-            size="small"
-            sx={{ mb: 3 }}
-            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-            inputProps={{ style: { fontSize: '0.9rem' } }}
-          />
+          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+            <TextField
+              fullWidth
+              id="firstName"
+              name="firstName"
+              label="First Name"
+              variant="outlined"
+              value={formik.values.firstName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+              helperText={formik.touched.firstName && formik.errors.firstName}
+              size="small"
+              InputLabelProps={{ style: { fontSize: '0.85rem' } }}
+              inputProps={{ style: { fontSize: '0.9rem' } }}
+            />
+            <TextField
+              fullWidth
+              id="lastName"
+              name="lastName"
+              label="Last Name"
+              variant="outlined"
+              value={formik.values.lastName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+              helperText={formik.touched.lastName && formik.errors.lastName}
+              size="small"
+              InputLabelProps={{ style: { fontSize: '0.85rem' } }}
+              inputProps={{ style: { fontSize: '0.9rem' } }}
+            />
+          </Box>
 
           <Typography variant="subtitle2" sx={{ textAlign: 'left', mb: 1, color: '#44403C' }}>Change Password (Optional)</Typography>
 
