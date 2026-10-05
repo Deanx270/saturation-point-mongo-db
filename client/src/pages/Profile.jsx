@@ -55,11 +55,12 @@ const Profile = () => {
         .matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores')
         .required('Username is required.'),
       password: Yup.string().min(6, 'Password must be at least 6 characters.'),
-      confirmPassword: Yup.string().when('password', (password, field) =>
-        password && password.length > 0
+      confirmPassword: Yup.string().when('password', (password, field) => {
+        const pass = password[0];
+        return pass && pass.length > 0
           ? field.required('Confirm Password is required to change password').oneOf([Yup.ref('password')], 'Passwords must match')
-          : field
-      )
+          : field;
+      })
     }),
     onSubmit: async (values, { resetForm }) => {
       setLoading(true);
@@ -211,7 +212,6 @@ const Profile = () => {
             value={formik.values.email}
             disabled
             size="small"
-            sx={{ mb: 1 }}
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
             inputProps={{ style: { fontSize: '0.9rem' } }}
           />
@@ -229,12 +229,11 @@ const Profile = () => {
             error={formik.touched.username && Boolean(formik.errors.username)}
             helperText={formik.touched.username && formik.errors.username}
             size="small"
-            sx={{ mb: 1 }}
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
             inputProps={{ style: { fontSize: '0.9rem' } }}
           />
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 3 }}>
             <TextField
               fullWidth
               id="firstName"
