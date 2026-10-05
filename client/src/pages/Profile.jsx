@@ -154,7 +154,7 @@ const Profile = () => {
                 border: '2px dashed rgba(28, 25, 23, 0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', position: 'relative', overflow: 'hidden',
-                backgroundImage: previewUrl ? `url(${previewUrl})` : `url(${mongoUser.photoURL || '/default-avatar.png'})`,
+                backgroundImage: previewUrl ? `url(${previewUrl})` : `url(${mongoUser.photoURL || '/images/default-avatar.png'})`,
                 backgroundSize: 'cover', backgroundPosition: 'center',
                 transition: 'border-color 0.2s ease',
                 '&:hover': { borderColor: '#1C1917' },
@@ -302,21 +302,6 @@ const Profile = () => {
             sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
-          </Button>
-
-          <Button 
-            fullWidth 
-            variant="outlined" 
-            onClick={logout}
-            sx={{ 
-              py: 1.2, 
-              fontSize: '0.85rem',
-              borderColor: 'rgba(28, 25, 23, 0.2)', 
-              color: '#1C1917', 
-              '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' } 
-            }}
-          >
-            Sign Out
           </Button>
         </form>
       </Paper>
