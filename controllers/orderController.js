@@ -34,9 +34,8 @@ exports.createOrder = async (req, res) => {
 
       totalAmount += (product.price * item.quantity);
       
-      // Decrease stock
-      product.stock -= item.quantity;
-      await product.save();
+      // Decrease stock atomically to prevent race conditions and bypass unrelated schema validations
+      await Product.findByIdAndUpdate(product._id, { $inc: { stock: -item.quantity } });
     }
 
     // Add shipping fee (150)
