@@ -85,6 +85,13 @@ const AdminTransactions = () => {
       await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      Swal.fire({
+        icon: 'success',
+        title: '<span style="font-family: \'Lora\', serif;">Status Updated</span>',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: { popup: 'premium-swal-popup' }
+      });
     } catch (error) {
       console.error("Error updating order status", error);
       fetchOrders();
@@ -173,6 +180,7 @@ const AdminTransactions = () => {
                         size="small"
                         value={order.status}
                         onChange={(e) => handleTableStatusChange(order._id, e.target.value)}
+                        disabled={order.status === 'delivered' || order.status === 'cancelled'}
                         sx={{ 
                           minWidth: 120, 
                           fontSize: '0.875rem',
@@ -180,10 +188,10 @@ const AdminTransactions = () => {
                           '& .MuiSelect-select': { py: 0.5 }
                         }}
                       >
-                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="pending" disabled={order.status !== 'pending'}>Pending</MenuItem>
                         <MenuItem value="shipped">Shipped</MenuItem>
                         <MenuItem value="delivered">Delivered</MenuItem>
-                        <MenuItem value="cancelled">Cancelled</MenuItem>
+                        <MenuItem value="cancelled" disabled={order.status === 'shipped' || order.status === 'delivered' || order.status === 'cancelled'}>Cancelled</MenuItem>
                       </Select>
                     </TableCell>
                     <TableCell align="right">
@@ -261,12 +269,13 @@ const AdminTransactions = () => {
                     size="small"
                     value={selectedOrder.status}
                     onChange={(e) => handleStatusChangeClick(e.target.value)}
+                    disabled={selectedOrder.status === 'delivered' || selectedOrder.status === 'cancelled'}
                     sx={{ minWidth: 150, fontSize: '0.875rem' }}
                   >
-                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="pending" disabled={selectedOrder.status !== 'pending'}>Pending</MenuItem>
                     <MenuItem value="shipped">Shipped</MenuItem>
                     <MenuItem value="delivered">Delivered</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                    <MenuItem value="cancelled" disabled={selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered' || selectedOrder.status === 'cancelled'}>Cancelled</MenuItem>
                   </Select>
                 </Box>
                 
