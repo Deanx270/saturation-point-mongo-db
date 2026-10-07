@@ -85,7 +85,7 @@ export const CartProvider = ({ children }) => {
     try {
       // Fetch all products (or we could fetch specifically, but /api/products is easy)
       const res = await axios.get('http://localhost:5000/api/products');
-      const products = res.data;
+      const products = res.data.products || res.data;
       
       setCart(prevCart => {
         let updated = false;
