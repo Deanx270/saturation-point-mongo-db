@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Container, Typography, Box, Paper, Button, CircularProgress, 
   Rating, TextField, Divider, Avatar, IconButton, Alert, Tooltip
@@ -17,6 +17,7 @@ import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
@@ -263,7 +264,7 @@ const ProductDetails = () => {
           
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             {product.stock > 0 && (
-              <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid rgba(28, 25, 23, 0.2)', borderRadius: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', height: '52px', border: '1px solid rgba(28, 25, 23, 0.2)', borderRadius: 1 }}>
                 <IconButton 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
@@ -289,6 +290,23 @@ const ProductDetails = () => {
               fullWidth 
               disabled={product.stock === 0}
               onClick={() => {
+                if (!currentUser) {
+                  Swal.fire({
+                    icon: 'warning',
+                    title: '<span style="font-family: \'Lora\', serif;">Login Required</span>',
+                    text: 'Please log in to add items to your cart.',
+                    confirmButtonText: 'Log In',
+                    confirmButtonColor: '#1C1917',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    customClass: { popup: 'premium-swal-popup' }
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      navigate('/login');
+                    }
+                  });
+                  return;
+                }
                 const productToAdd = {
                   _id: product._id,
                   name: product.name,
@@ -315,7 +333,7 @@ const ProductDetails = () => {
                   });
                 }
               }}
-              sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
+              sx={{ height: '52px', bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
             >
               {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </Button>
