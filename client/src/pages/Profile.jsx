@@ -33,7 +33,9 @@ const Profile = () => {
         const res = await axios.get('http://localhost:5000/api/orders/myorders', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setOrders(res.data);
+        const data = res.data;
+        const ordersArray = Array.isArray(data) ? data : (data.orders || data.data || []);
+        setOrders(ordersArray);
       } catch (error) {
         console.error("Failed to fetch orders", error);
       } finally {
@@ -171,9 +173,9 @@ const Profile = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
-      <Grid container spacing={4}>
+      <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
         {/* Profile Settings Column */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -388,7 +390,7 @@ const Profile = () => {
         </Grid>
         
         {/* Transaction History Column */}
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={9}>
           <Paper 
             elevation={0} 
             sx={{ 
@@ -440,12 +442,12 @@ const Profile = () => {
                           {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
-                          ₱{parseFloat(order.totalAmount).toFixed(2)}
+                          ₱{parseFloat(order.totalAmount || 0).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Chip 
-                            label={order.status.toUpperCase()} 
-                            color={getStatusColor(order.status)} 
+                            label={(order.status || 'unknown').toUpperCase()} 
+                            color={getStatusColor(order.status || 'unknown')} 
                             size="small" 
                             sx={{ fontSize: '0.7rem', letterSpacing: 1, height: 24 }} 
                           />
