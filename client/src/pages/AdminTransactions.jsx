@@ -190,7 +190,7 @@ const AdminTransactions = () => {
                       >
                         <MenuItem value="pending" disabled={order.status !== 'pending'}>Pending</MenuItem>
                         <MenuItem value="shipped">Shipped</MenuItem>
-                        <MenuItem value="delivered">Delivered</MenuItem>
+                        <MenuItem value="delivered" disabled={order.status === 'pending'}>Delivered</MenuItem>
                         <MenuItem value="cancelled" disabled={order.status === 'shipped' || order.status === 'delivered' || order.status === 'cancelled'}>Cancelled</MenuItem>
                       </Select>
                     </TableCell>
@@ -274,7 +274,7 @@ const AdminTransactions = () => {
                   >
                     <MenuItem value="pending" disabled={selectedOrder.status !== 'pending'}>Pending</MenuItem>
                     <MenuItem value="shipped">Shipped</MenuItem>
-                    <MenuItem value="delivered">Delivered</MenuItem>
+                    <MenuItem value="delivered" disabled={selectedOrder.status === 'pending'}>Delivered</MenuItem>
                     <MenuItem value="cancelled" disabled={selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered' || selectedOrder.status === 'cancelled'}>Cancelled</MenuItem>
                   </Select>
                 </Box>
