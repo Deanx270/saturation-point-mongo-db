@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Container, Box, Typography, TextField, Button, Paper, CircularProgress, Alert, IconButton, InputAdornment,
-  FormControl, InputLabel, OutlinedInput, FormHelperText
+  FormControl, InputLabel, OutlinedInput, FormHelperText, Grid,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip
 } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import Visibility from '@mui/icons-material/Visibility';
@@ -10,6 +11,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import CopyableId from '../components/CopyableId';
 
 const Profile = () => {
   const { currentUser, mongoUser, setMongoUser, updateUserPassword, logout } = useAuth();
@@ -19,7 +21,27 @@ const Profile = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchMyOrders = async () => {
+      if (!currentUser || !mongoUser) return;
+      try {
+        const token = await currentUser.getIdToken();
+        const res = await axios.get('http://localhost:5000/api/orders/myorders', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setOrders(res.data);
+      } catch (error) {
+        console.error("Failed to fetch orders", error);
+      } finally {
+        setLoadingOrders(false);
+      }
+    };
+    fetchMyOrders();
+  }, [currentUser, mongoUser]);
 
   const formatFirebaseError = (errorMsg) => {
     const msg = errorMsg.replace('Firebase: ', '').toLowerCase();
@@ -137,8 +159,21 @@ const Profile = () => {
   if (!currentUser) return <Typography>Please log in to view this page.</Typography>;
   if (!mongoUser) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress color="primary" /></Box>;
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'shipped': return 'info';
+      case 'delivered': return 'success';
+      case 'cancelled': return 'error';
+      default: return 'default';
+    }
+  };
+
   return (
-    <Container maxWidth="sm" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+      <Grid container spacing={4}>
+        {/* Profile Settings Column */}
+        <Grid item xs={12} md={4}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -350,6 +385,80 @@ const Profile = () => {
           </Button>
         </form>
       </Paper>
+        </Grid>
+        
+        {/* Transaction History Column */}
+        <Grid item xs={12} md={8}>
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: { xs: 3, sm: 5 }, 
+              border: '1px solid rgba(28, 25, 23, 0.08)',
+              boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
+              height: '100%'
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              color="primary" 
+              gutterBottom 
+              sx={{ textTransform: 'uppercase', letterSpacing: '0.18em', mb: 4, fontWeight: 600, fontSize: '1.25rem' }}
+            >
+              Order History
+            </Typography>
+
+            <TableContainer sx={{ border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Total</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loadingOrders ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                        <CircularProgress sx={{ color: '#CA8A04' }} />
+                      </TableCell>
+                    </TableRow>
+                  ) : orders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 5, color: '#78716C' }}>
+                        No orders found. Start shopping!
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    orders.map((order) => (
+                      <TableRow key={order._id} hover>
+                        <TableCell sx={{ color: '#78716C' }}>
+                          <CopyableId id={order._id} />
+                        </TableCell>
+                        <TableCell sx={{ color: '#78716C', whiteSpace: 'nowrap' }}>
+                          {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
+                          ₱{parseFloat(order.totalAmount).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={order.status.toUpperCase()} 
+                            color={getStatusColor(order.status)} 
+                            size="small" 
+                            sx={{ fontSize: '0.7rem', letterSpacing: 1, height: 24 }} 
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };
