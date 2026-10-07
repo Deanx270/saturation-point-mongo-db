@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -159,7 +159,7 @@ const Cart = () => {
 
                 <Button 
                   onClick={() => removeFromCart(item._id)}
-                  startIcon={<DeleteOutlineIcon />}
+                  startIcon={<DeleteIcon />}
                   sx={{ color: '#EF4444', textTransform: 'none', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
                 >
                   Remove
