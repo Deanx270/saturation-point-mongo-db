@@ -75,6 +75,7 @@ exports.updateOrderStatus = async (req, res) => {
     if (order.status === 'cancelled') return res.status(400).json({ message: 'Cannot change a cancelled order' });
     if (status === 'pending' && order.status !== 'pending') return res.status(400).json({ message: 'Cannot revert status back to pending' });
     if (status === 'cancelled' && order.status === 'shipped') return res.status(400).json({ message: 'Cannot cancel an order that has already shipped' });
+    if (status === 'delivered' && order.status === 'pending') return res.status(400).json({ message: 'Cannot mark as delivered before shipping' });
 
     order.status = status;
     await order.save();
