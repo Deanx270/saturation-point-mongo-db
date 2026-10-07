@@ -54,7 +54,8 @@ const Navbar = () => {
         px: { xs: 2, md: 4 },
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        minHeight: { xs: '72px', md: '88px' }
       }}
     >
       <Typography 

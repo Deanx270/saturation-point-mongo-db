@@ -25,9 +25,10 @@ const ProductDetails = () => {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  // Track existing review
+  // Track existing review and purchases
   const [hasReviewed, setHasReviewed] = useState(false);
   const [isEditingReview, setIsEditingReview] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
 
   const fetchProduct = async () => {
     try {
@@ -58,6 +59,21 @@ const ProductDetails = () => {
             comment: userReview.comment
           });
         }
+        
+        // Fetch orders to check if they purchased it
+        try {
+          const token = await currentUser.getIdToken();
+          const ordersRes = await axios.get(`http://localhost:5000/api/orders/myorders`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const orders = ordersRes.data;
+          const purchased = orders.some(order => 
+            order.status === 'completed' && order.orderItems.some(item => item.product === id)
+          );
+          setHasPurchased(purchased);
+        } catch (err) {
+          console.error('Failed to fetch orders', err);
+        }
       }
     } catch (error) {
       console.error('Error fetching product', error);
@@ -71,6 +87,8 @@ const ProductDetails = () => {
   }, [id, currentUser]);
 
   const formik = useFormik({
+    validateOnChange: false,
+    validateOnBlur: false,
     initialValues: {
       rating: 0,
       comment: ''
@@ -162,7 +180,7 @@ const ProductDetails = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
-      <Button component={Link} to="/" sx={{ mb: 4, color: '#78716C', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
+      <Button component={Link} to="/catalog" sx={{ mb: 4, color: '#78716C', textTransform: 'none', '&:hover': { textDecoration: 'underline' } }}>
         &larr; Back to Products
       </Button>
 
@@ -271,75 +289,84 @@ const ProductDetails = () => {
       </Box>
 
       {/* Reviews Section */}
-      <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 6 }}>
+      <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 4, mt: 4 }}>
         <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
           Customer Reviews
         </Typography>
 
         {/* Write a Review Form */}
         {currentUser ? (
-          <Paper elevation={0} sx={{ p: 4, bgcolor: '#FAF9F6', borderRadius: 2, mb: 6 }}>
-            {hasReviewed && !isEditingReview ? (
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body1" sx={{ color: '#44403C' }}>You have already reviewed this product.</Typography>
-                <Button 
-                  onClick={() => setIsEditingReview(true)} 
-                  startIcon={<EditIcon />}
-                  sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
-                >
-                  Edit your review
-                </Button>
-              </Box>
-            ) : (
-              <form onSubmit={formik.handleSubmit}>
-                <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Cormorant", serif' }}>
-                  {hasReviewed ? 'Update your review' : 'Write a review'}
-                </Typography>
-                <Box sx={{ mb: 3 }}>
-                  <Typography component="legend" variant="body2" sx={{ color: '#44403C', mb: 1 }}>Rating</Typography>
-                  <Rating
-                    name="rating"
-                    value={formik.values.rating}
-                    onChange={(event, newValue) => formik.setFieldValue('rating', newValue)}
-                  />
-                  {formik.touched.rating && formik.errors.rating && (
-                    <Typography variant="caption" color="error" sx={{ display: 'block' }}>{formik.errors.rating}</Typography>
-                  )}
-                </Box>
-                <TextField
-                  fullWidth
-                  id="comment"
-                  name="comment"
-                  label="Your Review"
-                  multiline
-                  rows={4}
-                  value={formik.values.comment}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.comment && Boolean(formik.errors.comment)}
-                  helperText={formik.touched.comment && formik.errors.comment}
-                  sx={{ mb: 3, '& .MuiOutlinedInput-root': { bgcolor: '#fff' } }}
-                />
-                <Box sx={{ display: 'flex', gap: 2 }}>
+          hasPurchased ? (
+            <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#FAF9F6', borderRadius: 2, mb: 4, border: '1px solid rgba(28, 25, 23, 0.04)' }}>
+              {hasReviewed && !isEditingReview ? (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body1" sx={{ color: '#44403C' }}>You have already reviewed this product.</Typography>
                   <Button 
-                    type="submit" 
-                    variant="contained" 
-                    disabled={reviewLoading}
-                    sx={{ bgcolor: '#CA8A04', '&:hover': { bgcolor: '#a16207' }, textTransform: 'none', px: 4 }}
+                    onClick={() => setIsEditingReview(true)} 
+                    startIcon={<EditIcon />}
+                    sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
                   >
-                    {reviewLoading ? <CircularProgress size={24} color="inherit" /> : (hasReviewed ? 'Update Review' : 'Submit Review')}
+                    Edit your review
                   </Button>
-                  {hasReviewed && isEditingReview && (
-                    <Button onClick={() => setIsEditingReview(false)} sx={{ color: '#78716C', textTransform: 'none' }}>
-                      Cancel
-                    </Button>
-                  )}
                 </Box>
-              </form>
-            )}
-          </Paper>
+              ) : (
+                <form onSubmit={formik.handleSubmit}>
+                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Cormorant", serif' }}>
+                    {hasReviewed ? 'Update your review' : 'Write a review'}
+                  </Typography>
+                  
+                  <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography component="legend" variant="body2" sx={{ color: '#44403C', fontWeight: 500 }}>Your Rating:</Typography>
+                    <Rating
+                      name="rating"
+                      value={formik.values.rating}
+                      onChange={(event, newValue) => formik.setFieldValue('rating', newValue)}
+                      size="large"
+                    />
+                    {formik.errors.rating && (
+                      <Typography variant="caption" color="error">{formik.errors.rating}</Typography>
+                    )}
+                  </Box>
+
+                  <TextField
+                    fullWidth
+                    id="comment"
+                    name="comment"
+                    placeholder="Share your thoughts about this product..."
+                    multiline
+                    rows={4}
+                    value={formik.values.comment}
+                    onChange={formik.handleChange}
+                    error={Boolean(formik.errors.comment)}
+                    helperText={formik.errors.comment}
+                    sx={{ mb: 3, '& .MuiOutlinedInput-root': { bgcolor: '#fff' } }}
+                  />
+
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button 
+                      type="submit" 
+                      variant="contained" 
+                      disabled={reviewLoading}
+                      sx={{ bgcolor: '#CA8A04', '&:hover': { bgcolor: '#a16207' }, textTransform: 'none', px: 4 }}
+                    >
+                      {reviewLoading ? <CircularProgress size={24} color="inherit" /> : (hasReviewed ? 'Update Review' : 'Submit Review')}
+                    </Button>
+                    {hasReviewed && isEditingReview && (
+                      <Button onClick={() => setIsEditingReview(false)} sx={{ color: '#78716C', textTransform: 'none' }}>
+                        Cancel
+                      </Button>
+                    )}
+                  </Box>
+                </form>
+              )}
+            </Paper>
+          ) : (
+            <Alert severity="info" sx={{ mb: 4, bgcolor: '#FAF9F6', color: '#44403C', '& .MuiAlert-icon': { color: '#CA8A04' } }}>
+              You must purchase this item and complete the order before you can write a review.
+            </Alert>
+          )
         ) : (
-          <Alert severity="info" sx={{ mb: 6, borderRadius: 1 }}>
+          <Alert severity="info" sx={{ mb: 4, borderRadius: 1 }}>
             Please <Link to="/login" style={{ color: 'inherit', fontWeight: 'bold' }}>log in</Link> to write a review.
           </Alert>
         )}

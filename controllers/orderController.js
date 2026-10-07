@@ -16,12 +16,12 @@ exports.createOrder = async (req, res) => {
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
-        return res.status(404).json({ message: \`Product not found: \${item.productId}\` });
+        return res.status(404).json({ message: `Product not found: ${item.productId}` });
       }
       
       // Check stock
       if (product.stock < item.quantity) {
-        return res.status(400).json({ message: \`Insufficient stock for \${product.name}\` });
+        return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
       }
 
       orderItems.push({
