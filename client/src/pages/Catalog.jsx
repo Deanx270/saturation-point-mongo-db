@@ -44,7 +44,13 @@ const Catalog = () => {
       if (minRating > 0) url += `&minRating=${minRating}`;
       
       const res = await axios.get(url);
-      setProducts(res.data.products || res.data);
+      let fetchedProducts = res.data.products || res.data;
+      fetchedProducts.sort((a, b) => {
+        if (a.stock === 0 && b.stock !== 0) return 1;
+        if (a.stock !== 0 && b.stock === 0) return -1;
+        return 0;
+      });
+      setProducts(fetchedProducts);
     } catch (err) {
       console.error(err);
     } finally {
@@ -250,7 +256,31 @@ const Catalog = () => {
                 to={`/product/${product._id}`}
                 sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
               >
-                <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#fff', overflow: 'hidden' }}>
+                <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#fff', overflow: 'hidden', position: 'relative' }}>
+                  {product.stock === 0 && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      bgcolor: 'rgba(255, 255, 255, 0.6)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 1
+                    }}>
+                      <Typography sx={{
+                        fontFamily: '"Lora", serif',
+                        fontWeight: 700,
+                        fontSize: '1.2rem',
+                        color: '#9f1239',
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                        px: 2, py: 1,
+                        border: '2px solid #9f1239',
+                        transform: 'rotate(-10deg)'
+                      }}>
+                        OUT OF STOCK
+                      </Typography>
+                    </Box>
+                  )}
                   {product.images && product.images.length > 0 ? (
                     <Box 
                       component="img"
@@ -288,6 +318,7 @@ const Catalog = () => {
                   <Button 
                     fullWidth 
                     variant="outlined" 
+                    disabled={product.stock === 0}
                     startIcon={<AddShoppingCartIcon />}
                     onClick={async (e) => {
                       e.preventDefault();

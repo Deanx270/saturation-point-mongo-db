@@ -156,7 +156,33 @@ const Cart = () => {
                     <IconButton size="small" onClick={() => updateQuantity(item._id, item.quantity - 1)} disabled={item.quantity <= 1}>
                       <RemoveIcon fontSize="small" />
                     </IconButton>
-                    <Typography sx={{ mx: 2, fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>{item.quantity}</Typography>
+                    <Box 
+                      component="input"
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value);
+                        if (isNaN(val)) val = 1;
+                        if (item.stock && val > item.stock) val = item.stock;
+                        if (val < 1) val = 1;
+                        updateQuantity(item._id, val);
+                      }}
+                      sx={{ 
+                        width: '40px', 
+                        textAlign: 'center', 
+                        fontWeight: 500, 
+                        fontFamily: '"Montserrat", sans-serif',
+                        fontSize: '1rem',
+                        border: 'none',
+                        outline: 'none',
+                        bgcolor: 'transparent',
+                        MozAppearance: 'textfield',
+                        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                          WebkitAppearance: 'none',
+                          margin: 0
+                        }
+                      }}
+                    />
                     <IconButton size="small" onClick={() => updateQuantity(item._id, item.quantity + 1)} disabled={item.stock ? item.quantity >= item.stock : false}>
                       <AddIcon fontSize="small" />
                     </IconButton>
