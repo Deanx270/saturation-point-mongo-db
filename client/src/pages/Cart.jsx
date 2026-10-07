@@ -57,6 +57,7 @@ const Cart = () => {
           });
 
           clearCart();
+          sessionStorage.setItem('justCheckedOut', 'true');
           navigate('/checkout-success');
         } catch (error) {
           Swal.fire({

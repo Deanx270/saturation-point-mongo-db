@@ -1,8 +1,20 @@
 import { Box, Typography, Button, Container } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useEffect } from 'react';
 
 const CheckoutSuccess = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const justCheckedOut = sessionStorage.getItem('justCheckedOut');
+    if (!justCheckedOut) {
+      navigate('/catalog', { replace: true });
+    } else {
+      sessionStorage.removeItem('justCheckedOut');
+    }
+  }, [navigate]);
+
   return (
     <Container maxWidth="sm" sx={{ mt: 10, mb: 10, textAlign: 'center' }}>
       <Box sx={{ p: 5, borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.7)', border: '1px solid rgba(28, 25, 23, 0.08)' }}>
