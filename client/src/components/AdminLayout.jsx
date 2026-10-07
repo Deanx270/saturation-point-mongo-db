@@ -16,7 +16,7 @@ const AdminLayout = ({ children }) => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
-      <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 2, color: '#1C1917' }}>
+      <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2, color: '#1C1917' }}>
         Admin Dashboard
       </Typography>
       

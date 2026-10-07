@@ -239,7 +239,7 @@ const ProductDetails = () => {
           <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>
             {product.category}
           </Typography>
-          <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
+          <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
             {product.name}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
@@ -316,7 +316,7 @@ const ProductDetails = () => {
 
       {/* Reviews Section */}
       <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 4, mt: 4 }}>
-        <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
+        <Typography variant="h4" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
           Customer Reviews
         </Typography>
 
@@ -337,7 +337,7 @@ const ProductDetails = () => {
                 </Box>
               ) : (
                 <form onSubmit={formik.handleSubmit}>
-                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Playfair Display", serif' }}>
+                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Lora", serif' }}>
                     {hasReviewed ? 'Update your review' : 'Write a review'}
                   </Typography>
                   

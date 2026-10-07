@@ -7,7 +7,7 @@ const CheckoutSuccess = () => {
     <Container maxWidth="sm" sx={{ mt: 10, mb: 10, textAlign: 'center' }}>
       <Box sx={{ p: 5, borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.7)', border: '1px solid rgba(28, 25, 23, 0.08)' }}>
         <CheckCircleIcon sx={{ fontSize: 80, color: '#10B981', mb: 3 }} />
-        <Typography variant="h3" sx={{ fontFamily: 'Cormorant, serif', color: '#1C1917', mb: 2 }}>
+        <Typography variant="h3" sx={{ fontFamily: 'Lora, serif', color: '#1C1917', mb: 2 }}>
           Order Confirmed!
         </Typography>
         <Typography variant="body1" sx={{ fontFamily: 'Montserrat, sans-serif', color: '#78716C', mb: 4, lineHeight: 1.6 }}>
