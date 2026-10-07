@@ -316,7 +316,7 @@ const ProductDetails = () => {
 
       {/* Reviews Section */}
       <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 4, mt: 4 }}>
-        <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
+        <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
           Customer Reviews
         </Typography>
 
@@ -337,7 +337,7 @@ const ProductDetails = () => {
                 </Box>
               ) : (
                 <form onSubmit={formik.handleSubmit}>
-                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Cormorant", serif' }}>
+                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Playfair Display", serif' }}>
                     {hasReviewed ? 'Update your review' : 'Write a review'}
                   </Typography>
                   

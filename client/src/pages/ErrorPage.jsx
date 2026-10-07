@@ -9,7 +9,7 @@ const ErrorPage = ({ code = 404 }) => {
   return (
     <Box sx={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', p: 5 }}>
       <ExploreIcon sx={{ fontSize: 64, color: '#CA8A04', mb: 3 }} />
-      <Typography variant="h1" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, fontSize: { xs: '3rem', sm: '4rem' }, color: '#1C1917', mb: 2 }}>
+      <Typography variant="h1" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, fontSize: { xs: '3rem', sm: '4rem' }, color: '#1C1917', mb: 2 }}>
         {is403 ? 'Access Denied' : 'Page Not Found'}
       </Typography>
       <Typography variant="body1" sx={{ color: '#78716C', fontSize: '1.1rem', maxWidth: 500, mb: 4 }}>
