@@ -81,7 +81,7 @@ const Catalog = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 12 }}>
-      <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 2, color: '#1C1917', textAlign: 'center' }}>
+      <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2, color: '#1C1917', textAlign: 'center' }}>
         The Complete Catalog
       </Typography>
 
@@ -269,7 +269,7 @@ const Catalog = () => {
                   <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 500 }}>
                     {product.category}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
+                  <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
                     {product.name}
                   </Typography>
                   

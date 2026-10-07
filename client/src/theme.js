@@ -20,12 +20,12 @@ export const theme = createTheme({
   },
   typography: {
     fontFamily: '"Montserrat", sans-serif',
-    h1: { fontFamily: '"Playfair Display", serif', fontWeight: 600 },
-    h2: { fontFamily: '"Playfair Display", serif', fontWeight: 600 },
-    h3: { fontFamily: '"Playfair Display", serif', fontWeight: 500 },
-    h4: { fontFamily: '"Playfair Display", serif', fontWeight: 500 },
-    h5: { fontFamily: '"Playfair Display", serif', fontWeight: 500 },
-    h6: { fontFamily: '"Playfair Display", serif', fontWeight: 500 },
+    h1: { fontFamily: '"Lora", serif', fontWeight: 600 },
+    h2: { fontFamily: '"Lora", serif', fontWeight: 600 },
+    h3: { fontFamily: '"Lora", serif', fontWeight: 500 },
+    h4: { fontFamily: '"Lora", serif', fontWeight: 500 },
+    h5: { fontFamily: '"Lora", serif', fontWeight: 500 },
+    h6: { fontFamily: '"Lora", serif', fontWeight: 500 },
     button: {
       textTransform: 'none',
       fontWeight: 500,

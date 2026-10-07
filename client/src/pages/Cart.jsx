@@ -23,7 +23,7 @@ const Cart = () => {
     }
 
     Swal.fire({
-      title: '<span style="font-family: \'Cormorant\', serif; font-size: 2rem;">Confirm Your Order</span>',
+      title: '<span style="font-family: \'Lora\', serif; font-size: 2rem;">Confirm Your Order</span>',
       html: `
         <div style="font-family: 'Montserrat', sans-serif; text-align: center; margin-top: 1rem; color: #78716C;">
           Your order will be processed via <strong>Cash on Delivery</strong>.
@@ -61,7 +61,7 @@ const Cart = () => {
         } catch (error) {
           Swal.fire({
             icon: 'error',
-            title: '<span style="font-family: \'Cormorant\', serif;">Checkout Failed</span>',
+            title: '<span style="font-family: \'Lora\', serif;">Checkout Failed</span>',
             html: error.response?.data?.message || 'An error occurred during checkout.',
             confirmButtonColor: '#EF4444',
             customClass: {
@@ -75,13 +75,13 @@ const Cart = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 6, mb: 10 }}>
-      <Typography variant="h3" sx={{ textAlign: 'center', mb: 6, fontFamily: 'Cormorant, serif', letterSpacing: '0.05em', color: '#1C1917' }}>
+      <Typography variant="h3" sx={{ textAlign: 'center', mb: 6, fontFamily: 'Lora, serif', letterSpacing: '0.05em', color: '#1C1917' }}>
         Your Cart
       </Typography>
 
       {cart.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'rgba(255, 255, 255, 0.5)', borderRadius: 4 }}>
-          <Typography variant="h5" sx={{ fontFamily: 'Cormorant, serif', mb: 2, color: '#1C1917' }}>
+          <Typography variant="h5" sx={{ fontFamily: 'Lora, serif', mb: 2, color: '#1C1917' }}>
             Your cart is empty
           </Typography>
           <Typography variant="body1" sx={{ color: '#78716C', mb: 4, fontFamily: 'Montserrat, sans-serif' }}>
@@ -137,7 +137,7 @@ const Cart = () => {
                 />
                 
                 <Box sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" sx={{ fontFamily: 'Cormorant, serif', fontWeight: 600, color: '#1C1917', mb: 0.5 }}>
+                  <Typography variant="h6" sx={{ fontFamily: 'Lora, serif', fontWeight: 600, color: '#1C1917', mb: 0.5 }}>
                     {item.name}
                   </Typography>
                   <Typography variant="subtitle1" sx={{ color: '#CA8A04', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
@@ -180,7 +180,7 @@ const Cart = () => {
                 top: 100
               }}
             >
-              <Typography variant="h5" sx={{ fontFamily: 'Cormorant, serif', mb: 4, color: '#1C1917' }}>
+              <Typography variant="h5" sx={{ fontFamily: 'Lora, serif', mb: 4, color: '#1C1917' }}>
                 Order Summary
               </Typography>
               
@@ -202,7 +202,7 @@ const Cart = () => {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                 <Typography variant="h6" sx={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, color: '#1C1917' }}>Total</Typography>
-                <Typography variant="h5" sx={{ fontFamily: 'Cormorant, serif', fontWeight: 700, color: '#1C1917' }}>
+                <Typography variant="h5" sx={{ fontFamily: 'Lora, serif', fontWeight: 700, color: '#1C1917' }}>
                   ₱{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </Typography>
               </Box>
