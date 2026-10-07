@@ -137,7 +137,7 @@ const Cart = () => {
               >
                 <Box
                   component="img"
-                  src={item.photos && item.photos.length > 0 ? item.photos[0] : '/default-product.jpg'}
+                  src={item.photos && item.photos.length > 0 ? item.photos[0] : '/images/default-avatar.png'}
                   alt={item.name}
                   sx={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 2, mr: 3 }}
                 />
