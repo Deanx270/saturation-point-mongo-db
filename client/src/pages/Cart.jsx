@@ -152,7 +152,7 @@ const Cart = () => {
                       <RemoveIcon fontSize="small" />
                     </IconButton>
                     <Typography sx={{ mx: 2, fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>{item.quantity}</Typography>
-                    <IconButton size="small" onClick={() => updateQuantity(item._id, item.quantity + 1)}>
+                    <IconButton size="small" onClick={() => updateQuantity(item._id, item.quantity + 1)} disabled={item.stock ? item.quantity >= item.stock : false}>
                       <AddIcon fontSize="small" />
                     </IconButton>
                   </Box>
