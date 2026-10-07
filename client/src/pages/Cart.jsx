@@ -161,11 +161,20 @@ const Cart = () => {
                       type="number"
                       value={item.quantity}
                       onChange={(e) => {
-                        let val = parseInt(e.target.value);
-                        if (isNaN(val)) val = 1;
-                        if (item.stock && val > item.stock) val = item.stock;
-                        if (val < 1) val = 1;
-                        updateQuantity(item._id, val);
+                        const val = e.target.value;
+                        if (val === '') {
+                          updateQuantity(item._id, '');
+                          return;
+                        }
+                        let num = parseInt(val);
+                        if (isNaN(num)) return;
+                        if (item.stock && num > item.stock) num = item.stock;
+                        updateQuantity(item._id, num);
+                      }}
+                      onBlur={() => {
+                        if (item.quantity === '' || item.quantity < 1) {
+                          updateQuantity(item._id, 1);
+                        }
                       }}
                       sx={{ 
                         width: '40px', 
