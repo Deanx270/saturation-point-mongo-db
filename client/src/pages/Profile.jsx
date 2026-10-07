@@ -439,7 +439,7 @@ const Profile = () => {
                           <CopyableId id={order._id} />
                         </TableCell>
                         <TableCell sx={{ color: '#78716C', whiteSpace: 'nowrap' }}>
-                          {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
                           ₱{parseFloat(order.totalAmount || 0).toFixed(2)}
