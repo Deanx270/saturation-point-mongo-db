@@ -293,7 +293,8 @@ const ProductDetails = () => {
                   _id: product._id,
                   name: product.name,
                   price: product.price,
-                  photos: product.images
+                  photos: product.images,
+                  stock: product.stock
                 };
                 addToCart(productToAdd, quantity);
                 Swal.fire({

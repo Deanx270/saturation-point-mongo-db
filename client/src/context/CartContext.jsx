@@ -29,11 +29,11 @@ export const CartProvider = ({ children }) => {
       if (existingItem) {
         return prevCart.map(item =>
           item._id === product._id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: Math.min(item.stock || Infinity, item.quantity + quantity) }
             : item
         );
       } else {
-        return [...prevCart, { ...product, quantity }];
+        return [...prevCart, { ...product, quantity: Math.min(product.stock || Infinity, quantity) }];
       }
     });
   };
@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
         return prevCart.filter(item => item._id !== productId);
       }
       return prevCart.map(item =>
-        item._id === productId ? { ...item, quantity } : item
+        item._id === productId ? { ...item, quantity: Math.min(item.stock || Infinity, quantity) } : item
       );
     });
   };
