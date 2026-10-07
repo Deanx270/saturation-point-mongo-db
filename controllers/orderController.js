@@ -68,7 +68,17 @@ exports.getAllOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.status === 'delivered') return res.status(400).json({ message: 'Cannot change a delivered order' });
+    if (order.status === 'cancelled') return res.status(400).json({ message: 'Cannot change a cancelled order' });
+    if (status === 'pending' && order.status !== 'pending') return res.status(400).json({ message: 'Cannot revert status back to pending' });
+    if (status === 'cancelled' && order.status === 'shipped') return res.status(400).json({ message: 'Cannot cancel an order that has already shipped' });
+
+    order.status = status;
+    await order.save();
+    
     res.status(200).json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
