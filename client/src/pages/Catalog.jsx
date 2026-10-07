@@ -6,11 +6,15 @@ import {
 import { Link } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import axios from 'axios';
+import { useCart } from '../context/CartContext';
+import Swal from 'sweetalert2';
 
 const Catalog = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
   const [categories, setCategories] = useState([]);
 
   // Filter states
@@ -278,6 +282,40 @@ const Catalog = () => {
                       ({product.numReviews})
                     </Typography>
                   </Box>
+                  <Button 
+                    fullWidth 
+                    variant="outlined" 
+                    startIcon={<AddShoppingCartIcon />}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const productToAdd = {
+                        _id: product._id,
+                        name: product.name,
+                        price: product.price,
+                        photos: product.images
+                      };
+                      addToCart(productToAdd, 1);
+                      Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Cart',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        toast: true,
+                        position: 'bottom-end',
+                        customClass: { popup: 'swal2-toast' }
+                      });
+                    }}
+                    sx={{ 
+                      mt: 2, 
+                      borderColor: '#1C1917', 
+                      color: '#1C1917', 
+                      textTransform: 'none', 
+                      fontFamily: '"Montserrat", sans-serif',
+                      '&:hover': { borderColor: '#CA8A04', color: '#CA8A04', bgcolor: 'transparent' }
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
                 </Box>
               </Box>
             </Paper>

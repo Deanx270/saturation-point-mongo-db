@@ -14,6 +14,8 @@ import AdminBrands from './pages/AdminBrands';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetails from './pages/ProductDetails';
+import Cart from './pages/Cart';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 import ErrorPage from './pages/ErrorPage';
 import { Box, CircularProgress } from '@mui/material';
 
@@ -43,6 +45,12 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout-success" element={
+            <ProtectedRoute>
+              <CheckoutSuccess />
+            </ProtectedRoute>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={

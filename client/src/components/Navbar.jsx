@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Box, Typography, IconButton, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography, IconButton, Menu, MenuItem, useMediaQuery, useTheme, Badge } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const Navbar = () => {
   const { currentUser, mongoUser, logout } = useAuth();
+  const { cartItemCount } = useCart();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -71,10 +74,17 @@ const Navbar = () => {
       </Typography>
 
       {isMobile ? (
-        <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton component={Link} to="/cart" sx={{ color: '#1C1917' }}>
+            <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
+              <ShoppingBagOutlinedIcon />
+            </Badge>
+          </IconButton>
           <IconButton onClick={handleMenuClick} sx={{ color: '#1C1917' }}>
             <MenuIcon />
           </IconButton>
+        </Box>
+      ) : (
           <Menu
             anchorEl={anchorEl}
             open={open}
@@ -99,10 +109,17 @@ const Navbar = () => {
               </>
             )}
           </Menu>
-        </>
+        </Box>
       ) : (
         <Box sx={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           <Typography component={Link} to="/catalog" sx={navLinksStyle}>Catalog</Typography>
+          
+          <IconButton component={Link} to="/cart" sx={{ color: '#1C1917' }}>
+            <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
+              <ShoppingBagOutlinedIcon />
+            </Badge>
+          </IconButton>
+
           {!currentUser ? (
             <>
               <Typography component={Link} to="/login" sx={navLinksStyle}>Login</Typography>
