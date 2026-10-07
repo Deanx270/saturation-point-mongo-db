@@ -7,13 +7,15 @@ const CopyableId = ({ id, full = false }) => {
   
   const handleCopy = (e) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(id);
+    if (id) navigator.clipboard.writeText(id.toString());
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
   
+  const displayId = id ? id.toString() : 'N/A';
+
   return (
-    <Tooltip title={copied ? "Copied!" : `Copy ${id}`}>
+    <Tooltip title={copied ? "Copied!" : `Copy ${displayId}`}>
       <Box 
         component="span"
         onClick={handleCopy}
@@ -34,7 +36,7 @@ const CopyableId = ({ id, full = false }) => {
             Copied!
           </>
         ) : (
-          full ? id : `${id.substring(0, 8)}...`
+          full ? displayId : `${displayId.substring(0, 8)}...`
         )}
       </Box>
     </Tooltip>
