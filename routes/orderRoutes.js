@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getAllOrders, updateOrderStatus, getMyOrders } = require('../controllers/orderController');
+const { getAllOrders, updateOrderStatus, getMyOrders, createOrder } = require('../controllers/orderController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+
+router.post('/', verifyToken, createOrder);
 
 router.get('/myorders', verifyToken, getMyOrders);
 router.get('/', verifyToken, verifyAdmin, getAllOrders);

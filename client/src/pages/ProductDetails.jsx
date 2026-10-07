@@ -13,10 +13,12 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { currentUser } = useAuth();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -243,6 +245,24 @@ const ProductDetails = () => {
             variant="contained" 
             fullWidth 
             disabled={product.stock === 0}
+            onClick={() => {
+              const productToAdd = {
+                _id: product._id,
+                name: product.name,
+                price: product.price,
+                photos: product.images
+              };
+              addToCart(productToAdd, 1);
+              Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                showConfirmButton: false,
+                timer: 1500,
+                toast: true,
+                position: 'bottom-end',
+                customClass: { popup: 'swal2-toast' }
+              });
+            }}
             sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
           >
             {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
