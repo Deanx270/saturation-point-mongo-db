@@ -74,6 +74,28 @@ const AdminTransactions = () => {
     }
   };
 
+  const handleTableStatusChange = async (orderId, newStatus) => {
+    const originalStatus = orders.find(o => o._id === orderId).status;
+    if (newStatus === originalStatus) return;
+    
+    setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+    
+    try {
+      const token = await currentUser.getIdToken();
+      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error("Error updating order status", error);
+      fetchOrders();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update order status'
+      });
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'warning';
@@ -147,7 +169,22 @@ const AdminTransactions = () => {
                       ₱{parseFloat(order.totalAmount).toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Chip label={order.status.toUpperCase()} color={getStatusColor(order.status)} size="small" sx={{ fontSize: '0.7rem', letterSpacing: 1 }} />
+                      <Select
+                        size="small"
+                        value={order.status}
+                        onChange={(e) => handleTableStatusChange(order._id, e.target.value)}
+                        sx={{ 
+                          minWidth: 120, 
+                          fontSize: '0.875rem',
+                          bgcolor: 'transparent',
+                          '& .MuiSelect-select': { py: 0.5 }
+                        }}
+                      >
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="shipped">Shipped</MenuItem>
+                        <MenuItem value="delivered">Delivered</MenuItem>
+                        <MenuItem value="cancelled">Cancelled</MenuItem>
+                      </Select>
                     </TableCell>
                     <TableCell align="right">
                       <Button 
@@ -186,8 +223,7 @@ const AdminTransactions = () => {
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                     <Typography variant="body2" sx={{ color: '#78716C' }}>Order ID:</Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 500 }}>{selectedOrder._id}</Typography>
-                    <CopyableId id={selectedOrder._id} />
+                    <CopyableId id={selectedOrder._id} full={true} />
                   </Box>
                 </Box>
               </Box>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tooltip, Box } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-const CopyableId = ({ id }) => {
+const CopyableId = ({ id, full = false }) => {
   const [copied, setCopied] = useState(false);
   
   const handleCopy = (e) => {
@@ -34,7 +34,7 @@ const CopyableId = ({ id }) => {
             Copied!
           </>
         ) : (
-          `${id.substring(0, 8)}...`
+          full ? id : `${id.substring(0, 8)}...`
         )}
       </Box>
     </Tooltip>

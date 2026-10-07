@@ -295,16 +295,24 @@ const Catalog = () => {
                         photos: product.images,
                         stock: product.stock
                       };
-                      addToCart(productToAdd, 1);
-                      Swal.fire({
-                        icon: 'success',
-                        title: 'Added to Cart',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        toast: true,
-                        position: 'bottom-end',
-                        customClass: { popup: 'swal2-toast' }
-                      });
+                      const wasAdded = addToCart(productToAdd, 1);
+                      if (wasAdded) {
+                        Swal.fire({
+                          icon: 'success',
+                          title: '<span style="font-family: \'Lora\', serif;">Added to Cart</span>',
+                          showConfirmButton: false,
+                          timer: 1500,
+                          customClass: { popup: 'premium-swal-popup' }
+                        });
+                      } else {
+                        Swal.fire({
+                          icon: 'error',
+                          title: '<span style="font-family: \'Lora\', serif;">Stock Limit Reached</span>',
+                          text: 'You cannot add more of this item.',
+                          confirmButtonColor: '#1C1917',
+                          customClass: { popup: 'premium-swal-popup' }
+                        });
+                      }
                     }}
                     sx={{ 
                       mt: 2, 
