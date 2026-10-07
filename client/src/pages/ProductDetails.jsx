@@ -289,7 +289,7 @@ const ProductDetails = () => {
               variant="contained" 
               fullWidth 
               disabled={product.stock === 0}
-              onClick={() => {
+              onClick={async () => {
                 if (!currentUser) {
                   Swal.fire({
                     icon: 'warning',
@@ -314,7 +314,7 @@ const ProductDetails = () => {
                   photos: product.images,
                   stock: product.stock
                 };
-                const wasAdded = addToCart(productToAdd, quantity);
+                const wasAdded = await addToCart(productToAdd, quantity);
                 if (wasAdded) {
                   Swal.fire({
                     icon: 'success',

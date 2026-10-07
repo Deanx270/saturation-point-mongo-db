@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const CartContext = createContext();
 
@@ -23,17 +24,26 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = async (product, quantity = 1) => {
+    let latestStock = product.stock || 0;
+    try {
+      const res = await axios.get(`http://localhost:5000/api/products/${product._id}`);
+      if (res.data) {
+        latestStock = res.data.stock;
+      }
+    } catch (err) {
+      console.error("Failed to fetch latest stock", err);
+    }
+
     let wasAdded = false;
     const existingItem = cart.find(item => item._id === product._id);
     
     if (existingItem) {
-      const maxStock = product.stock || existingItem.stock || Infinity;
-      if (existingItem.quantity < maxStock) {
+      if (existingItem.quantity < latestStock) {
         wasAdded = true;
       }
     } else {
-      if (quantity > 0 && (product.stock === undefined || product.stock > 0)) {
+      if (quantity > 0 && latestStock > 0) {
         wasAdded = true;
       }
     }
@@ -42,14 +52,13 @@ export const CartProvider = ({ children }) => {
       setCart(prevCart => {
         const prevExisting = prevCart.find(item => item._id === product._id);
         if (prevExisting) {
-          const maxStock = product.stock || prevExisting.stock || Infinity;
           return prevCart.map(item =>
             item._id === product._id
-              ? { ...item, stock: product.stock, quantity: Math.min(maxStock, item.quantity + quantity) }
+              ? { ...item, stock: latestStock, quantity: Math.min(latestStock, item.quantity + quantity) }
               : item
           );
         } else {
-          return [...prevCart, { ...product, quantity: Math.min(product.stock || Infinity, quantity) }];
+          return [...prevCart, { ...product, stock: latestStock, quantity: Math.min(latestStock, quantity) }];
         }
       });
     }
@@ -65,6 +74,33 @@ export const CartProvider = ({ children }) => {
         item._id === productId ? { ...item, quantity: Math.min(item.stock || Infinity, quantity) } : item
       );
     });
+  };
+
+  const verifyCartStock = async () => {
+    if (cart.length === 0) return;
+    try {
+      // Fetch all products (or we could fetch specifically, but /api/products is easy)
+      const res = await axios.get('http://localhost:5000/api/products');
+      const products = res.data;
+      
+      setCart(prevCart => {
+        let updated = false;
+        const newCart = prevCart.map(item => {
+          const latestProduct = products.find(p => p._id === item._id);
+          if (latestProduct) {
+            if (item.quantity > latestProduct.stock || item.stock !== latestProduct.stock) {
+              updated = true;
+              return { ...item, stock: latestProduct.stock, quantity: Math.min(latestProduct.stock, item.quantity) };
+            }
+          }
+          return item;
+        }).filter(item => item.quantity > 0);
+        
+        return updated || newCart.length !== prevCart.length ? newCart : prevCart;
+      });
+    } catch (error) {
+      console.error("Failed to verify cart stock", error);
+    }
   };
 
   const removeFromCart = (productId) => {
@@ -84,6 +120,7 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     removeFromCart,
     clearCart,
+    verifyCartStock,
     cartTotal,
     cartItemCount
   };
