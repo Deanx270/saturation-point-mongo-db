@@ -1,16 +1,20 @@
 import { Box, Typography, Button, Container } from '@mui/material';
 import { Link, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const CheckoutSuccess = () => {
-  const justCheckedOut = sessionStorage.getItem('justCheckedOut');
-  
-  if (!justCheckedOut) {
+  const [isValid] = useState(!!sessionStorage.getItem('justCheckedOut'));
+
+  useEffect(() => {
+    if (isValid) {
+      sessionStorage.removeItem('justCheckedOut');
+    }
+  }, [isValid]);
+
+  if (!isValid) {
     return <Navigate to="/catalog" replace />;
   }
-
-  // Clear it so they can't refresh and see it again
-  sessionStorage.removeItem('justCheckedOut');
 
   return (
     <Container maxWidth="sm" sx={{ mt: 10, mb: 10, textAlign: 'center' }}>
