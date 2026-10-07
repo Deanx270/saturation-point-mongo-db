@@ -289,7 +289,7 @@ const Catalog = () => {
                     fullWidth 
                     variant="outlined" 
                     startIcon={<AddShoppingCartIcon />}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
                       if (!currentUser) {
                         Swal.fire({
@@ -315,7 +315,7 @@ const Catalog = () => {
                         photos: product.images,
                         stock: product.stock
                       };
-                      const wasAdded = addToCart(productToAdd, 1);
+                      const wasAdded = await addToCart(productToAdd, 1);
                       if (wasAdded) {
                         Swal.fire({
                           icon: 'success',

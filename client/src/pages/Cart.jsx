@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { Box, Container, Typography, Button, IconButton, Divider, Paper } from '@mui/material';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,9 +10,13 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 
 const Cart = () => {
-  const { cart, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
+  const { cart, updateQuantity, removeFromCart, clearCart, cartTotal, verifyCartStock } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    verifyCartStock();
+  }, []);
 
   const SHIPPING_FEE = 150;
   const totalAmount = cartTotal + SHIPPING_FEE;
