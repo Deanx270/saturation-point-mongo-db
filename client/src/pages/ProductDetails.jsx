@@ -272,9 +272,33 @@ const ProductDetails = () => {
                 >
                   <Typography variant="h6" sx={{ lineHeight: 1 }}>-</Typography>
                 </IconButton>
-                <Typography sx={{ px: 2, minWidth: '40px', textAlign: 'center', fontWeight: 600, fontFamily: '"Montserrat", sans-serif' }}>
-                  {quantity}
-                </Typography>
+                <Box 
+                  component="input"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value);
+                    if (isNaN(val)) val = 1;
+                    if (val > product.stock) val = product.stock;
+                    if (val < 1) val = 1;
+                    setQuantity(val);
+                  }}
+                  sx={{ 
+                    width: '50px', 
+                    textAlign: 'center', 
+                    fontWeight: 600, 
+                    fontFamily: '"Montserrat", sans-serif',
+                    fontSize: '1rem',
+                    border: 'none',
+                    outline: 'none',
+                    bgcolor: 'transparent',
+                    MozAppearance: 'textfield',
+                    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+                      WebkitAppearance: 'none',
+                      margin: 0
+                    }
+                  }}
+                />
                 <IconButton 
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                   disabled={quantity >= product.stock}
