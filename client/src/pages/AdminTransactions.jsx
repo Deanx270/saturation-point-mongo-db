@@ -82,7 +82,7 @@ const AdminTransactions = () => {
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 4 }}>
-          <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, fontSize: { xs: '2rem', sm: '2.5rem' }, color: '#1C1917' }}>
+          <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, fontSize: { xs: '2rem', sm: '2.5rem' }, color: '#1C1917' }}>
             Transaction Management
           </Typography>
         </Box>
@@ -185,7 +185,7 @@ const AdminTransactions = () => {
           <>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, bgcolor: '#F5F5F4' }}>
               <Box>
-                <Typography variant="h5" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600 }}>
+                <Typography variant="h5" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
                   Transaction Details
                 </Typography>
                 <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#78716C' }}>
@@ -216,7 +216,7 @@ const AdminTransactions = () => {
                 </Box>
               </Box>
 
-              <Typography variant="h6" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 2 }}>Order Items</Typography>
+              <Typography variant="h6" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 2 }}>Order Items</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {selectedOrder.orderItems.map((item, idx) => (
                   <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 2, border: '1px solid #E7E5E4', borderRadius: 2 }}>

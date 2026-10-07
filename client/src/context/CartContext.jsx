@@ -58,7 +58,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const cartItemCount = cart.length;
 
   const value = {
     cart,

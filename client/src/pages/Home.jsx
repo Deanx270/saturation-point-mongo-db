@@ -68,7 +68,7 @@ const Home = () => {
         }}
       >
         <Box sx={{ position: 'relative', zIndex: 2, textAlign: 'center', color: '#fff', px: 2, width: '100%', maxWidth: '800px' }}>
-          <Typography variant="h1" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 3, fontSize: { xs: '3.5rem', md: '5rem' }, lineHeight: 1.1 }}>
+          <Typography variant="h1" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 3, fontSize: { xs: '3.5rem', md: '5rem' }, lineHeight: 1.1 }}>
             The Weight<br />of Words.
           </Typography>
           <Typography variant="h6" sx={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 300, mb: 5, mx: 'auto', maxWidth: '600px', lineHeight: 1.6, opacity: 0.9 }}>
@@ -131,7 +131,7 @@ const Home = () => {
 
       {/* 2. FEATURED ADDITIONS */}
       <Container maxWidth="lg" sx={{ py: 10 }}>
-        <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
+        <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
           Featured Additions
         </Typography>
 
@@ -162,7 +162,7 @@ const Home = () => {
                     )}
                   </Box>
                   <Box sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ fontFamily: '"Cormorant", serif', color: '#1B263B', fontWeight: 600, mb: 1 }}>
+                    <Typography variant="h6" sx={{ fontFamily: '"Playfair Display", serif', color: '#1B263B', fontWeight: 600, mb: 1 }}>
                       {product.name}
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#6B7280', mb: 3, display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>
@@ -203,7 +203,7 @@ const Home = () => {
               <Typography variant="overline" sx={{ color: '#CA8A04', letterSpacing: '0.15em', fontWeight: 600, mb: 1, display: 'block' }}>
                 OUR HERITAGE
               </Typography>
-              <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', color: '#1B263B', fontWeight: 600, mb: 3 }}>
+              <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', color: '#1B263B', fontWeight: 600, mb: 3 }}>
                 A Tradition of <em style={{ fontStyle: 'italic', color: '#CA8A04' }}>Excellence</em>
               </Typography>
               <Typography variant="body1" sx={{ color: '#4B5563', lineHeight: 1.8, mb: 2 }}>
@@ -239,7 +239,7 @@ const Home = () => {
 
       {/* 4. THE COLLECTION (BENTO GRID) */}
       <Container maxWidth="lg" sx={{ py: 12 }}>
-        <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
+        <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
           The Collection
         </Typography>
 
@@ -267,7 +267,7 @@ const Home = () => {
             <Box component="img" src="/images/bento_nib_macro.png" sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
             <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
             <Box sx={{ position: 'absolute', bottom: 30, left: 30, zIndex: 2 }}>
-              <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', color: '#fff', mb: 1 }}>Exquisite Nibs</Typography>
+              <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', color: '#fff', mb: 1 }}>Exquisite Nibs</Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>14k & 18k gold mastery for a breathtaking glide.</Typography>
             </Box>
           </Box>
@@ -288,7 +288,7 @@ const Home = () => {
             <Box component="img" src="/images/bento_ink_bottle.png" sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
             <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
             <Box sx={{ position: 'absolute', bottom: 30, left: 30, zIndex: 2 }}>
-              <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', color: '#fff', mb: 1 }}>Deep Inks</Typography>
+              <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', color: '#fff', mb: 1 }}>Deep Inks</Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>Rich, saturated tones and shimmering flows.</Typography>
             </Box>
           </Box>
@@ -308,7 +308,7 @@ const Home = () => {
             <Box component="img" src="/images/bento_premium_paper.png" sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} />
             <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
             <Box sx={{ position: 'absolute', bottom: 30, left: 30, zIndex: 2 }}>
-              <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', color: '#fff', mb: 1 }}>Tomoe River</Typography>
+              <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', color: '#fff', mb: 1 }}>Tomoe River</Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>The global standard in premium writing paper.</Typography>
             </Box>
           </Box>
@@ -327,7 +327,7 @@ const Home = () => {
               px: 4
             }}
           >
-            <Typography variant="h4" sx={{ fontFamily: '"Cormorant", serif', color: '#fff', mb: 1 }}>Bespoke Editions</Typography>
+            <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif', color: '#fff', mb: 1 }}>Bespoke Editions</Typography>
             <Typography variant="body2" sx={{ color: '#A8A29E', mb: 3 }}>Limited runs from legendary houses.</Typography>
             <Button 
               component={Link} 
