@@ -181,9 +181,9 @@ const Profile = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
-      <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
+      <Grid container spacing={4} sx={{ justifyContent: 'center', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
         {/* Profile Settings Column */}
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={4} sx={{ minWidth: { md: '320px' } }}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -398,7 +398,7 @@ const Profile = () => {
         </Grid>
         
         {/* Transaction History Column */}
-        <Grid item xs={12} md={9} sx={{ minWidth: 0, width: '100%' }}>
+        <Grid item xs={12} md={8} sx={{ minWidth: 0, width: '100%' }}>
           <ErrorBoundary>
             <Paper 
               elevation={0} 
@@ -406,7 +406,8 @@ const Profile = () => {
               p: { xs: 3, sm: 5 }, 
               border: '1px solid rgba(28, 25, 23, 0.08)',
               boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
-              height: '100%'
+              height: '100%',
+              overflow: 'hidden'
             }}
           >
             <Typography 
