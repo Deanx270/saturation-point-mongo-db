@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   
   // Track existing review and purchases
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -238,7 +239,7 @@ const ProductDetails = () => {
           <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>
             {product.category}
           </Typography>
-          <Typography variant="h3" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
+          <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
             {product.name}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
@@ -259,32 +260,57 @@ const ProductDetails = () => {
           <Typography variant="body2" sx={{ color: product.stock > 0 ? '#15803d' : '#9f1239', fontWeight: 500, mb: 4 }}>
             {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
           </Typography>
-          <Button 
-            variant="contained" 
-            fullWidth 
-            disabled={product.stock === 0}
-            onClick={() => {
-              const productToAdd = {
-                _id: product._id,
-                name: product.name,
-                price: product.price,
-                photos: product.images
-              };
-              addToCart(productToAdd, 1);
-              Swal.fire({
-                icon: 'success',
-                title: 'Added to Cart',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true,
-                position: 'bottom-end',
-                customClass: { popup: 'swal2-toast' }
-              });
-            }}
-            sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
-          >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-          </Button>
+          
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {product.stock > 0 && (
+              <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid rgba(28, 25, 23, 0.2)', borderRadius: 1 }}>
+                <IconButton 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                  sx={{ borderRadius: 0 }}
+                >
+                  <Typography variant="h6" sx={{ lineHeight: 1 }}>-</Typography>
+                </IconButton>
+                <Typography sx={{ px: 2, minWidth: '40px', textAlign: 'center', fontWeight: 600, fontFamily: '"Montserrat", sans-serif' }}>
+                  {quantity}
+                </Typography>
+                <IconButton 
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  disabled={quantity >= product.stock}
+                  sx={{ borderRadius: 0 }}
+                >
+                  <Typography variant="h6" sx={{ lineHeight: 1 }}>+</Typography>
+                </IconButton>
+              </Box>
+            )}
+            
+            <Button 
+              variant="contained" 
+              fullWidth 
+              disabled={product.stock === 0}
+              onClick={() => {
+                const productToAdd = {
+                  _id: product._id,
+                  name: product.name,
+                  price: product.price,
+                  photos: product.images
+                };
+                addToCart(productToAdd, quantity);
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Added to Cart',
+                  showConfirmButton: false,
+                  timer: 1500,
+                  toast: true,
+                  position: 'bottom-end',
+                  customClass: { popup: 'swal2-toast' }
+                });
+              }}
+              sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' }, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
+            >
+              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            </Button>
+          </Box>
         </Box>
       </Box>
 
