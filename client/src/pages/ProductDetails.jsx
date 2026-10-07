@@ -277,11 +277,20 @@ const ProductDetails = () => {
                   type="number"
                   value={quantity}
                   onChange={(e) => {
-                    let val = parseInt(e.target.value);
-                    if (isNaN(val)) val = 1;
-                    if (val > product.stock) val = product.stock;
-                    if (val < 1) val = 1;
-                    setQuantity(val);
+                    const val = e.target.value;
+                    if (val === '') {
+                      setQuantity('');
+                      return;
+                    }
+                    let num = parseInt(val);
+                    if (isNaN(num)) return;
+                    if (num > product.stock) num = product.stock;
+                    setQuantity(num);
+                  }}
+                  onBlur={() => {
+                    if (quantity === '' || quantity < 1) {
+                      setQuantity(1);
+                    }
                   }}
                   sx={{ 
                     width: '50px', 

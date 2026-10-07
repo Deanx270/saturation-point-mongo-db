@@ -67,12 +67,16 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = (productId, quantity) => {
     setCart(prevCart => {
-      if (quantity <= 0) {
+      if (quantity === 0) {
         return prevCart.filter(item => item._id !== productId);
       }
-      return prevCart.map(item =>
-        item._id === productId ? { ...item, quantity: Math.min(item.stock || Infinity, quantity) } : item
-      );
+      return prevCart.map(item => {
+        if (item._id === productId) {
+          const newQty = quantity === '' ? '' : Math.min(item.stock || Infinity, quantity);
+          return { ...item, quantity: newQty };
+        }
+        return item;
+      });
     });
   };
 
