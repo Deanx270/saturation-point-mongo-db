@@ -12,6 +12,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import CopyableId from '../components/CopyableId';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const Profile = () => {
   const { currentUser, mongoUser, setMongoUser, updateUserPassword, logout } = useAuth();
@@ -169,6 +170,13 @@ const Profile = () => {
       case 'cancelled': return 'error';
       default: return 'default';
     }
+  };
+
+  const safeFormatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return 'Invalid Date';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
@@ -390,9 +398,10 @@ const Profile = () => {
         </Grid>
         
         {/* Transaction History Column */}
-        <Grid item xs={12} md={9}>
-          <Paper 
-            elevation={0} 
+        <Grid item xs={12} md={9} sx={{ minWidth: 0, width: '100%' }}>
+          <ErrorBoundary>
+            <Paper 
+              elevation={0} 
             sx={{ 
               p: { xs: 3, sm: 5 }, 
               border: '1px solid rgba(28, 25, 23, 0.08)',
@@ -409,7 +418,7 @@ const Profile = () => {
               Order History
             </Typography>
 
-            <TableContainer sx={{ border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1 }}>
+            <TableContainer sx={{ border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 1, overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -433,13 +442,15 @@ const Profile = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    orders.map((order) => (
-                      <TableRow key={order._id} hover>
+                    orders.map((order, index) => {
+                      if (!order) return null;
+                      return (
+                      <TableRow key={order._id || index} hover>
                         <TableCell sx={{ color: '#78716C' }}>
                           <CopyableId id={order._id} />
                         </TableCell>
                         <TableCell sx={{ color: '#78716C', whiteSpace: 'nowrap' }}>
-                          {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                          {safeFormatDate(order.createdAt)}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
                           ₱{parseFloat(order.totalAmount || 0).toFixed(2)}
@@ -453,12 +464,14 @@ const Profile = () => {
                           />
                         </TableCell>
                       </TableRow>
-                    ))
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
           </Paper>
+          </ErrorBoundary>
         </Grid>
       </Grid>
     </Container>
