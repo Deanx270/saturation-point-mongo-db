@@ -29,7 +29,7 @@ export const CartProvider = ({ children }) => {
       if (existingItem) {
         return prevCart.map(item =>
           item._id === product._id
-            ? { ...item, quantity: Math.min(item.stock || Infinity, item.quantity + quantity) }
+            ? { ...item, stock: product.stock, quantity: Math.min(product.stock || item.stock || Infinity, item.quantity + quantity) }
             : item
         );
       } else {

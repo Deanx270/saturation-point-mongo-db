@@ -16,7 +16,8 @@ const AdminTransactions = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [updatingStatuses, setUpdatingStatuses] = useState({});
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState(null);
+  const [updateFeedback, setUpdateFeedback] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -39,24 +40,37 @@ const AdminTransactions = () => {
     }
   }, [currentUser]);
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
-    setUpdatingStatuses(prev => ({ ...prev, [orderId]: 'loading' }));
+  const handleStatusChangeClick = (newStatus) => {
+    if (newStatus !== selectedOrder.status) {
+      setPendingStatusUpdate(newStatus);
+    } else {
+      setPendingStatusUpdate(null);
+    }
+  };
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatusUpdate || !selectedOrder) return;
+    const orderId = selectedOrder._id;
+    const newStatus = pendingStatusUpdate;
+    
+    setPendingStatusUpdate(null);
     
     try {
       const token = await currentUser.getIdToken();
       await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUpdatingStatuses(prev => ({ ...prev, [orderId]: 'success' }));
-      setTimeout(() => {
-        setUpdatingStatuses(prev => ({ ...prev, [orderId]: null }));
-      }, 1500);
+      
+      setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+      
+      setUpdateFeedback({ type: 'success', message: 'Status updated successfully' });
+      setTimeout(() => setUpdateFeedback(null), 3000);
     } catch (error) {
       console.error("Error updating order status", error);
       fetchOrders();
-      Swal.fire('Error', 'Failed to update order status', 'error');
-      setUpdatingStatuses(prev => ({ ...prev, [orderId]: null }));
+      setUpdateFeedback({ type: 'error', message: 'Failed to update status' });
+      setTimeout(() => setUpdateFeedback(null), 3000);
     }
   };
 
@@ -133,27 +147,7 @@ const AdminTransactions = () => {
                       ₱{parseFloat(order.totalAmount).toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Select
-                          size="small"
-                          value={order.status}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          disabled={updatingStatuses[order._id] === 'loading'}
-                          sx={{ 
-                            minWidth: 120, 
-                            fontSize: '0.875rem',
-                            bgcolor: 'transparent',
-                            '& .MuiSelect-select': { py: 0.5 }
-                          }}
-                        >
-                          <MenuItem value="pending">Pending</MenuItem>
-                          <MenuItem value="shipped">Shipped</MenuItem>
-                          <MenuItem value="delivered">Delivered</MenuItem>
-                          <MenuItem value="cancelled">Cancelled</MenuItem>
-                        </Select>
-                        {updatingStatuses[order._id] === 'loading' && <CircularProgress size={16} sx={{ color: '#CA8A04' }} />}
-                        {updatingStatuses[order._id] === 'success' && <CheckCircleIcon sx={{ fontSize: 18, color: '#16a34a' }} />}
-                      </Box>
+                      <Chip label={order.status.toUpperCase()} color={getStatusColor(order.status)} size="small" sx={{ fontSize: '0.7rem', letterSpacing: 1 }} />
                     </TableCell>
                     <TableCell align="right">
                       <Button 
@@ -183,43 +177,89 @@ const AdminTransactions = () => {
       >
         {selectedOrder && (
           <>
-            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, bgcolor: '#F5F5F4' }}>
-              <Box>
-                <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600 }}>
-                  Transaction Details
-                </Typography>
-                <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#78716C' }}>
-                  ID: {selectedOrder._id}
-                </Typography>
+            <DialogTitle sx={{ p: 4, pb: 3, borderBottom: '1px solid #E7E5E4' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    Transaction Details
+                    <Chip label={selectedOrder.status.toUpperCase()} color={getStatusColor(selectedOrder.status)} size="small" sx={{ fontSize: '0.7rem', letterSpacing: 1, height: 24 }} />
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <Typography variant="body2" sx={{ color: '#78716C' }}>Order ID:</Typography>
+                    <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 500 }}>{selectedOrder._id}</Typography>
+                    <CopyableId id={selectedOrder._id} />
+                  </Box>
+                </Box>
               </Box>
-              <Chip label={selectedOrder.status.toUpperCase()} color={getStatusColor(selectedOrder.status)} size="small" />
             </DialogTitle>
-            <DialogContent sx={{ p: 4 }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3, mb: 4, p: 3, bgcolor: '#F5F5F4', borderRadius: 2 }}>
+            
+            <DialogContent sx={{ p: 4, bgcolor: '#FAFAFA' }}>
+              {/* Info Grid - Matching old system strictly */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, mb: 4, p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>Customer</Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Customer</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>{selectedOrder.user?.displayName}</Typography>
-                  <Typography variant="body2" sx={{ color: '#78716C' }}>{selectedOrder.user?.email}</Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C' }}>{selectedOrder.user?.email}</Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>Date</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>{new Date(selectedOrder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Typography>
-                  <Typography variant="body2" sx={{ color: '#78716C' }}>{new Date(selectedOrder.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' })}</Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Date & Time</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {new Date(selectedOrder.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' })}
+                  </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>Payment</Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Payment Method</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>{selectedOrder.paymentMethod}</Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>Total</Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Total Amount</Typography>
                   <Typography variant="h6" sx={{ color: '#CA8A04', fontWeight: 600 }}>₱{parseFloat(selectedOrder.totalAmount).toFixed(2)}</Typography>
                 </Box>
+              </Box>
+
+              {/* Status Update Box - Restored from old system */}
+              <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 1.5, p: { xs: 2, sm: 3 }, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>Update Order Status</Typography>
+                  <Select
+                    size="small"
+                    value={selectedOrder.status}
+                    onChange={(e) => handleStatusChangeClick(e.target.value)}
+                    sx={{ minWidth: 150, fontSize: '0.875rem' }}
+                  >
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="shipped">Shipped</MenuItem>
+                    <MenuItem value="delivered">Delivered</MenuItem>
+                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                  </Select>
+                </Box>
+                
+                {pendingStatusUpdate && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 1.5, borderTop: '1px dashed #E7E5E4' }}>
+                    <Typography variant="body2" sx={{ color: '#78716C' }}>
+                      Change status to <strong>{pendingStatusUpdate}</strong>?
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button size="small" variant="outlined" onClick={() => setPendingStatusUpdate(null)} sx={{ color: '#1C1917', borderColor: '#E7E5E4', textTransform: 'none' }}>Cancel</Button>
+                      <Button size="small" variant="contained" onClick={confirmStatusChange} sx={{ bgcolor: '#1C1917', textTransform: 'none' }}>Confirm</Button>
+                    </Box>
+                  </Box>
+                )}
+                
+                {updateFeedback && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 1.5, borderTop: '1px dashed #E7E5E4' }}>
+                    <CheckCircleIcon sx={{ fontSize: 16, color: updateFeedback.type === 'success' ? '#16a34a' : '#dc2626' }} />
+                    <Typography variant="body2" sx={{ fontWeight: 500, color: updateFeedback.type === 'success' ? '#16a34a' : '#dc2626' }}>
+                      {updateFeedback.message}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
 
               <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2 }}>Order Items</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {selectedOrder.orderItems.map((item, idx) => (
-                  <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 2, border: '1px solid #E7E5E4', borderRadius: 2 }}>
+                  <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'center', p: 2, bgcolor: '#FFFFFF', border: '1px solid #E7E5E4', borderRadius: 2 }}>
                     <Box 
                       component="img" 
                       src={item.image || '/images/default-avatar.png'} 
