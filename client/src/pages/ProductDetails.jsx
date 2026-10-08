@@ -99,7 +99,7 @@ const ProductDetails = () => {
     },
     validationSchema: Yup.object({
       rating: Yup.number().min(1, 'Please provide a rating').required('Rating is required'),
-      comment: Yup.string()
+      comment: Yup.string().max(500, 'Review must be at most 500 characters')
     }),
     onSubmit: async (values, { resetForm }) => {
       setReviewLoading(true);
