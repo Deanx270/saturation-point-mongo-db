@@ -62,8 +62,18 @@ const Cart = () => {
           });
 
           clearCart();
-          sessionStorage.setItem('justCheckedOut', 'true');
-          navigate('/checkout-success');
+          
+          Swal.fire({
+            icon: 'success',
+            title: '<span style="font-family: \'Lora\', serif;">Order Placed!</span>',
+            html: '<span style="font-family: \'Montserrat\', sans-serif;">Your order has been successfully placed. You can view its status in your profile.</span>',
+            confirmButtonColor: '#1C1917',
+            customClass: {
+              popup: 'premium-swal-popup'
+            }
+          }).then(() => {
+            navigate('/profile');
+          });
         } catch (error) {
           Swal.fire({
             icon: 'error',

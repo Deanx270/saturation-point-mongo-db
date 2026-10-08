@@ -15,7 +15,7 @@ import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
-import CheckoutSuccess from './pages/CheckoutSuccess';
+
 import ErrorPage from './pages/ErrorPage';
 import { Box, CircularProgress } from '@mui/material';
 
@@ -48,11 +48,6 @@ function App() {
           <Route path="/cart" element={
             <ProtectedRoute>
               <Cart />
-            </ProtectedRoute>
-          } />
-          <Route path="/checkout-success" element={
-            <ProtectedRoute>
-              <CheckoutSuccess />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />
