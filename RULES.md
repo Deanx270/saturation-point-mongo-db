@@ -22,10 +22,10 @@ Migrating the old PHP/MySQL system to the MERN stack (MongoDB, Express, React, N
 - [x] Admin can delete a review (5pts)
 
 ### Term Test Lab - 30pts Total
-- [ ] Completed transaction. (10pts)
-- [ ] Admin updates the status of the transaction. (5pts) 
-- [ ] Email the customer of the updated transaction details. the email contains the list of products/services, their subtotal and grand total. (5pts)
-- [ ] Attach a pdf receipt on the email (10pts)
+- [x] Completed transaction. (10pts)
+- [x] Admin updates the status of the transaction. (5pts) 
+- [x] Email the customer of the updated transaction details. the email contains the list of products/services, their subtotal and grand total. (5pts)
+- [x] Attach a pdf receipt on the email (10pts)
 
 ### Unit 1
 - [x] Filter/mask bad words from reviews. `bad-words` package (10pts)

@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const { sendOrderStatusEmail } = require('../utils/emailService');
 
 exports.createOrder = async (req, res) => {
   try {
@@ -68,7 +69,7 @@ exports.getAllOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate('user', 'email displayName');
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     if (order.status === 'delivered') return res.status(400).json({ message: 'Cannot change a delivered order' });
@@ -79,6 +80,9 @@ exports.updateOrderStatus = async (req, res) => {
 
     order.status = status;
     await order.save();
+    
+    // Send email with PDF receipt
+    await sendOrderStatusEmail(order);
     
     res.status(200).json(order);
   } catch (error) {
