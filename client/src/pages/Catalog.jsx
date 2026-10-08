@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Container, Typography, Box, Paper, Button, CircularProgress, 
-  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText,
-  Pagination, Switch, FormControlLabel
+  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -37,7 +36,6 @@ const Catalog = () => {
   // Pagination and Infinite Scroll states
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isInfiniteMode, setIsInfiniteMode] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const observerTarget = React.useRef(null);
 
@@ -89,7 +87,6 @@ const Catalog = () => {
 
   // Infinite Scroll Observer
   useEffect(() => {
-    if (!isInfiniteMode) return;
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && !isFetchingMore && page < totalPages) {
@@ -106,7 +103,7 @@ const Catalog = () => {
     return () => {
       if (observerTarget.current) observer.unobserve(observerTarget.current);
     };
-  }, [isInfiniteMode, isFetchingMore, page, totalPages, fetchProducts]);
+  }, [isFetchingMore, page, totalPages, fetchProducts]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -276,23 +273,6 @@ const Catalog = () => {
         </Box>
       </Popover>
 
-      {/* Infinite Scroll Toggle */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <FormControlLabel 
-          control={
-            <Switch 
-              checked={isInfiniteMode} 
-              onChange={(e) => {
-                setIsInfiniteMode(e.target.checked);
-                setPage(1);
-                fetchProducts(1, false);
-              }} 
-            />
-          } 
-          label={<Typography sx={{ fontFamily: '"Montserrat", sans-serif', color: '#78716C', fontSize: '0.9rem' }}>Infinite Scroll Mode</Typography>} 
-        />
-      </Box>
-
       {loading && page === 1 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
           <CircularProgress sx={{ color: '#CA8A04' }} />
@@ -447,31 +427,12 @@ const Catalog = () => {
       )}
 
       {/* Infinite Scroll Loading Indicator */}
-      {isInfiniteMode && products.length > 0 && (
+      {products.length > 0 && (
         <Box ref={observerTarget} sx={{ py: 4, display: 'flex', justifyContent: 'center', height: 100 }}>
           {isFetchingMore && <CircularProgress sx={{ color: '#CA8A04' }} />}
           {!isFetchingMore && page >= totalPages && (
             <Typography sx={{ color: '#78716C', fontFamily: '"Montserrat", sans-serif' }}>End of catalog</Typography>
           )}
-        </Box>
-      )}
-
-      {/* Pagination Controls */}
-      {!isInfiniteMode && totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8, mb: 4 }}>
-          <Pagination 
-            count={totalPages} 
-            page={page} 
-            onChange={(e, value) => {
-              setPage(value);
-              fetchProducts(value, false);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }} 
-            sx={{
-              '& .MuiPaginationItem-root': { fontFamily: '"Montserrat", sans-serif' },
-              '& .Mui-selected': { bgcolor: '#1C1917 !important', color: '#fff' }
-            }}
-          />
         </Box>
       )}
     </Container>
