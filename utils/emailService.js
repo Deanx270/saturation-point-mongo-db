@@ -172,9 +172,9 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
             <thead>
               <tr>
-                <th style="padding: 10px 0; text-align: left; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">ITEM</th>
-                <th style="padding: 10px 0; text-align: center; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">QTY</th>
-                <th style="padding: 10px 0; text-align: right; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">TOTAL</th>
+                <td style="padding: 10px 0; text-align: left; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">ITEM</td>
+                <td width="60" style="padding: 10px 0; text-align: center; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">QTY</td>
+                <td width="120" style="padding: 10px 0; text-align: right; border-bottom: 2px solid #E2E8F0; color: #636E72; font-size: 12px;">TOTAL</td>
               </tr>
             </thead>
             <tbody>
@@ -182,18 +182,15 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
             </tbody>
             <tfoot>
               <tr>
-                <td style="padding: 15px 0 5px;"></td>
-                <td style="padding: 15px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Subtotal:</td>
+                <td colspan="2" style="padding: 15px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Subtotal:</td>
                 <td style="padding: 15px 0 5px; text-align: right; color: #2D3436;">PHP ${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
               </tr>
               <tr>
-                <td style="padding: 5px 0;"></td>
-                <td style="padding: 5px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Shipping:</td>
+                <td colspan="2" style="padding: 5px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Shipping:</td>
                 <td style="padding: 5px 0; text-align: right; color: #2D3436;">PHP 150.00</td>
               </tr>
               <tr>
-                <td style="padding: 15px 0;"></td>
-                <td style="padding: 15px 15px 15px 0; text-align: right; color: #D4AF37; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
+                <td colspan="2" style="padding: 15px 15px 15px 0; text-align: right; color: #D4AF37; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
                 <td style="padding: 15px 0; text-align: right; color: #1B263B; font-weight: bold; font-size: 16px;">PHP ${order.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
               </tr>
             </tfoot>
