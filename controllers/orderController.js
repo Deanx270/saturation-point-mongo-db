@@ -80,6 +80,15 @@ exports.updateOrderStatus = async (req, res) => {
 
     order.status = status;
     await order.save();
+
+    // If order is cancelled, refund the stock
+    if (status === 'cancelled') {
+      for (const item of order.orderItems) {
+        if (item.product) {
+          await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
+        }
+      }
+    }
     
     // Send email with PDF receipt in the background to prevent UI delay
     sendOrderStatusEmail(order).catch(console.error);
