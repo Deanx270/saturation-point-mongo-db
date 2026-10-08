@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, IconButton, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Tooltip
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Tooltip, TablePagination
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -22,6 +22,9 @@ const AdminCategories = () => {
   const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -150,7 +153,7 @@ const AdminCategories = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((category) => (
+                categories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((category) => (
                   <TableRow key={category._id} hover>
                     <TableCell sx={{ color: '#78716C' }}>
                       <CopyableId id={category._id} />
@@ -183,6 +186,19 @@ const AdminCategories = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={categories.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)' }}
+        />
       </Paper>
 
       {/* Modal */}
