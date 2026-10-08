@@ -120,11 +120,10 @@ const AdminDashboard = () => {
   }
 
   return (
-    <Box>
-      <Grid container spacing={4}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         
         {/* Monthly Sales Chart */}
-        <Grid item xs={12}>
+        <Box>
           <Paper elevation={0} sx={{ p: 4, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 2 }}>
             <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, color: '#1C1917', mb: 1 }}>
               Monthly Sales ({new Date().getFullYear()})
@@ -156,10 +155,10 @@ const AdminDashboard = () => {
               </ResponsiveContainer>
             </Box>
           </Paper>
-        </Grid>
+        </Box>
 
         {/* Date Range Filtered Sales Chart */}
-        <Grid item xs={12}>
+        <Box>
           <Paper elevation={0} sx={{ p: 4, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 2 }}>
             <Box sx={{ mb: 4 }}>
               <Box sx={{ mb: 3 }}>
@@ -226,9 +225,8 @@ const AdminDashboard = () => {
               </Box>
             )}
           </Paper>
-        </Grid>
+        </Box>
         
-      </Grid>
     </Box>
   );
 };
