@@ -3,7 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Container, Box, Typography, TextField, Button, Paper, CircularProgress, Alert, IconButton, InputAdornment,
   FormControl, InputLabel, OutlinedInput, FormHelperText, Grid,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip,
+  Dialog, DialogTitle, DialogContent, Divider
 } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import Visibility from '@mui/icons-material/Visibility';
@@ -24,6 +25,7 @@ const Profile = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -180,10 +182,10 @@ const Profile = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Container maxWidth="xl" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Grid container spacing={4} sx={{ justifyContent: 'center', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
         {/* Profile Settings Column */}
-        <Grid item xs={12} md={4} sx={{ minWidth: { md: '320px' } }}>
+        <Grid item xs={12} md={3} sx={{ minWidth: { md: '320px' } }}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -398,7 +400,7 @@ const Profile = () => {
         </Grid>
         
         {/* Transaction History Column */}
-        <Grid item xs={12} md={8} sx={{ minWidth: 0, width: '100%' }}>
+        <Grid item xs={12} md={9} sx={{ minWidth: 0, width: '100%' }}>
           <ErrorBoundary>
             <Paper 
               elevation={0} 
@@ -424,6 +426,7 @@ const Profile = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Items</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Total</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
@@ -446,9 +449,39 @@ const Profile = () => {
                     orders.map((order, index) => {
                       if (!order) return null;
                       return (
-                      <TableRow key={order._id || index} hover>
-                        <TableCell sx={{ color: '#78716C' }}>
+                      <TableRow 
+                        key={order._id || index} 
+                        hover
+                        onClick={() => setSelectedOrder(order)}
+                        sx={{ cursor: 'pointer', '&:last-child td, &:last-child th': { border: 0 } }}
+                      >
+                        <TableCell sx={{ color: '#78716C' }} onClick={(e) => e.stopPropagation()}>
                           <CopyableId id={order._id} />
+                        </TableCell>
+                        <TableCell>
+                          {order.orderItems && order.orderItems.length > 0 ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Box 
+                                component="img" 
+                                src={order.orderItems[0].image || '/images/default-product.png'} 
+                                alt={order.orderItems[0].name}
+                                sx={{ width: 40, height: 40, borderRadius: 1, objectFit: 'cover', border: '1px solid #E7E5E4' }}
+                                onError={(e) => { e.target.src = '/images/default-product.png'; }}
+                              />
+                              <Box>
+                                <Typography variant="body2" sx={{ fontWeight: 500, color: '#1C1917', maxWidth: 150, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {order.orderItems[0].name}
+                                </Typography>
+                                {order.orderItems.length > 1 && (
+                                  <Typography variant="caption" sx={{ color: '#78716C' }}>
+                                    +{order.orderItems.length - 1} more item{order.orderItems.length > 2 ? 's' : ''}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" sx={{ color: '#78716C' }}>No items</Typography>
+                          )}
                         </TableCell>
                         <TableCell sx={{ color: '#78716C', whiteSpace: 'nowrap' }}>
                           {safeFormatDate(order.createdAt)}
@@ -475,6 +508,116 @@ const Profile = () => {
           </ErrorBoundary>
         </Grid>
       </Grid>
+
+      {/* Transaction Details Modal */}
+      <Dialog 
+        open={Boolean(selectedOrder)} 
+        onClose={() => setSelectedOrder(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        {selectedOrder && (
+          <>
+            <DialogTitle sx={{ p: 4, pb: 3, borderBottom: '1px solid #E7E5E4' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    Transaction Details
+                    <Chip label={selectedOrder.status?.toUpperCase() || 'UNKNOWN'} color={getStatusColor(selectedOrder.status)} size="small" sx={{ fontSize: '0.7rem', letterSpacing: 1, height: 24 }} />
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <Typography variant="body2" sx={{ color: '#78716C' }}>Order ID:</Typography>
+                    <CopyableId id={selectedOrder._id} full={true} />
+                  </Box>
+                </Box>
+              </Box>
+            </DialogTitle>
+            
+            <DialogContent sx={{ p: 4, bgcolor: '#FAFAFA' }}>
+              {/* Info Grid */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, mb: 4, p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Date & Time</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    {selectedOrder.createdAt ? new Date(selectedOrder.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#78716C' }}>
+                    {selectedOrder.createdAt ? new Date(selectedOrder.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Payment Method</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>{selectedOrder.paymentMethod || 'N/A'}</Typography>
+                </Box>
+              </Box>
+
+              {/* Order Items */}
+              <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2, color: '#1C1917' }}>
+                Items Ordered
+              </Typography>
+              <Box sx={{ bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', overflow: 'hidden', mb: 4 }}>
+                <Table>
+                  <TableHead sx={{ bgcolor: '#F5F5F4' }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600, color: '#44403C' }}>Product</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: '#44403C' }}>Price</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600, color: '#44403C' }}>Qty</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600, color: '#44403C' }}>Subtotal</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(selectedOrder.orderItems || []).map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Box 
+                              component="img"
+                              src={item.image || '/images/default-product.png'}
+                              alt={item.name}
+                              sx={{ width: 48, height: 48, borderRadius: 1, objectFit: 'cover', border: '1px solid #E7E5E4' }}
+                              onError={(e) => { e.target.src = '/images/default-product.png'; }}
+                            />
+                            <Typography variant="body2" sx={{ fontWeight: 500, color: '#1C1917' }}>
+                              {item.name}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ color: '#78716C' }}>₱{parseFloat(item.price || 0).toFixed(2)}</TableCell>
+                        <TableCell align="center" sx={{ color: '#1C1917', fontWeight: 500 }}>{item.quantity}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 500, color: '#1C1917' }}>
+                          ₱{(parseFloat(item.price || 0) * parseFloat(item.quantity || 1)).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+              
+              {/* Totals */}
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Box sx={{ width: '100%', maxWidth: 300 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: '#78716C' }}>Subtotal</Typography>
+                    <Typography variant="body2">₱{parseFloat(selectedOrder.totalAmount || 0).toFixed(2)}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#78716C' }}>Shipping</Typography>
+                    <Typography variant="body2" color="success.main">Free</Typography>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1C1917' }}>Total</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#CA8A04' }}>
+                      ₱{parseFloat(selectedOrder.totalAmount || 0).toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </Container>
   );
 };

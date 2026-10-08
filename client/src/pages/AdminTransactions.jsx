@@ -157,7 +157,12 @@ const AdminTransactions = () => {
                 </TableRow>
               ) : (
                 orders.map((order) => (
-                  <TableRow key={order._id} hover>
+                  <TableRow 
+                    key={order._id} 
+                    hover
+                    onClick={() => setSelectedOrder(order)}
+                    sx={{ cursor: 'pointer', '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
                     <TableCell sx={{ color: '#78716C' }}>
                       <CopyableId id={order._id} />
                     </TableCell>
@@ -175,7 +180,7 @@ const AdminTransactions = () => {
                     <TableCell sx={{ fontWeight: 500, color: '#1C1917' }}>
                       ₱{parseFloat(order.totalAmount).toFixed(2)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <Select
                         size="small"
                         value={order.status}
