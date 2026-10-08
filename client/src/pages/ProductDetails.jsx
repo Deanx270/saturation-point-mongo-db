@@ -525,7 +525,7 @@ const ProductDetails = () => {
                <Typography variant="body1" sx={{ color: '#78716C' }}>No other reviews yet.</Typography>
             ) : (
               product.reviews.filter(r => !userReviewData || r._id !== userReviewData._id).map(review => (
-                <Box key={review._id} sx={{ pb: 4, borderBottom: '1px solid rgba(28, 25, 23, 0.04)' }}>
+                <Box key={review._id} sx={{ p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Avatar src={review.user?.photoURL || ''} sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
@@ -545,10 +545,10 @@ const ProductDetails = () => {
                       </Tooltip>
                     )}
                   </Box>
-                  <Typography variant="body1" sx={{ color: review.comment ? '#44403C' : '#a8a29e', whiteSpace: 'pre-line', fontStyle: review.comment ? 'normal' : 'italic' }}>
+                  <Typography variant="body1" sx={{ color: review.comment ? '#44403C' : '#a8a29e', whiteSpace: 'pre-line', fontStyle: review.comment ? 'normal' : 'italic', pl: { xs: 0, sm: 7 } }}>
                     {review.comment || 'No comment provided.'}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
+                  <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2, pl: { xs: 0, sm: 7 } }}>
                     {review.createdAt 
                       ? new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
                       : new Date(parseInt(review._id.substring(0, 8), 16) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
