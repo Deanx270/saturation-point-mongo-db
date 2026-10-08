@@ -29,6 +29,7 @@ const ProductDetails = () => {
   
   // Track existing review and purchases
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [userReviewData, setUserReviewData] = useState(null);
   const [isEditingReview, setIsEditingReview] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
 
@@ -56,6 +57,7 @@ const ProductDetails = () => {
         // For this MP3 requirement, we'll populate formik if they already reviewed based on name match for simplicity.
         if (userReview) {
           setHasReviewed(true);
+          setUserReviewData(userReview);
           formik.setValues({
             rating: userReview.rating,
             comment: userReview.comment
@@ -122,7 +124,7 @@ const ProductDetails = () => {
         
         setHasReviewed(true);
         setIsEditingReview(false);
-        fetchProduct(); // Refresh reviews
+        fetchProduct(); // Refresh reviews and will set userReviewData
       } catch (error) {
         Swal.fire('Error', error.response?.data?.message || 'Failed to submit review', 'error');
       }
@@ -384,16 +386,36 @@ const ProductDetails = () => {
         {currentUser ? (
           hasPurchased ? (
             <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#FAF9F6', borderRadius: 2, mb: 4, border: '1px solid rgba(28, 25, 23, 0.04)' }}>
-              {hasReviewed && !isEditingReview ? (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body1" sx={{ color: '#44403C' }}>You have already reviewed this product.</Typography>
-                  <Button 
-                    onClick={() => setIsEditingReview(true)} 
-                    startIcon={<EditIcon />}
-                    sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
-                  >
-                    Edit your review
-                  </Button>
+              {hasReviewed && !isEditingReview && userReviewData ? (
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontFamily: '"Lora", serif' }}>Your Review</Typography>
+                    <Button 
+                      onClick={() => setIsEditingReview(true)} 
+                      startIcon={<EditIcon />}
+                      size="small"
+                      sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
+                    >
+                      Edit your review
+                    </Button>
+                  </Box>
+                  <Box sx={{ p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid rgba(28, 25, 23, 0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                      <Avatar src={userReviewData.user?.photoURL || ''} sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
+                        {userReviewData.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{userReviewData.name}</Typography>
+                        <Rating value={userReviewData.rating} readOnly size="small" sx={{ mt: 0.5 }} />
+                      </Box>
+                    </Box>
+                    <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
+                      {userReviewData.comment}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
+                      {userReviewData.createdAt ? new Date(userReviewData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Legacy Review'}
+                    </Typography>
+                  </Box>
                 </Box>
               ) : (
                 <form onSubmit={formik.handleSubmit}>
@@ -462,35 +484,39 @@ const ProductDetails = () => {
           {product.reviews.length === 0 ? (
             <Typography variant="body1" sx={{ color: '#78716C' }}>No reviews yet. Be the first to review!</Typography>
           ) : (
-            product.reviews.map(review => (
-              <Box key={review._id} sx={{ pb: 4, borderBottom: '1px solid rgba(28, 25, 23, 0.04)' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
-                      {review.name.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{review.name}</Typography>
-                      <Rating value={review.rating} readOnly size="small" sx={{ mt: 0.5 }} />
+            product.reviews.filter(r => !userReviewData || r._id !== userReviewData._id).length === 0 ? (
+               <Typography variant="body1" sx={{ color: '#78716C' }}>No other reviews yet.</Typography>
+            ) : (
+              product.reviews.filter(r => !userReviewData || r._id !== userReviewData._id).map(review => (
+                <Box key={review._id} sx={{ pb: 4, borderBottom: '1px solid rgba(28, 25, 23, 0.04)' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar src={review.user?.photoURL || ''} sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
+                        {review.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{review.name}</Typography>
+                        <Rating value={review.rating} readOnly size="small" sx={{ mt: 0.5 }} />
+                      </Box>
                     </Box>
+                    
+                    {isAdmin && (
+                      <Tooltip title="Delete Review (Admin)">
+                        <IconButton onClick={() => handleDeleteReview(review._id)} size="small" sx={{ color: '#9f1239' }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
-                  
-                  {isAdmin && (
-                    <Tooltip title="Delete Review (Admin)">
-                      <IconButton onClick={() => handleDeleteReview(review._id)} size="small" sx={{ color: '#9f1239' }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
+                    {review.comment}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
+                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Legacy Review'}
+                  </Typography>
                 </Box>
-                <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
-                  {review.comment}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
-                  {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </Typography>
-              </Box>
-            ))
+              ))
+            )
           )}
         </Box>
       </Box>
