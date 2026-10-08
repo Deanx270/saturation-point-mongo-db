@@ -70,7 +70,7 @@ const ProductDetails = () => {
           });
           const orders = ordersRes.data;
           const purchased = orders.some(order => 
-            order.status === 'completed' && order.orderItems.some(item => item.product === id)
+            order.status === 'delivered' && order.orderItems.some(item => item.product === id)
           );
           setHasPurchased(purchased);
         } catch (err) {
