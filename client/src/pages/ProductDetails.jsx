@@ -385,40 +385,50 @@ const ProductDetails = () => {
         {/* Write a Review Form */}
         {currentUser ? (
           hasPurchased ? (
-            <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#FAF9F6', borderRadius: 2, mb: 4, border: '1px solid rgba(28, 25, 23, 0.04)' }}>
+            <Box sx={{ mb: 4 }}>
               {hasReviewed && !isEditingReview && userReviewData ? (
-                <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-                    <Typography variant="h6" sx={{ fontFamily: '"Lora", serif' }}>Your Review</Typography>
-                    <Button 
-                      onClick={() => setIsEditingReview(true)} 
-                      startIcon={<EditIcon />}
-                      size="small"
-                      sx={{ color: '#CA8A04', textTransform: 'none', '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' } }}
-                    >
-                      Edit your review
-                    </Button>
-                  </Box>
-                  <Box sx={{ p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid rgba(28, 25, 23, 0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Box sx={{ 
+                  p: 3, 
+                  bgcolor: '#FDFBF7', 
+                  borderRadius: 2, 
+                  border: '1px solid rgba(202, 138, 4, 0.2)', 
+                  borderLeft: '4px solid #CA8A04',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Avatar src={userReviewData.user?.photoURL || ''} sx={{ bgcolor: '#1C1917', width: 40, height: 40 }}>
                         {userReviewData.name.charAt(0).toUpperCase()}
                       </Avatar>
                       <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{userReviewData.name}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#1C1917' }}>{userReviewData.name}</Typography>
+                          <Typography variant="caption" sx={{ color: '#CA8A04', fontWeight: 600, letterSpacing: 0.5 }}>(Your Review)</Typography>
+                        </Box>
                         <Rating value={userReviewData.rating} readOnly size="small" sx={{ mt: 0.5 }} />
                       </Box>
                     </Box>
-                    <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
-                      {userReviewData.comment}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
-                      {userReviewData.createdAt ? new Date(userReviewData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Legacy Review'}
-                    </Typography>
+                    <Button 
+                      onClick={() => setIsEditingReview(true)} 
+                      startIcon={<EditIcon />}
+                      size="small"
+                      sx={{ color: '#78716C', textTransform: 'none', '&:hover': { color: '#CA8A04', bgcolor: 'transparent' } }}
+                    >
+                      Edit
+                    </Button>
                   </Box>
+                  <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line', pl: { xs: 0, sm: 7 } }}>
+                    {userReviewData.comment}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2, pl: { xs: 0, sm: 7 } }}>
+                    {userReviewData.createdAt 
+                      ? new Date(userReviewData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : new Date(parseInt(userReviewData._id.substring(0, 8), 16) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </Typography>
                 </Box>
               ) : (
-                <form onSubmit={formik.handleSubmit}>
+                <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#FAF9F6', borderRadius: 2, border: '1px solid rgba(28, 25, 23, 0.04)' }}>
+                  <form onSubmit={formik.handleSubmit}>
                   <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Lora", serif' }}>
                     {hasReviewed ? 'Update your review' : 'Write a review'}
                   </Typography>
@@ -465,9 +475,9 @@ const ProductDetails = () => {
                       </Button>
                     )}
                   </Box>
-                </form>
+                </Paper>
               )}
-            </Paper>
+            </Box>
           ) : (
             <Alert severity="info" sx={{ mb: 4, bgcolor: '#FAF9F6', color: '#44403C', '& .MuiAlert-icon': { color: '#CA8A04' } }}>
               You must purchase this item and complete the order before you can write a review.
@@ -512,7 +522,9 @@ const ProductDetails = () => {
                     {review.comment}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
-                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Legacy Review'}
+                    {review.createdAt 
+                      ? new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) 
+                      : new Date(parseInt(review._id.substring(0, 8), 16) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </Typography>
                 </Box>
               ))
