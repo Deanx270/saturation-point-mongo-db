@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Filter = require('bad-words');
 
 // Get all products (with search, filter, and pagination)
 exports.getProducts = async (req, res) => {
@@ -191,6 +192,16 @@ exports.createProductReview = async (req, res) => {
     const { rating, comment, name } = req.body;
     const productId = req.params.id;
 
+    if (comment && comment.length > 500) {
+      return res.status(400).json({ message: 'Review must be at most 500 characters' });
+    }
+
+    let sanitizedComment = comment;
+    if (sanitizedComment) {
+      const filter = new Filter();
+      sanitizedComment = filter.clean(sanitizedComment);
+    }
+
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
@@ -199,14 +210,14 @@ exports.createProductReview = async (req, res) => {
     if (alreadyReviewed) {
       // Update existing review (MP3 Requirement: Users can update their own review/rating)
       alreadyReviewed.rating = Number(rating);
-      alreadyReviewed.comment = comment;
+      alreadyReviewed.comment = sanitizedComment;
       alreadyReviewed.name = name;
     } else {
       // Create new review
       const review = {
         name,
         rating: Number(rating),
-        comment,
+        comment: sanitizedComment,
         user: req.mongoUser._id
       };
       product.reviews.push(review);
