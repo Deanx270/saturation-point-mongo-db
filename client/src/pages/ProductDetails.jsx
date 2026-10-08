@@ -436,7 +436,7 @@ const ProductDetails = () => {
                     {hasReviewed ? 'Refine your thoughts and rating below.' : 'Share your thoughts and experiences with this product.'}
                   </Typography>
                   
-                  <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: '#FAFAFA', borderRadius: 2, border: '1px solid #F5F5F4' }}>
+                  <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography component="legend" variant="subtitle2" sx={{ color: '#44403C', fontWeight: 600 }}>Your Rating:</Typography>
                     <Rating
                       name="rating"
