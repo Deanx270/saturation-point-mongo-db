@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Button, Select, 
-  MenuItem, CircularProgress, Tooltip 
+  MenuItem, CircularProgress, Tooltip, TablePagination
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,6 +16,8 @@ const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingRoles, setUpdatingRoles] = useState({});
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -128,7 +130,7 @@ const AdminUsers = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
+                users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user) => (
                   <TableRow key={user._id} hover>
                     <TableCell sx={{ color: '#78716C' }}>
                       <CopyableId id={user._id} />
@@ -178,6 +180,19 @@ const AdminUsers = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={users.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)' }}
+        />
       </Paper>
     </Box>
   );

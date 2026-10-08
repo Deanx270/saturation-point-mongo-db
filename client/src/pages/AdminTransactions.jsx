@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Select, MenuItem, CircularProgress,
-  Dialog, DialogTitle, DialogContent, Divider, Chip, Tooltip, Button
+  Dialog, DialogTitle, DialogContent, Divider, Chip, Tooltip, Button, TablePagination
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -18,6 +18,8 @@ const AdminTransactions = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState(null);
   const [updateFeedback, setUpdateFeedback] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -156,7 +158,7 @@ const AdminTransactions = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                orders.map((order) => (
+                orders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((order) => (
                   <TableRow 
                     key={order._id} 
                     hover
@@ -215,6 +217,19 @@ const AdminTransactions = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={orders.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)' }}
+        />
       </Paper>
 
       {/* Transaction Details Modal */}
