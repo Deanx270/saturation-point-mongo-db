@@ -389,7 +389,7 @@ const ProductDetails = () => {
               {hasReviewed && !isEditingReview && userReviewData ? (
                 <Box sx={{ 
                   p: 3, 
-                  bgcolor: '#FDFBF7', 
+                  bgcolor: '#FFFFFF', 
                   borderRadius: 2, 
                   border: '1px solid rgba(202, 138, 4, 0.2)', 
                   borderLeft: '4px solid #CA8A04',
