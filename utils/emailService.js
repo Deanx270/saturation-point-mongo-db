@@ -82,8 +82,8 @@ const sendOrderStatusEmail = async (order) => {
     // We use environment variables for Mailtrap. 
     // The user needs to supply SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || "sandbox.smtp.mailtrap.io",
-      port: process.env.SMTP_PORT || 2525,
+      host: process.env.EMAIL_HOST || "sandbox.smtp.mailtrap.io",
+      port: process.env.EMAIL_PORT || 2525,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
