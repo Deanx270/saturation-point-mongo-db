@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Container, Typography, Button, Paper, Box, TextField, Dialog, DialogTitle, 
   DialogContent, DialogActions, IconButton, Alert, CircularProgress, Tooltip, MenuItem,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Checkbox, TablePagination
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EditIcon from '@mui/icons-material/Edit';
@@ -432,12 +432,16 @@ const AdminProducts = () => {
   const [productData, setProductData] = useState(null);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalProducts, setTotalProducts] = useState(0);
   
   const fetchProducts = async () => {
     setFetchLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/products?limit=1000');
+      const res = await axios.get(`http://localhost:5000/api/products?page=${page + 1}&limit=${rowsPerPage}`);
       setProducts(res.data.products || []);
+      setTotalProducts(res.data.total || res.data.products?.length || 0);
     } catch (error) {
       console.error("Error fetching products", error);
     }
@@ -456,9 +460,12 @@ const AdminProducts = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
     fetchOptions();
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [page, rowsPerPage]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
@@ -652,6 +659,19 @@ const AdminProducts = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={totalProducts}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)' }}
+        />
       </Paper>
 
       <ProductFormModal 
