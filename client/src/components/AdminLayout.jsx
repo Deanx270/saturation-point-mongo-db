@@ -7,6 +7,7 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
 
   const tabs = [
+    { label: 'Dashboard', path: '/admin/dashboard' },
     { label: 'Products', path: '/admin/products' },
     { label: 'Transactions', path: '/admin/transactions' },
     { label: 'Users', path: '/admin/users' },

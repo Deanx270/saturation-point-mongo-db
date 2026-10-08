@@ -11,6 +11,7 @@ import AdminTransactions from './pages/AdminTransactions';
 import AdminUsers from './pages/AdminUsers';
 import AdminCategories from './pages/AdminCategories';
 import AdminBrands from './pages/AdminBrands';
+import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetails from './pages/ProductDetails';
@@ -65,12 +66,13 @@ function App() {
             <AdminRoute>
               <AdminLayout>
                 <Routes>
+                  <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="transactions" element={<AdminTransactions />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="brands" element={<AdminBrands />} />
-                  <Route path="*" element={<Navigate to="products" />} />
+                  <Route path="*" element={<Navigate to="dashboard" />} />
                 </Routes>
               </AdminLayout>
             </AdminRoute>
