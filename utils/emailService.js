@@ -182,21 +182,24 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="2" style="padding: 15px 0 5px; text-align: right; color: #636E72; font-size: 14px;">Subtotal:</td>
+                <td style="padding: 15px 0 5px;"></td>
+                <td style="padding: 15px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Subtotal:</td>
                 <td style="padding: 15px 0 5px; text-align: right; color: #2D3436;">PHP ${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
               </tr>
               <tr>
-                <td colspan="2" style="padding: 5px 0; text-align: right; color: #636E72; font-size: 14px;">Shipping:</td>
+                <td style="padding: 5px 0;"></td>
+                <td style="padding: 5px 15px 5px 0; text-align: right; color: #636E72; font-size: 14px;">Shipping:</td>
                 <td style="padding: 5px 0; text-align: right; color: #2D3436;">PHP 150.00</td>
               </tr>
               <tr>
-                <td colspan="2" style="padding: 15px 0; text-align: right; color: #D4AF37; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
+                <td style="padding: 15px 0;"></td>
+                <td style="padding: 15px 15px 15px 0; text-align: right; color: #D4AF37; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
                 <td style="padding: 15px 0; text-align: right; color: #1B263B; font-weight: bold; font-size: 16px;">PHP ${order.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
               </tr>
             </tfoot>
           </table>
 
-          ${shouldAttachReceipt ? '<p style="font-size: 16px; line-height: 1.6; margin-top: 20px;">Your official order documentation is attached to this email for your records.</p>' : ''}
+          ${shouldAttachReceipt ? '<p style="font-size: 16px; line-height: 1.6; margin-top: 20px; text-align: center;">Your official order documentation is attached to this email for your records.</p>' : ''}
           
           <div style="margin: 40px 0; text-align: center;">
             <a href="http://localhost:5173" style="display: inline-block; background-color: #1B263B; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-size: 14px; letter-spacing: 1px;">VISIT STORE</a>
