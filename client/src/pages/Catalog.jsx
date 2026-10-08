@@ -311,7 +311,7 @@ const Catalog = () => {
                       ₱{parseFloat(product.price).toFixed(2)}
                     </Typography>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#78716C' }}>
-                      ★ {product.rating > 0 ? product.rating.toFixed(1) : 'No reviews'} 
+                      <span style={{ color: '#CA8A04' }}>★</span> {product.rating > 0 ? product.rating.toFixed(1) : 'No reviews'} 
                       {' '}({product.numReviews})
                     </Typography>
                   </Box>

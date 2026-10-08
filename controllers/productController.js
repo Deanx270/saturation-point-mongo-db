@@ -199,6 +199,7 @@ exports.createProductReview = async (req, res) => {
     let sanitizedComment = comment;
     if (sanitizedComment) {
       const filter = new Filter();
+      filter.addWords('putangina', 'gago', 'tarantado', 'bobo', 'tangina', 'ulol', 'pota', 'puta', 'hayop', 'lintik', 'leche', 'pakyu', 'yawa', 'pisti', 'giatay', 'bwisit', 'punyeta', 'tae', 'kantot');
       sanitizedComment = filter.clean(sanitizedComment);
     }
 
