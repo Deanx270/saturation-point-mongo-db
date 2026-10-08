@@ -1,5 +1,5 @@
 const Product = require('../models/Product');
-const Filter = require('bad-words');
+const { Filter } = require('bad-words');
 
 // Get all products (with search, filter, and pagination)
 exports.getProducts = async (req, res) => {
