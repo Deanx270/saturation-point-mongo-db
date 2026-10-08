@@ -37,7 +37,7 @@ Migrating the old PHP/MySQL system to the MERN stack (MongoDB, Express, React, N
 ### Quiz 1 
 - [x] Price filter (5pts)
 - [x] Category filter (5pts) 
-- [ ] Ratings filter (5pts)
+- [x] Ratings filter (5pts)
 
 ### Quiz 2
 - [ ] Monthly sales charts. all months on the chart label. line chart (10pts) 
