@@ -463,10 +463,10 @@ const Profile = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Box 
                                 component="img" 
-                                src={order.orderItems[0].image || '/images/default-product.png'} 
+                                src={order.orderItems[0].image || '/images/default-avatar.png'} 
                                 alt={order.orderItems[0].name}
                                 sx={{ width: 40, height: 40, borderRadius: 1, objectFit: 'cover', border: '1px solid #E7E5E4' }}
-                                onError={(e) => { e.target.src = '/images/default-product.png'; }}
+                                onError={(e) => { e.target.src = '/images/default-avatar.png'; }}
                               />
                               <Box>
                                 <Typography variant="body2" sx={{ fontWeight: 500, color: '#1C1917', maxWidth: 150, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -573,10 +573,10 @@ const Profile = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <Box 
                               component="img"
-                              src={item.image || '/images/default-product.png'}
+                              src={item.image || '/images/default-avatar.png'}
                               alt={item.name}
                               sx={{ width: 48, height: 48, borderRadius: 1, objectFit: 'cover', border: '1px solid #E7E5E4' }}
-                              onError={(e) => { e.target.src = '/images/default-product.png'; }}
+                              onError={(e) => { e.target.src = '/images/default-avatar.png'; }}
                             />
                             <Typography variant="body2" sx={{ fontWeight: 500, color: '#1C1917' }}>
                               {item.name}
