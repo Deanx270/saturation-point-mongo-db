@@ -475,6 +475,7 @@ const ProductDetails = () => {
                       </Button>
                     )}
                   </Box>
+                </form>
                 </Paper>
               )}
             </Box>
