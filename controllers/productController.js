@@ -215,7 +215,7 @@ exports.createProductReview = async (req, res) => {
 
     product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
     
-    await product.save();
+    await product.save({ validateModifiedOnly: true });
     res.status(201).json({ message: alreadyReviewed ? 'Review updated' : 'Review added' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -244,7 +244,7 @@ exports.deleteReview = async (req, res) => {
       product.rating = 0;
     }
 
-    await product.save();
+    await product.save({ validateModifiedOnly: true });
     res.status(200).json({ message: 'Review deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
