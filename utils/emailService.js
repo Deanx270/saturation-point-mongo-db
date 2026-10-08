@@ -5,70 +5,94 @@ const PDFDocument = require('pdfkit');
 const generatePDFReceipt = (order) => {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
       let buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      // Header
-      doc.fontSize(22).font('Helvetica-Bold').text('The Saturation Point', { align: 'center' });
-      doc.fontSize(12).font('Helvetica').text('Official Order Receipt', { align: 'center' });
-      doc.moveDown(2);
+      // Premium Brand Header
+      doc.rect(0, 0, doc.page.width, 120).fill('#1C1917');
+      
+      doc.fillColor('#CA8A04').fontSize(28).font('Helvetica-Bold').text('THE SATURATION POINT', 50, 45, { align: 'center', characterSpacing: 2 });
+      doc.fillColor('#A8A29E').fontSize(10).font('Helvetica').text('PREMIUM STREETWEAR', 50, 80, { align: 'center', characterSpacing: 4 });
+      
+      doc.moveDown(4);
 
-      // Order Info
-      doc.fontSize(10).font('Helvetica-Bold').text('Order Information');
-      doc.font('Helvetica').text(`Order ID: ${order._id}`);
-      doc.text(`Status: ${order.status.toUpperCase()}`);
-      doc.text(`Date: ${new Date(order.updatedAt || order.createdAt).toLocaleDateString()}`);
-      doc.text(`Payment Method: ${order.paymentMethod}`);
-      doc.moveDown(2);
+      // Receipt Title & Meta
+      doc.fillColor('#1C1917').fontSize(20).font('Helvetica-Bold').text('OFFICIAL RECEIPT', 50, 150);
+      
+      doc.fontSize(10).font('Helvetica');
+      doc.text(`Receipt No: #${order._id.toString().substring(0, 8).toUpperCase()}`, 50, 185);
+      doc.text(`Date: ${new Date(order.updatedAt || order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, 50, 200);
+      doc.text(`Status: ${order.status.toUpperCase()}`, 50, 215);
 
-      // Customer Info
-      doc.font('Helvetica-Bold').text('Customer Information');
-      doc.font('Helvetica').text(`Name: ${order.user.displayName || 'Customer'}`);
-      doc.text(`Email: ${order.user.email}`);
-      doc.moveDown(2);
+      // Customer Info aligned to right
+      doc.font('Helvetica-Bold').text('BILLED TO:', 350, 185);
+      doc.font('Helvetica').text(order.user.displayName || 'Valued Customer', 350, 200);
+      doc.text(order.user.email, 350, 215);
+      doc.text(`Payment: ${order.paymentMethod}`, 350, 230);
 
+      doc.moveDown(3);
+      const tableTop = 280;
+
+      // Table Header Background
+      doc.rect(50, tableTop - 10, doc.page.width - 100, 30).fill('#FAFAFA');
+      
       // Items Table Header
-      doc.font('Helvetica-Bold');
-      doc.text('Item', 50, doc.y, { continued: true });
-      doc.text('Qty', 350, doc.y, { continued: true });
-      doc.text('Price', 400, doc.y, { continued: true });
-      doc.text('Subtotal', 480, doc.y);
-      doc.moveTo(50, doc.y + 5).lineTo(550, doc.y + 5).stroke();
-      doc.moveDown(1);
+      doc.fillColor('#78716C').font('Helvetica-Bold').fontSize(10);
+      doc.text('ITEM DESCRIPTION', 70, tableTop);
+      doc.text('QTY', 350, tableTop, { width: 50, align: 'center' });
+      doc.text('PRICE', 420, tableTop, { width: 60, align: 'right' });
+      doc.text('TOTAL', 500, tableTop, { width: 60, align: 'right' });
+      
+      // Bottom border for header
+      doc.moveTo(50, tableTop + 20).lineTo(doc.page.width - 50, tableTop + 20).lineWidth(1).stroke('#E7E5E4');
 
       // Items
-      doc.font('Helvetica');
-      let currentY = doc.y;
-      order.orderItems.forEach(item => {
-        doc.text(item.name, 50, currentY, { width: 280 });
-        doc.text(item.quantity.toString(), 350, currentY);
-        doc.text(`PHP ${item.price.toFixed(2)}`, 400, currentY);
-        doc.text(`PHP ${(item.price * item.quantity).toFixed(2)}`, 480, currentY);
-        currentY = doc.y + 10;
+      doc.fillColor('#1C1917').font('Helvetica').fontSize(11);
+      let currentY = tableTop + 35;
+      
+      order.orderItems.forEach((item, index) => {
+        // Striped background for even rows
+        if (index % 2 === 1) {
+          doc.rect(50, currentY - 10, doc.page.width - 100, 30).fill('#FAFAFA');
+          doc.fillColor('#1C1917');
+        }
+        
+        doc.text(item.name, 70, currentY, { width: 260 });
+        doc.text(item.quantity.toString(), 350, currentY, { width: 50, align: 'center' });
+        doc.text(`P${item.price.toLocaleString(undefined, {minimumFractionDigits: 2})}`, 420, currentY, { width: 60, align: 'right' });
+        doc.font('Helvetica-Bold').text(`P${(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}`, 500, currentY, { width: 60, align: 'right' });
+        doc.font('Helvetica');
+        
+        currentY += 35;
       });
 
-      doc.y = currentY + 10;
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-      doc.moveDown(1);
+      doc.moveTo(50, currentY).lineTo(doc.page.width - 50, currentY).lineWidth(1).stroke('#E7E5E4');
+      currentY += 20;
 
       // Totals
-      const subtotal = order.totalAmount - 150; // assuming 150 is flat shipping fee based on controller logic
-      doc.font('Helvetica-Bold');
-      doc.text(`Subtotal:`, 350, doc.y, { continued: true });
-      doc.font('Helvetica').text(`PHP ${subtotal.toFixed(2)}`, 480, doc.y);
+      const subtotal = order.totalAmount - 150; 
       
-      doc.font('Helvetica-Bold').text(`Shipping Fee:`, 350, doc.y + 15, { continued: true });
-      doc.font('Helvetica').text(`PHP 150.00`, 480, doc.y + 15);
+      doc.font('Helvetica').fontSize(10).fillColor('#78716C');
+      doc.text('Subtotal:', 380, currentY, { width: 80, align: 'right' });
+      doc.fillColor('#1C1917').text(`P${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`, 480, currentY, { width: 80, align: 'right' });
       
-      doc.moveDown(1);
-      doc.fontSize(12).font('Helvetica-Bold').text(`Grand Total:`, 350, doc.y + 25, { continued: true });
-      doc.text(`PHP ${order.totalAmount.toFixed(2)}`, 460, doc.y + 25);
+      currentY += 20;
+      doc.fillColor('#78716C').text('Shipping Fee:', 380, currentY, { width: 80, align: 'right' });
+      doc.fillColor('#1C1917').text(`P150.00`, 480, currentY, { width: 80, align: 'right' });
+      
+      currentY += 20;
+      // Grand Total Box
+      doc.rect(360, currentY, 200, 40).fill('#1C1917');
+      doc.fillColor('#CA8A04').font('Helvetica-Bold').fontSize(12);
+      doc.text('GRAND TOTAL:', 380, currentY + 14, { width: 90, align: 'right' });
+      doc.fillColor('#FFFFFF').fontSize(14).text(`P${order.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}`, 480, currentY + 13, { width: 60, align: 'right' });
 
       // Footer
-      doc.moveDown(5);
-      doc.fontSize(10).font('Helvetica-Oblique').text('Thank you for shopping at The Saturation Point!', { align: 'center' });
+      doc.rect(0, doc.page.height - 80, doc.page.width, 80).fill('#FAFAFA');
+      doc.fillColor('#A8A29E').fontSize(9).font('Helvetica').text('Thank you for shopping at The Saturation Point.', 0, doc.page.height - 50, { align: 'center' });
+      doc.text('This is a system generated receipt.', 0, doc.page.height - 35, { align: 'center' });
 
       doc.end();
     } catch (error) {
@@ -77,10 +101,8 @@ const generatePDFReceipt = (order) => {
   });
 };
 
-const sendOrderStatusEmail = async (order) => {
+const sendOrderStatusEmail = async (order, isCheckout = false) => {
   try {
-    // We use environment variables for Mailtrap. 
-    // The user needs to supply SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in .env
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || "sandbox.smtp.mailtrap.io",
       port: process.env.EMAIL_PORT || 2525,
@@ -90,85 +112,145 @@ const sendOrderStatusEmail = async (order) => {
       }
     });
 
-    // Check if SMTP credentials exist, otherwise log warning and return early so the app doesn't crash
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.log('WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.');
       return false;
     }
 
-    const pdfBuffer = await generatePDFReceipt(order);
+    // Only attach PDF if the order is delivered (official receipt) 
+    // or if you want it on checkout (invoice). The user requested to only attach when appropriate.
+    // Standard practice: Attach Receipt on "delivered" status.
+    const shouldAttachReceipt = order.status === 'delivered';
+    
+    let attachments = [];
+    if (shouldAttachReceipt) {
+      const pdfBuffer = await generatePDFReceipt(order);
+      attachments.push({
+        filename: `Official-Receipt-${order._id}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf'
+      });
+    }
 
     const subtotal = order.totalAmount - 150;
     
-    // HTML Email Body
     let itemsHtml = order.orderItems.map(item => 
       `<tr>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.name}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">PHP ${item.price.toFixed(2)}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">PHP ${(item.price * item.quantity).toFixed(2)}</td>
+        <td style="padding: 16px 8px; border-bottom: 1px solid #E7E5E4; color: #1C1917; font-weight: 500;">${item.name}</td>
+        <td style="padding: 16px 8px; border-bottom: 1px solid #E7E5E4; text-align: center; color: #78716C;">${item.quantity}</td>
+        <td style="padding: 16px 8px; border-bottom: 1px solid #E7E5E4; text-align: right; color: #78716C;">₱${item.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+        <td style="padding: 16px 8px; border-bottom: 1px solid #E7E5E4; text-align: right; color: #1C1917; font-weight: bold;">₱${(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
       </tr>`
     ).join('');
 
+    const emailSubject = isCheckout 
+      ? `Order Confirmation: #${order._id}` 
+      : `Order Update: #${order._id} - ${order.status.toUpperCase()}`;
+
+    const titleText = isCheckout ? 'ORDER CONFIRMATION' : 'STATUS UPDATE';
+    const messageText = isCheckout 
+      ? `Thank you for your purchase! Your order <strong>#${order._id}</strong> has been successfully placed and is currently <strong>PENDING</strong>.`
+      : `The status of your order <strong>#${order._id}</strong> has been updated to <strong>${order.status.toUpperCase()}</strong>.`;
+
+    const receiptMessage = shouldAttachReceipt 
+      ? `<div style="margin-top: 30px; padding: 15px; background-color: #FEFCE8; border-left: 4px solid #CA8A04; color: #854D0E; font-size: 14px;">
+           <strong style="display: block; margin-bottom: 5px;">Your Official Receipt is Attached</strong>
+           Please find the PDF receipt attached to this email for your records.
+         </div>` 
+      : '';
+
     const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #1C1917;">Order Status Update</h2>
-        <p>Dear ${order.user.displayName || 'Customer'},</p>
-        <p>The status of your order <strong>#${order._id}</strong> has been updated to: <strong><span style="color: #CA8A04;">${order.status.toUpperCase()}</span></strong>.</p>
-        
-        <h3 style="border-bottom: 2px solid #E7E5E4; padding-bottom: 5px;">Order Summary</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-          <thead>
-            <tr style="background-color: #FAFAFA;">
-              <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Item</th>
-              <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">Qty</th>
-              <th style="padding: 8px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
-              <th style="padding: 8px; text-align: right; border-bottom: 2px solid #ddd;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Subtotal:</td>
-              <td style="padding: 8px; text-align: right;">PHP ${subtotal.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Shipping:</td>
-              <td style="padding: 8px; text-align: right;">PHP 150.00</td>
-            </tr>
-            <tr>
-              <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold; font-size: 1.1em;">Grand Total:</td>
-              <td style="padding: 8px; text-align: right; font-weight: bold; font-size: 1.1em; color: #9f1239;">PHP ${order.totalAmount.toFixed(2)}</td>
-            </tr>
-          </tfoot>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #F5F5F4; font-family: 'Montserrat', Arial, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F5F4; padding: 40px 0;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background-color: #1C1917; padding: 40px 0; text-align: center;">
+                    <h1 style="color: #CA8A04; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">The Saturation Point</h1>
+                    <p style="color: #A8A29E; margin: 5px 0 0 0; font-size: 12px; letter-spacing: 4px;">PREMIUM STREETWEAR</p>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <h2 style="color: #1C1917; margin: 0 0 20px 0; font-size: 18px; letter-spacing: 1px;">${titleText}</h2>
+                    <p style="color: #57534E; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
+                      Hi ${order.user.displayName || 'Customer'},<br><br>
+                      ${messageText}
+                    </p>
+                    
+                    <h3 style="color: #1C1917; border-bottom: 2px solid #F5F5F4; padding-bottom: 10px; margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Order Summary</h3>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                      <thead>
+                        <tr>
+                          <th style="padding: 12px 8px; text-align: left; border-bottom: 2px solid #E7E5E4; color: #A8A29E; font-size: 12px; font-weight: 600;">ITEM</th>
+                          <th style="padding: 12px 8px; text-align: center; border-bottom: 2px solid #E7E5E4; color: #A8A29E; font-size: 12px; font-weight: 600;">QTY</th>
+                          <th style="padding: 12px 8px; text-align: right; border-bottom: 2px solid #E7E5E4; color: #A8A29E; font-size: 12px; font-weight: 600;">PRICE</th>
+                          <th style="padding: 12px 8px; text-align: right; border-bottom: 2px solid #E7E5E4; color: #A8A29E; font-size: 12px; font-weight: 600;">TOTAL</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemsHtml}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="3" style="padding: 16px 8px 8px; text-align: right; color: #78716C; font-size: 14px;">Subtotal:</td>
+                          <td style="padding: 16px 8px 8px; text-align: right; color: #1C1917; font-weight: 500;">₱${subtotal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                          <td colspan="3" style="padding: 8px; text-align: right; color: #78716C; font-size: 14px;">Shipping:</td>
+                          <td style="padding: 8px; text-align: right; color: #1C1917; font-weight: 500;">₱150.00</td>
+                        </tr>
+                        <tr>
+                          <td colspan="3" style="padding: 16px 8px; text-align: right; color: #1C1917; font-weight: 700; font-size: 16px;">GRAND TOTAL:</td>
+                          <td style="padding: 16px 8px; text-align: right; color: #CA8A04; font-weight: 700; font-size: 18px;">₱${order.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                    
+                    ${receiptMessage}
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #FAFAFA; padding: 30px; text-align: center; border-top: 1px solid #F5F5F4;">
+                    <p style="color: #A8A29E; font-size: 12px; margin: 0;">Thank you for shopping at The Saturation Point.</p>
+                    <p style="color: #D6D3D1; font-size: 11px; margin: 10px 0 0 0;">© ${new Date().getFullYear()} The Saturation Point. All rights reserved.</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
         </table>
-        
-        <p>A PDF receipt has been attached to this email for your records.</p>
-        <p>Thank you for shopping at The Saturation Point!</p>
-      </div>
+      </body>
+      </html>
     `;
 
     const mailOptions = {
       from: '"The Saturation Point" <noreply@saturationpoint.com>',
       to: order.user.email,
-      subject: `Order Update: #${order._id} - ${order.status.toUpperCase()}`,
+      subject: emailSubject,
       html: htmlContent,
-      attachments: [
-        {
-          filename: `Receipt-${order._id}.pdf`,
-          content: pdfBuffer,
-          contentType: 'application/pdf'
-        }
-      ]
+      attachments: attachments
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Order status email sent to ${order.user.email} (Message ID: ${info.messageId})`);
+    console.log(`Order email sent to ${order.user.email} (Message ID: ${info.messageId})`);
     return true;
   } catch (error) {
-    console.error('Error sending order status email:', error);
+    console.error('Error sending order email:', error);
     return false;
   }
 };
