@@ -40,8 +40,8 @@ Migrating the old PHP/MySQL system to the MERN stack (MongoDB, Express, React, N
 - [x] Ratings filter (5pts)
 
 ### Quiz 2
-- [ ] Monthly sales charts. all months on the chart label. line chart (10pts) 
-- [ ] Sales charts with date range filter. line or bar chart (15pts)
+- [x] Monthly sales charts. all months on the chart label. line chart (10pts) 
+- [x] Sales charts with date range filter. line or bar chart (15pts)
 
 ### Quiz 3
 - [ ] Pagination on products list on homepage. (10pts)
