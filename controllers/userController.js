@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { sendVerificationEmail: sendEmailVerification } = require('../utils/emailService');
 
 // Get Current User Profile
 const getUserProfile = async (req, res) => {
@@ -62,6 +63,24 @@ const getEmailByUsername = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user email', error: error.message });
   }
 };
+
+// Send Verification Email
+const sendVerificationEmail = async (req, res) => {
+  try {
+    const { email, firstName, lastName } = req.body;
+    const { auth } = require('../utils/firebaseAdmin');
+    const verificationUrl = await auth.generateEmailVerificationLink(email);
+    const sent = await sendEmailVerification(email, verificationUrl, firstName, lastName);
+    if (sent) {
+      res.status(200).json({ message: 'Verification email sent' });
+    } else {
+      res.status(500).json({ message: 'Failed to send verification email' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error generating verification email', error: error.message });
+  }
+};
+
 // ADMIN: Get all users
 const getAllUsers = async (req, res) => {
   try {
@@ -115,5 +134,6 @@ module.exports = {
   updateUserRole, 
   deleteUser,
   checkUsername,
-  getEmailByUsername
+  getEmailByUsername,
+  sendVerificationEmail
 };

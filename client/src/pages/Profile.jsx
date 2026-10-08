@@ -435,13 +435,13 @@ const Profile = () => {
                 <TableBody>
                   {loadingOrders ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
                         <CircularProgress sx={{ color: '#CA8A04' }} />
                       </TableCell>
                     </TableRow>
                   ) : orders.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 5, color: '#78716C' }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 5, color: '#78716C' }}>
                         No orders found. Start shopping!
                       </TableCell>
                     </TableRow>
