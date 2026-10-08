@@ -13,9 +13,10 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const Register = () => {
-  const { signup, loginWithGoogle, loginWithFacebook } = useAuth();
+  const { signup, loginWithGoogle, loginWithFacebook, logout } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -42,7 +43,105 @@ const Register = () => {
   const handleSocialLogin = async (providerFunc) => {
     setAuthError('');
     try {
-      await providerFunc();
+      const cred = await providerFunc();
+      const token = await cred.user.getIdToken();
+      const res = await axios.get('http://localhost:5000/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.data.username) {
+        const { value: formValues, isDismissed } = await Swal.fire({
+          title: '<span style="font-family: \'Lora\', serif;">Complete Your Profile</span>',
+          html: `
+            <div style="text-align: left; margin-bottom: 15px;">
+              <label style="font-size: 14px; font-weight: 500; color: #1C1917; margin-bottom: 5px; display: block;">Choose a Username *</label>
+              <input id="swal-username" class="swal2-input" placeholder="Enter username" style="width: 100%; box-sizing: border-box; margin: 0; font-family: 'Inter', sans-serif;">
+            </div>
+            <div style="text-align: left; margin-bottom: 15px;">
+              <label style="font-size: 14px; font-weight: 500; color: #1C1917; margin-bottom: 5px; display: block;">Profile Picture (Optional)</label>
+              <input id="swal-photo" type="file" accept="image/*" class="swal2-file" style="width: 100%; box-sizing: border-box; margin: 0; font-family: 'Inter', sans-serif; font-size: 14px;">
+              <small style="color: #78716C; display: block; margin-top: 4px;">Max size: 5MB</small>
+            </div>
+          `,
+          focusConfirm: false,
+          showCancelButton: true,
+          confirmButtonText: 'Save & Continue',
+          confirmButtonColor: '#1C1917',
+          cancelButtonText: 'Cancel',
+          allowOutsideClick: false,
+          customClass: { popup: 'premium-swal-popup' },
+          preConfirm: async () => {
+            const username = document.getElementById('swal-username').value;
+            if (!username) {
+              Swal.showValidationMessage('Username is required');
+              return false;
+            }
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+              Swal.showValidationMessage('Only letters, numbers, and underscores');
+              return false;
+            }
+            
+            try {
+              const usernameCheck = await axios.get(`http://localhost:5000/api/users/check-username?username=${username}`);
+              if (!usernameCheck.data.available) {
+                Swal.showValidationMessage('Username is already taken');
+                return false;
+              }
+            } catch (err) {
+               Swal.showValidationMessage('Error checking username');
+               return false;
+            }
+
+            const photoInput = document.getElementById('swal-photo');
+            let photoFile = null;
+            if (photoInput && photoInput.files.length > 0) {
+              const file = photoInput.files[0];
+              const isValidType = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'].includes(file.type);
+              const isValidSize = file.size <= 5 * 1024 * 1024;
+              if (!isValidType) {
+                Swal.showValidationMessage('Only image files are allowed');
+                return false;
+              }
+              if (!isValidSize) {
+                Swal.showValidationMessage('File is too large (max 5MB)');
+                return false;
+              }
+              photoFile = file;
+            }
+
+            return { username, photoFile };
+          }
+        });
+
+        if (isDismissed) {
+          await logout();
+          return;
+        }
+
+        if (formValues) {
+          const formData = new FormData();
+          formData.append('username', formValues.username);
+          if (formValues.photoFile) {
+            formData.append('photo', formValues.photoFile);
+          }
+
+          await axios.put('http://localhost:5000/api/users/profile', formData, {
+            headers: { 
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}` 
+            }
+          });
+          
+          Swal.fire({
+            icon: 'success',
+            title: '<span style="font-family: \'Lora\', serif;">Profile Completed!</span>',
+            showConfirmButton: false,
+            timer: 1500,
+            customClass: { popup: 'premium-swal-popup' }
+          });
+        }
+      }
+
       navigate('/profile');
     } catch (err) {
       setAuthError(formatFirebaseError(err.message));
@@ -100,7 +199,23 @@ const Register = () => {
           }
         });
 
-        navigate('/profile');
+        await axios.post('http://localhost:5000/api/users/send-verification', {
+          email: values.email,
+          firstName: values.firstName,
+          lastName: values.lastName
+        });
+
+        await logout();
+
+        Swal.fire({
+          icon: 'success',
+          title: '<span style="font-family: \'Lora\', serif;">Registration successful!</span>',
+          html: 'Please check your email to verify your account.',
+          confirmButtonColor: '#1C1917',
+          customClass: { popup: 'premium-swal-popup' }
+        });
+
+        navigate('/login');
       } catch (err) {
         setAuthError(formatFirebaseError(err.message));
       }

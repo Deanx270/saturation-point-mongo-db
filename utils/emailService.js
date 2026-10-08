@@ -227,6 +227,51 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
   }
 };
 
+const sendVerificationEmail = async (toEmail, verificationUrl, firstName = '', lastName = '') => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || "sandbox.smtp.mailtrap.io",
+      port: process.env.EMAIL_PORT || 2525,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log('WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.');
+      return false;
+    }
+
+    const mailOptions = {
+      from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
+      to: toEmail,
+      subject: 'Welcome to The Saturation Point - Verify Your Email',
+      html: `
+        <div style="font-family: 'Cormorant Garamond', serif; color: #2D3436; text-align: center; max-width: 600px; margin: 0 auto; border: 1px solid #E2E8F0; padding: 40px; background-color: #FAF9F6;">
+          <h1 style="color: #1B263B; font-size: 32px; margin-bottom: 20px;">The Saturation Point</h1>
+          <h2 style="font-family: 'Inter', sans-serif; font-weight: 300; font-size: 18px; color: #636E72; margin-bottom: 40px;">Hello ${firstName} ${lastName}, please verify your email address</h2>
+          <p style="font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+            Thank you for registering an account with us. To complete your registration and gain access to our premium catalog, please click the button below to verify your email address.
+          </p>
+          <a href="${verificationUrl}" style="display: inline-block; background-color: #1B263B; color: #ffffff; text-decoration: none; padding: 12px 24px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;">Verify Email Address</a>
+          <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #636E72; margin-top: 40px;">
+            If you did not request this, please ignore this email.
+          </p>
+        </div>
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Verification email sent to ${toEmail} (Message ID: ${info.messageId})`);
+    return true;
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    return false;
+  }
+};
+
 module.exports = {
-  sendOrderStatusEmail
+  sendOrderStatusEmail,
+  sendVerificationEmail
 };
