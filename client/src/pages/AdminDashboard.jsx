@@ -27,8 +27,13 @@ const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  // Default to current month
+  const today = new Date();
+  const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+  const defaultEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate, setEndDate] = useState(defaultEnd);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -178,7 +183,7 @@ const AdminDashboard = () => {
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     size="small"
-                    sx={{ width: 150 }}
+                    sx={{ width: 180 }}
                   />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -188,7 +193,7 @@ const AdminDashboard = () => {
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     size="small"
-                    sx={{ width: 150 }}
+                    sx={{ width: 180 }}
                   />
                 </Box>
               </Box>
