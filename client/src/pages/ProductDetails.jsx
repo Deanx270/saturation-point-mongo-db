@@ -99,7 +99,7 @@ const ProductDetails = () => {
     },
     validationSchema: Yup.object({
       rating: Yup.number().min(1, 'Please provide a rating').required('Rating is required'),
-      comment: Yup.string().required('Please write a review comment')
+      comment: Yup.string()
     }),
     onSubmit: async (values, { resetForm }) => {
       setReviewLoading(true);
@@ -417,8 +417,8 @@ const ProductDetails = () => {
                       Edit
                     </Button>
                   </Box>
-                  <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line', pl: { xs: 0, sm: 7 } }}>
-                    {userReviewData.comment}
+                  <Typography variant="body1" sx={{ color: userReviewData.comment ? '#44403C' : '#a8a29e', whiteSpace: 'pre-line', pl: { xs: 0, sm: 7 }, fontStyle: userReviewData.comment ? 'normal' : 'italic' }}>
+                    {userReviewData.comment || 'No comment provided.'}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2, pl: { xs: 0, sm: 7 } }}>
                     {userReviewData.createdAt 
@@ -545,8 +545,8 @@ const ProductDetails = () => {
                       </Tooltip>
                     )}
                   </Box>
-                  <Typography variant="body1" sx={{ color: '#44403C', whiteSpace: 'pre-line' }}>
-                    {review.comment}
+                  <Typography variant="body1" sx={{ color: review.comment ? '#44403C' : '#a8a29e', whiteSpace: 'pre-line', fontStyle: review.comment ? 'normal' : 'italic' }}>
+                    {review.comment || 'No comment provided.'}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#a8a29e', display: 'block', mt: 2 }}>
                     {review.createdAt 
