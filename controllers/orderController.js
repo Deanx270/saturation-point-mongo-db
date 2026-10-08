@@ -51,6 +51,16 @@ exports.createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+    
+    // Send order confirmation email asynchronously
+    Order.findById(createdOrder._id).populate('user', 'email displayName')
+      .then(populatedOrder => {
+        if (populatedOrder) {
+          sendOrderStatusEmail(populatedOrder, true).catch(console.error);
+        }
+      })
+      .catch(console.error);
+      
     res.status(201).json(createdOrder);
   } catch (error) {
     res.status(500).json({ message: error.message });
