@@ -427,22 +427,26 @@ const ProductDetails = () => {
                   </Typography>
                 </Box>
               ) : (
-                <Paper elevation={0} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#FAF9F6', borderRadius: 2, border: '1px solid rgba(28, 25, 23, 0.04)' }}>
+                <Box sx={{ p: { xs: 3, md: 4 }, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                   <form onSubmit={formik.handleSubmit}>
-                  <Typography variant="h6" sx={{ mb: 2, fontFamily: '"Lora", serif' }}>
-                    {hasReviewed ? 'Update your review' : 'Write a review'}
+                  <Typography variant="h5" sx={{ mb: 1, fontFamily: '"Lora", serif', fontWeight: 600, color: '#1C1917' }}>
+                    {hasReviewed ? 'Update Your Review' : 'Write a Review'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#78716C', mb: 3 }}>
+                    {hasReviewed ? 'Refine your thoughts and rating below.' : 'Share your thoughts and experiences with this product.'}
                   </Typography>
                   
-                  <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography component="legend" variant="body2" sx={{ color: '#44403C', fontWeight: 500 }}>Your Rating:</Typography>
+                  <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: '#FAFAFA', borderRadius: 2, border: '1px solid #F5F5F4' }}>
+                    <Typography component="legend" variant="subtitle2" sx={{ color: '#44403C', fontWeight: 600 }}>Your Rating:</Typography>
                     <Rating
                       name="rating"
                       value={formik.values.rating}
                       onChange={(event, newValue) => formik.setFieldValue('rating', newValue)}
                       size="large"
+                      sx={{ color: '#CA8A04' }}
                     />
                     {formik.errors.rating && (
-                      <Typography variant="caption" color="error">{formik.errors.rating}</Typography>
+                      <Typography variant="caption" color="error" sx={{ ml: 2, fontWeight: 500 }}>{formik.errors.rating}</Typography>
                     )}
                   </Box>
 
@@ -450,33 +454,55 @@ const ProductDetails = () => {
                     fullWidth
                     id="comment"
                     name="comment"
-                    placeholder="Share your thoughts about this product..."
+                    placeholder="What did you like or dislike? What did you use this product for?"
                     multiline
-                    rows={4}
+                    rows={5}
                     value={formik.values.comment}
                     onChange={formik.handleChange}
                     error={Boolean(formik.errors.comment)}
                     helperText={formik.errors.comment}
-                    sx={{ mb: 3, '& .MuiOutlinedInput-root': { bgcolor: '#fff' } }}
+                    sx={{ 
+                      mb: 4, 
+                      '& .MuiOutlinedInput-root': { 
+                        bgcolor: '#FAFAFA',
+                        transition: 'all 0.2s ease',
+                        '& fieldset': { borderColor: '#E7E5E4' },
+                        '&:hover fieldset': { borderColor: '#D6D3D1' },
+                        '&.Mui-focused fieldset': { borderColor: '#CA8A04', borderWidth: '1px' },
+                        '&.Mui-focused': { bgcolor: '#FFFFFF', boxShadow: '0 0 0 4px rgba(202, 138, 4, 0.1)' }
+                      } 
+                    }}
                   />
 
-                  <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                    {hasReviewed && isEditingReview && (
+                      <Button 
+                        onClick={() => setIsEditingReview(false)} 
+                        variant="outlined"
+                        sx={{ color: '#44403C', borderColor: '#E7E5E4', textTransform: 'none', fontWeight: 600, px: 4, '&:hover': { bgcolor: '#FAFAFA', borderColor: '#D6D3D1' } }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                     <Button 
                       type="submit" 
                       variant="contained" 
                       disabled={reviewLoading}
-                      sx={{ bgcolor: '#CA8A04', '&:hover': { bgcolor: '#a16207' }, textTransform: 'none', px: 4 }}
+                      sx={{ 
+                        bgcolor: '#1C1917', 
+                        color: '#FFFFFF',
+                        '&:hover': { bgcolor: '#292524' }, 
+                        textTransform: 'none', 
+                        fontWeight: 600,
+                        px: 5,
+                        py: 1.2
+                      }}
                     >
-                      {reviewLoading ? <CircularProgress size={24} color="inherit" /> : (hasReviewed ? 'Update Review' : 'Submit Review')}
+                      {reviewLoading ? <CircularProgress size={24} color="inherit" /> : (hasReviewed ? 'Save Changes' : 'Publish Review')}
                     </Button>
-                    {hasReviewed && isEditingReview && (
-                      <Button onClick={() => setIsEditingReview(false)} sx={{ color: '#78716C', textTransform: 'none' }}>
-                        Cancel
-                      </Button>
-                    )}
                   </Box>
                 </form>
-                </Paper>
+                </Box>
               )}
             </Box>
           ) : (
