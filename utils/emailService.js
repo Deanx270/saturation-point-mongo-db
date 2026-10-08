@@ -85,14 +85,14 @@ const sendOrderStatusEmail = async (order) => {
       host: process.env.SMTP_HOST || "sandbox.smtp.mailtrap.io",
       port: process.env.SMTP_PORT || 2525,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
     });
 
     // Check if SMTP credentials exist, otherwise log warning and return early so the app doesn't crash
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.log('WARNING: SMTP_USER or SMTP_PASS is missing in .env. Email will not be sent.');
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log('WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.');
       return false;
     }
 
