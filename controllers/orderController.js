@@ -81,8 +81,8 @@ exports.updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
     
-    // Send email with PDF receipt
-    await sendOrderStatusEmail(order);
+    // Send email with PDF receipt in the background to prevent UI delay
+    sendOrderStatusEmail(order).catch(console.error);
     
     res.status(200).json(order);
   } catch (error) {
