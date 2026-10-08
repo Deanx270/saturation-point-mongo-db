@@ -161,8 +161,8 @@ const AdminDashboard = () => {
         {/* Date Range Filtered Sales Chart */}
         <Grid item xs={12}>
           <Paper elevation={0} sx={{ p: 4, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, mb: 4, gap: 2 }}>
-              <Box>
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ mb: 3 }}>
                 <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, color: '#1C1917', mb: 1 }}>
                   Custom Range Sales Report
                 </Typography>
@@ -171,25 +171,27 @@ const AdminDashboard = () => {
                 </Typography>
               </Box>
               
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <TextField
-                  type="date"
-                  label="Start Date"
-                  InputLabelProps={{ shrink: true }}
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  size="small"
-                  sx={{ width: 160 }}
-                />
-                <TextField
-                  type="date"
-                  label="End Date"
-                  InputLabelProps={{ shrink: true }}
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  size="small"
-                  sx={{ width: 160 }}
-                />
+              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#44403C', fontWeight: 500 }}>Start:</Typography>
+                  <TextField
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    size="small"
+                    sx={{ width: 150 }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#44403C', fontWeight: 500 }}>End:</Typography>
+                  <TextField
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    size="small"
+                    sx={{ width: 150 }}
+                  />
+                </Box>
               </Box>
             </Box>
             
