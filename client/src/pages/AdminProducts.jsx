@@ -562,7 +562,7 @@ const AdminProducts = () => {
           <Typography variant="h4" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, fontSize: { xs: '2rem', sm: '2.5rem' }, color: '#1C1917' }}>
             Product Management
           </Typography>
-          <Box sx={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Button 
               variant="outlined" 
               color="error"

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Container, Typography, Box, Paper, Button, CircularProgress, 
-  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText
+  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText,
+  Pagination, Switch, FormControlLabel
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -33,10 +34,19 @@ const Catalog = () => {
   // Debounce search
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
+  // Pagination and Infinite Scroll states
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isInfiniteMode, setIsInfiniteMode] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const observerTarget = React.useRef(null);
+
+  const fetchProducts = useCallback(async (pageParam = 1, append = false) => {
+    if (pageParam === 1) setLoading(true);
+    else setIsFetchingMore(true);
+
     try {
-      let url = `http://localhost:5000/api/products?limit=100`; // High limit for now before pagination UI
+      let url = `http://localhost:5000/api/products?limit=8&page=${pageParam}`;
       if (debouncedKeyword) url += `&keyword=${debouncedKeyword}`;
       if (selectedCategories.length > 0) url += `&category=${selectedCategories.join(',')}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
@@ -50,17 +60,53 @@ const Catalog = () => {
         if (a.stock !== 0 && b.stock === 0) return -1;
         return 0;
       });
-      setProducts(fetchedProducts);
+      
+      if (append) {
+        setProducts(prev => {
+          // Avoid duplicates by using a Map
+          const newMap = new Map();
+          prev.forEach(p => newMap.set(p._id, p));
+          fetchedProducts.forEach(p => newMap.set(p._id, p));
+          return Array.from(newMap.values());
+        });
+      } else {
+        setProducts(fetchedProducts);
+      }
+      setTotalPages(res.data.pages || 1);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setIsFetchingMore(false);
     }
   }, [debouncedKeyword, selectedCategories, minPrice, maxPrice, minRating]);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
-    fetchProducts();
+    setPage(1);
+    fetchProducts(1, false);
   }, [fetchProducts]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    if (!isInfiniteMode) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isFetchingMore && page < totalPages) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          fetchProducts(nextPage, true);
+        }
+      },
+      { threshold: 1.0 }
+    );
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+    return () => {
+      if (observerTarget.current) observer.unobserve(observerTarget.current);
+    };
+  }, [isInfiniteMode, isFetchingMore, page, totalPages, fetchProducts]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -230,7 +276,24 @@ const Catalog = () => {
         </Box>
       </Popover>
 
-      {loading ? (
+      {/* Infinite Scroll Toggle */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+        <FormControlLabel 
+          control={
+            <Switch 
+              checked={isInfiniteMode} 
+              onChange={(e) => {
+                setIsInfiniteMode(e.target.checked);
+                setPage(1);
+                fetchProducts(1, false);
+              }} 
+            />
+          } 
+          label={<Typography sx={{ fontFamily: '"Montserrat", sans-serif', color: '#78716C', fontSize: '0.9rem' }}>Infinite Scroll Mode</Typography>} 
+        />
+      </Box>
+
+      {loading && page === 1 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
           <CircularProgress sx={{ color: '#CA8A04' }} />
         </Box>
@@ -380,6 +443,35 @@ const Catalog = () => {
               </Box>
             </Paper>
           ))}
+        </Box>
+      )}
+
+      {/* Infinite Scroll Loading Indicator */}
+      {isInfiniteMode && products.length > 0 && (
+        <Box ref={observerTarget} sx={{ py: 4, display: 'flex', justifyContent: 'center', height: 100 }}>
+          {isFetchingMore && <CircularProgress sx={{ color: '#CA8A04' }} />}
+          {!isFetchingMore && page >= totalPages && (
+            <Typography sx={{ color: '#78716C', fontFamily: '"Montserrat", sans-serif' }}>End of catalog</Typography>
+          )}
+        </Box>
+      )}
+
+      {/* Pagination Controls */}
+      {!isInfiniteMode && totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8, mb: 4 }}>
+          <Pagination 
+            count={totalPages} 
+            page={page} 
+            onChange={(e, value) => {
+              setPage(value);
+              fetchProducts(value, false);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }} 
+            sx={{
+              '& .MuiPaginationItem-root': { fontFamily: '"Montserrat", sans-serif' },
+              '& .Mui-selected': { bgcolor: '#1C1917 !important', color: '#fff' }
+            }}
+          />
         </Box>
       )}
     </Container>
