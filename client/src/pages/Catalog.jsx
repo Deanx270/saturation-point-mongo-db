@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Container, Typography, Box, Paper, Button, CircularProgress, 
-  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText
+  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText, Tooltip
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -345,9 +345,23 @@ const Catalog = () => {
                   <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 500 }}>
                     {product.category}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mt: 1, mb: 2, color: '#1C1917' }}>
-                    {product.name}
-                  </Typography>
+                  <Tooltip title={product.name} placement="top" arrow>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontFamily: '"Lora", serif', 
+                        fontWeight: 600, 
+                        mt: 1, 
+                        mb: 2, 
+                        color: '#1C1917',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {product.name}
+                    </Typography>
+                  </Tooltip>
                   
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body1" sx={{ fontWeight: 600, color: '#1C1917', fontFamily: '"Montserrat", sans-serif' }}>

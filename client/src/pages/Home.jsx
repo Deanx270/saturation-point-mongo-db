@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Container, Grid, Paper, CircularProgress } from '@mui/material';
+import { Box, Typography, Button, Container, Grid, Paper, CircularProgress, Tooltip } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import SearchIcon from '@mui/icons-material/Search';
@@ -162,9 +162,22 @@ const Home = () => {
                     )}
                   </Box>
                   <Box sx={{ p: 3 }}>
-                    <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', color: '#1B263B', fontWeight: 600, mb: 1 }}>
-                      {product.name}
-                    </Typography>
+                    <Tooltip title={product.name} placement="top" arrow>
+                      <Typography 
+                        variant="h6" 
+                        sx={{ 
+                          fontFamily: '"Lora", serif', 
+                          color: '#1B263B', 
+                          fontWeight: 600, 
+                          mb: 1,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+                    </Tooltip>
                     <Typography variant="body2" sx={{ color: '#6B7280', mb: 3, display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>
                       {product.description}
                     </Typography>
