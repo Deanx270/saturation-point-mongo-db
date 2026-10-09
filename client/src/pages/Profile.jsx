@@ -213,7 +213,7 @@ const Profile = () => {
                 border: '2px dashed rgba(28, 25, 23, 0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', position: 'relative', overflow: 'hidden',
-                backgroundImage: previewUrl ? `url(${previewUrl})` : `url(${mongoUser.photoURL || '/images/default-avatar.png'})`,
+                backgroundImage: previewUrl ? `url(${previewUrl})` : `url(${mongoUser.photoURL || '/images/default-avatar.png'}), url(/images/default-avatar.png)`,
                 backgroundSize: 'cover', backgroundPosition: 'center',
                 transition: 'border-color 0.2s ease',
                 '&:hover': { borderColor: '#1C1917' },

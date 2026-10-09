@@ -18,6 +18,7 @@ import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 
 import ErrorPage from './pages/ErrorPage';
+import CompleteProfileModal from './components/CompleteProfileModal';
 import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
@@ -36,12 +37,15 @@ const AdminRoute = ({ children }) => {
 };
 
 function App() {
-  const { currentUser } = useAuth();
+  const { currentUser, mongoUser } = useAuth();
+  
+  const needsProfileCompletion = mongoUser && !mongoUser.username;
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
       <Box component="main" sx={{ flexGrow: 1 }}>
+        <CompleteProfileModal open={needsProfileCompletion} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/catalog" element={<Catalog />} />
