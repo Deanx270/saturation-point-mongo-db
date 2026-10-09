@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   Container, Paper, Box, Typography, TextField, 
   Button, CircularProgress 
@@ -15,17 +15,61 @@ const CompleteProfile = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileError, setFileError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
   const fileInputRef = useRef(null);
+
+  const checkUsername = useCallback(async (val) => {
+    if (!val || val.length < 3) {
+      setUsernameAvailable(false);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(val)) return;
+
+    setIsCheckingUsername(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      setUsernameAvailable(res.data.available);
+      if (!res.data.available) {
+        setUsernameError('Username is already taken.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsCheckingUsername(false);
+  }, []);
+
+  useEffect(() => {
+    setUsernameError('');
+    setUsernameAvailable(false);
+    
+    if (username && username.length < 3) {
+      setUsernameError('Username must be at least 3 characters.');
+      return;
+    }
+    if (username && !/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameError('Only letters, numbers, and underscores are allowed.');
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      if (username && username.length >= 3) {
+        checkUsername(username);
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [username, checkUsername]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFileError('');
     if (file) {
-      const isValidType = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'].includes(file.type);
+      const isValidType = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
       const isValidSize = file.size <= 5 * 1024 * 1024;
       
       if (!isValidType) {
-        setFileError('Only image files are allowed.');
+        setFileError('Only JPEG, PNG, and WEBP images are allowed. GIFs are not supported.');
         setProfilePicture(null);
         setPreviewUrl(null);
         return;
@@ -54,19 +98,20 @@ const CompleteProfile = () => {
       setUsernameError('Username is required.');
       return;
     }
+    if (username.length < 3) {
+      setUsernameError('Username must be at least 3 characters.');
+      return;
+    }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       setUsernameError('Only letters, numbers, and underscores are allowed.');
+      return;
+    }
+    if (usernameError || isCheckingUsername || !usernameAvailable) {
       return;
     }
 
     setLoading(true);
     try {
-      const usernameCheck = await axios.get(`http://localhost:5000/api/users/check-username?username=${username}`);
-      if (!usernameCheck.data.available) {
-        setUsernameError('Username is already taken.');
-        setLoading(false);
-        return;
-      }
 
       const token = await currentUser.getIdToken();
       const formData = new FormData();
@@ -151,7 +196,7 @@ const CompleteProfile = () => {
             </Typography>
             <input 
               type="file" 
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               ref={fileInputRef}
               onChange={handleFileChange}
               style={{ display: 'none' }}
@@ -181,7 +226,7 @@ const CompleteProfile = () => {
             fullWidth 
             type="submit"
             variant="contained" 
-            disabled={loading}
+            disabled={loading || isCheckingUsername || Boolean(usernameError) || !usernameAvailable}
             sx={{ 
               bgcolor: '#1C1917', 
               color: '#fff',
@@ -189,7 +234,7 @@ const CompleteProfile = () => {
               '&:hover': { bgcolor: '#292524' }
             }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Save & Continue'}
+            {loading || isCheckingUsername ? <CircularProgress size={24} color="inherit" /> : 'Save & Continue'}
           </Button>
 
           <Button 

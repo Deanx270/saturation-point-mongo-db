@@ -13,6 +13,8 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
+  const needsProfileCompletion = mongoUser && !mongoUser.username;
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -76,7 +78,7 @@ const Navbar = () => {
 
       {isMobile ? (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {currentUser && (
+          {currentUser && !needsProfileCompletion && (
             <IconButton component={Link} to="/cart" sx={{ color: '#1C1917' }}>
               <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
                 <ShoppingCartOutlinedIcon />
@@ -94,7 +96,7 @@ const Navbar = () => {
               sx: { mt: 1, width: 200, borderRadius: 0, border: '1px solid rgba(28, 25, 23, 0.08)' }
             }}
           >
-            <MenuItem onClick={handleMenuClose} component={Link} to="/catalog" sx={navLinksStyle}>Catalog</MenuItem>
+            {!needsProfileCompletion && <MenuItem onClick={handleMenuClose} component={Link} to="/catalog" sx={navLinksStyle}>Catalog</MenuItem>}
             {!currentUser ? (
               <>
                 <MenuItem onClick={handleMenuClose} component={Link} to="/login" sx={navLinksStyle}>Login</MenuItem>
@@ -102,8 +104,8 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <MenuItem onClick={handleMenuClose} component={Link} to="/profile" sx={navLinksStyle}>Profile</MenuItem>
-                {mongoUser?.role === 'admin' && (
+                {!needsProfileCompletion && <MenuItem onClick={handleMenuClose} component={Link} to="/profile" sx={navLinksStyle}>Profile</MenuItem>}
+                {!needsProfileCompletion && mongoUser?.role === 'admin' && (
                   <MenuItem onClick={handleMenuClose} component={Link} to="/admin/products" sx={navLinksStyle}>Admin Panel</MenuItem>
                 )}
                 <MenuItem onClick={handleLogout} sx={navLinksStyle}>Logout</MenuItem>
@@ -113,7 +115,7 @@ const Navbar = () => {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <Typography component={Link} to="/catalog" sx={navLinksStyle}>Catalog</Typography>
+          {!needsProfileCompletion && <Typography component={Link} to="/catalog" sx={navLinksStyle}>Catalog</Typography>}
 
           {!currentUser ? (
             <>
@@ -122,19 +124,21 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Typography component={Link} to="/profile" sx={navLinksStyle}>Profile</Typography>
-              {mongoUser?.role === 'admin' && (
+              {!needsProfileCompletion && <Typography component={Link} to="/profile" sx={navLinksStyle}>Profile</Typography>}
+              {!needsProfileCompletion && mongoUser?.role === 'admin' && (
                 <Typography component={Link} to="/admin/products" sx={navLinksStyle}>Admin Panel</Typography>
               )}
               <Typography component="button" onClick={handleLogout} sx={{ ...navLinksStyle, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}>
                 Logout
               </Typography>
               
-              <IconButton component={Link} to="/cart" sx={{ color: '#1C1917', ml: 1 }}>
-                <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
-                  <ShoppingCartOutlinedIcon />
-                </Badge>
-              </IconButton>
+              {!needsProfileCompletion && (
+                <IconButton component={Link} to="/cart" sx={{ color: '#1C1917', ml: 1 }}>
+                  <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
+                    <ShoppingCartOutlinedIcon />
+                  </Badge>
+                </IconButton>
+              )}
             </>
           )}
         </Box>
