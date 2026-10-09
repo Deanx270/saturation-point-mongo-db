@@ -87,7 +87,8 @@ const Login = () => {
     if (authError) {
       setAuthError('');
     }
-  }, [formik.values.identifier, formik.values.password, authError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formik.values.identifier, formik.values.password]);
 
   return (
     <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
