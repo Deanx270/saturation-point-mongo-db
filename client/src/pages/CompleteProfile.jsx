@@ -226,7 +226,7 @@ const CompleteProfile = () => {
             fullWidth 
             type="submit"
             variant="contained" 
-            disabled={loading || isCheckingUsername || Boolean(usernameError) || !usernameAvailable}
+            disabled={loading || isCheckingUsername || Boolean(usernameError) || !usernameAvailable || username.length < 3}
             sx={{ 
               bgcolor: '#1C1917', 
               color: '#fff',
