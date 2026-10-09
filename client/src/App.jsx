@@ -23,14 +23,14 @@ import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
-  if (!currentUser) return <Navigate to="/login" />;
+  if (!currentUser || !currentUser.emailVerified) return <Navigate to="/login" />;
   return children;
 };
 
 const AdminRoute = ({ children }) => {
   const { currentUser, mongoUser } = useAuth();
   
-  if (!currentUser) return <Navigate to="/login" />;
+  if (!currentUser || !currentUser.emailVerified) return <Navigate to="/login" />;
   if (mongoUser && mongoUser.role !== 'admin') return <Navigate to="/403" />;
   
   return children;
@@ -39,7 +39,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   const { currentUser, mongoUser } = useAuth();
   
-  const needsProfileCompletion = mongoUser && !mongoUser.username;
+  const needsProfileCompletion = currentUser && currentUser.emailVerified && mongoUser && !mongoUser.username;
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
