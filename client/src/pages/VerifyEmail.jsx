@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Paper, Typography, Box, Button, CircularProgress } from '@mui/material';
 import { applyActionCode } from 'firebase/auth';
-import { auth } from '../utils/firebase';
+import { auth } from '../firebase';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
