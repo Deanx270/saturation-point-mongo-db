@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
@@ -24,6 +24,9 @@ const Register = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+  const [usernameCheckError, setUsernameCheckError] = useState('');
   const fileInputRef = useRef(null);
 
   const formatFirebaseError = (errorMsg) => {
@@ -125,15 +128,50 @@ const Register = () => {
     },
   });
 
+  const checkUsername = useCallback(async (val) => {
+    if (!val || val.length < 3 || !/^[a-zA-Z0-9_]+$/.test(val)) {
+      setUsernameAvailable(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      setUsernameAvailable(res.data.available);
+      if (!res.data.available) {
+        setUsernameCheckError('Username is already taken.');
+      } else {
+        setUsernameCheckError('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsCheckingUsername(false);
+  }, []);
+
+  useEffect(() => {
+    setUsernameAvailable(false);
+    setUsernameCheckError('');
+    
+    const val = formik.values.username;
+    if (!val || val.length < 3 || !/^[a-zA-Z0-9_]+$/.test(val)) return;
+
+    const handler = setTimeout(() => {
+      checkUsername(val);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [formik.values.username, checkUsername]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFileError('');
     if (file) {
-      const isValidType = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'].includes(file.type);
+      const isValidType = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
       const isValidSize = file.size <= 5 * 1024 * 1024;
       
       if (!isValidType) {
-        setFileError('Only image files are allowed. Defaulting to standard avatar.');
+        setFileError('Only JPEG, PNG, and WEBP images are allowed. GIFs are not supported.');
         formik.setFieldValue('profilePicture', null);
         setPreviewUrl(null);
         return;
@@ -249,7 +287,7 @@ const Register = () => {
             </Typography>
             <input 
               type="file" 
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               ref={fileInputRef}
               onChange={handleFileChange}
               style={{ display: 'none' }}
@@ -271,8 +309,8 @@ const Register = () => {
             value={formik.values.username}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.username && Boolean(formik.errors.username)}
-            helperText={formik.touched.username && formik.errors.username}
+            error={Boolean(formik.touched.username && formik.errors.username) || Boolean(usernameCheckError)}
+            helperText={(formik.touched.username && formik.errors.username) || usernameCheckError}
             size="small"
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
             inputProps={{ style: { fontSize: '0.9rem' } }}
@@ -367,10 +405,10 @@ const Register = () => {
             variant="contained" 
             color="primary" 
             size="medium"
-            disabled={loading}
+            disabled={loading || isCheckingUsername || Boolean(usernameCheckError) || (formik.values.username.length >= 3 && !usernameAvailable)}
             sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
           >
-            {loading ? 'Creating Account...' : 'Register'}
+            {loading || isCheckingUsername ? 'Creating Account...' : 'Register'}
           </Button>
         </form>
 

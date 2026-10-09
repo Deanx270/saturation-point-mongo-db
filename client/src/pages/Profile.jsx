@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Container, Box, Typography, TextField, Button, Paper, CircularProgress, Alert, IconButton, InputAdornment,
@@ -26,6 +26,9 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState(true);
+  const [usernameCheckError, setUsernameCheckError] = useState('');
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -131,15 +134,60 @@ const Profile = () => {
     }
   });
 
+  const checkUsername = useCallback(async (val) => {
+    // If it's their current username, it's automatically available to them
+    if (val === mongoUser?.username) {
+      setUsernameAvailable(true);
+      setUsernameCheckError('');
+      return;
+    }
+
+    if (!val || val.length < 3 || !/^[a-zA-Z0-9_]+$/.test(val)) {
+      setUsernameAvailable(false);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      setUsernameAvailable(res.data.available);
+      if (!res.data.available) {
+        setUsernameCheckError('Username is already taken.');
+      } else {
+        setUsernameCheckError('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsCheckingUsername(false);
+  }, [mongoUser]);
+
+  useEffect(() => {
+    setUsernameAvailable(true);
+    setUsernameCheckError('');
+    
+    const val = formik.values.username;
+    // Skip if it's their own username
+    if (val === mongoUser?.username) return;
+
+    if (!val || val.length < 3 || !/^[a-zA-Z0-9_]+$/.test(val)) return;
+
+    const handler = setTimeout(() => {
+      checkUsername(val);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [formik.values.username, mongoUser, checkUsername]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFileError('');
     if (file) {
-      const isValidType = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'].includes(file.type);
+      const isValidType = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
       const isValidSize = file.size <= 5 * 1024 * 1024;
       
       if (!isValidType) {
-        setFileError('Only image files are allowed. Reverting to current avatar.');
+        setFileError('Only JPEG, PNG, and WEBP images are allowed. GIFs are not supported.');
         formik.setFieldValue('profilePicture', null);
         setPreviewUrl(null);
         return;
@@ -234,7 +282,7 @@ const Profile = () => {
             
             <input 
               type="file" 
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               ref={fileInputRef}
               onChange={handleFileChange}
               style={{ display: 'none' }}
@@ -274,8 +322,8 @@ const Profile = () => {
             value={formik.values.username}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.username && Boolean(formik.errors.username)}
-            helperText={formik.touched.username && formik.errors.username}
+            error={Boolean(formik.touched.username && formik.errors.username) || Boolean(usernameCheckError)}
+            helperText={(formik.touched.username && formik.errors.username) || usernameCheckError}
             size="small"
             InputLabelProps={{ style: { fontSize: '0.85rem' } }}
             inputProps={{ style: { fontSize: '0.9rem' } }}
@@ -390,10 +438,10 @@ const Profile = () => {
             fullWidth 
             variant="contained" 
             color="primary" 
-            disabled={loading}
+            disabled={loading || isCheckingUsername || Boolean(usernameCheckError) || (formik.values.username !== mongoUser?.username && !usernameAvailable) || formik.values.username.length < 3}
             sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
+            {loading || isCheckingUsername ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
           </Button>
         </form>
       </Paper>
