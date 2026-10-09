@@ -64,7 +64,7 @@ const Profile = () => {
 
   const formik = useFormik({
     enableReinitialize: true,
-    validateOnChange: false,
+    validateOnChange: true,
     initialValues: {
       firstName: mongoUser?.displayName?.split(' ')[0] || '',
       lastName: mongoUser?.displayName?.split(' ').slice(1).join(' ') || '',
@@ -76,9 +76,11 @@ const Profile = () => {
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
+        .matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes are allowed.')
         .max(50, 'Must be 50 characters or less')
         .required('First Name is required.'),
       lastName: Yup.string()
+        .matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes are allowed.')
         .max(50, 'Must be 50 characters or less')
         .required('Last Name is required.'),
       username: Yup.string()
@@ -101,8 +103,11 @@ const Profile = () => {
           await updateUserPassword(values.password);
         }
 
+        const formattedFirstName = values.firstName.replace(/\w\S*/g, (t) => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
+        const formattedLastName = values.lastName.replace(/\w\S*/g, (t) => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
+
         const formData = new FormData();
-        formData.append('displayName', `${values.firstName} ${values.lastName}`.trim());
+        formData.append('displayName', `${formattedFirstName} ${formattedLastName}`.trim());
         formData.append('username', values.username);
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
@@ -183,24 +188,6 @@ const Profile = () => {
 
     return () => clearTimeout(handler);
   }, [formik.values.username, mongoUser, checkUsername]);
-
-  const handleDynamicChange = (e) => {
-    formik.handleChange(e);
-    const { name, value } = e.target;
-    if (value.length > 0 && formik.errors[name]?.includes('required')) {
-      formik.setFieldError(name, '');
-    } else if (value.length === 0 && formik.touched[name]) {
-      const labels = {
-        firstName: 'First Name',
-        lastName: 'Last Name',
-        username: 'Username',
-        email: 'Email',
-        password: 'Password',
-        confirmPassword: 'Confirm Password'
-      };
-      formik.setFieldError(name, `${labels[name] || 'Field'} is required.`);
-    }
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -343,7 +330,7 @@ const Profile = () => {
             variant="outlined"
             margin="normal"
             value={formik.values.username}
-            onChange={handleDynamicChange}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={Boolean(formik.touched.username && formik.errors.username) || Boolean(usernameCheckError)}
             helperText={(formik.touched.username && formik.errors.username) || usernameCheckError}
@@ -360,7 +347,7 @@ const Profile = () => {
               label="First Name"
               variant="outlined"
               value={formik.values.firstName}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.firstName && Boolean(formik.errors.firstName)}
               helperText={formik.touched.firstName && formik.errors.firstName}
@@ -375,7 +362,7 @@ const Profile = () => {
               label="Last Name"
               variant="outlined"
               value={formik.values.lastName}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.lastName && Boolean(formik.errors.lastName)}
               helperText={formik.touched.lastName && formik.errors.lastName}
@@ -395,7 +382,7 @@ const Profile = () => {
               label="New Password"
               type={showPassword ? 'text' : 'password'}
               value={formik.values.password}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               inputProps={{ style: { fontSize: '0.9rem' } }}
               endAdornment={
@@ -425,7 +412,7 @@ const Profile = () => {
               label="Confirm New Password"
               type={showConfirmPassword ? 'text' : 'password'}
               value={formik.values.confirmPassword}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               inputProps={{ style: { fontSize: '0.9rem' } }}
               endAdornment={
