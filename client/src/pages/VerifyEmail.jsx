@@ -3,8 +3,8 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Paper, Typography, Box, Button, CircularProgress } from '@mui/material';
 import { applyActionCode } from 'firebase/auth';
 import { auth } from '../firebase';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
@@ -79,7 +79,7 @@ const VerifyEmail = () => {
 
         {status === 'success' && (
           <Box sx={{ py: 2 }}>
-            <CheckCircleOutlineIcon sx={{ fontSize: 64, color: '#10B981', mb: 2 }} />
+            <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: '#10B981', mb: 2 }} />
             <Typography variant="h5" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, color: '#1C1917', mb: 1 }}>
               Email Verified
             </Typography>
@@ -101,7 +101,7 @@ const VerifyEmail = () => {
 
         {status === 'error' && (
           <Box sx={{ py: 2 }}>
-            <ErrorOutlineIcon sx={{ fontSize: 64, color: '#EF4444', mb: 2 }} />
+            <ErrorOutlinedIcon sx={{ fontSize: 64, color: '#EF4444', mb: 2 }} />
             <Typography variant="h5" sx={{ fontFamily: '"Cormorant", serif', fontWeight: 600, color: '#1C1917', mb: 1 }}>
               Verification Failed
             </Typography>
