@@ -52,6 +52,12 @@ const Catalog = () => {
       if (minRating > 0) url += `&minRating=${minRating}`;
       
       const res = await axios.get(url);
+      
+      // Artificial delay for infinite scroll to make the loading spinner visible
+      if (append) {
+        await new Promise(resolve => setTimeout(resolve, 600));
+      }
+
       let fetchedProducts = res.data.products || res.data;
       fetchedProducts.sort((a, b) => {
         if (a.stock === 0 && b.stock !== 0) return 1;
