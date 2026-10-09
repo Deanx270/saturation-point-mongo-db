@@ -405,7 +405,7 @@ const Register = () => {
             variant="contained" 
             color="primary" 
             size="medium"
-            disabled={loading || isCheckingUsername || Boolean(usernameCheckError) || (formik.values.username.length >= 3 && !usernameAvailable)}
+            disabled={loading || isCheckingUsername || Boolean(usernameCheckError) || !usernameAvailable || formik.values.username.length < 3}
             sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
           >
             {loading || isCheckingUsername ? 'Creating Account...' : 'Register'}

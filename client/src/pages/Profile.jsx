@@ -163,12 +163,17 @@ const Profile = () => {
   }, [mongoUser]);
 
   useEffect(() => {
-    setUsernameAvailable(true);
-    setUsernameCheckError('');
-    
     const val = formik.values.username;
+    
     // Skip if it's their own username
-    if (val === mongoUser?.username) return;
+    if (val === mongoUser?.username) {
+      setUsernameAvailable(true);
+      setUsernameCheckError('');
+      return;
+    }
+
+    setUsernameAvailable(false);
+    setUsernameCheckError('');
 
     if (!val || val.length < 3 || !/^[a-zA-Z0-9_]+$/.test(val)) return;
 
@@ -233,7 +238,7 @@ const Profile = () => {
     <Container maxWidth="xl" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Grid container spacing={4} sx={{ justifyContent: 'center', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
         {/* Profile Settings Column */}
-        <Grid item xs={12} md={3} sx={{ minWidth: { md: '320px' } }}>
+        <Grid item xs={12} md={3} sx={{ minWidth: { md: '320px' }, maxWidth: { md: '320px' }, width: '100%' }}>
       <Paper 
         elevation={0} 
         sx={{ 

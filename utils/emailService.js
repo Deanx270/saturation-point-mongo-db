@@ -248,17 +248,25 @@ const sendVerificationEmail = async (toEmail, verificationUrl, firstName = '', l
       to: toEmail,
       subject: 'Welcome to The Saturation Point - Verify Your Email',
       html: `
-        <div style="font-family: 'Cormorant Garamond', serif; color: #2D3436; text-align: center; max-width: 600px; margin: 0 auto; border: 1px solid #E2E8F0; padding: 40px; background-color: #FAF9F6;">
-          <h1 style="color: #1B263B; font-size: 32px; margin-bottom: 20px;">The Saturation Point</h1>
-          <h2 style="font-family: 'Inter', sans-serif; font-weight: 300; font-size: 18px; color: #636E72; margin-bottom: 40px;">Hello ${firstName} ${lastName}, please verify your email address</h2>
-          <p style="font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
-            Thank you for registering an account with us. To complete your registration and gain access to our premium catalog, please click the button below to verify your email address.
-          </p>
-          <a href="${verificationUrl}" style="display: inline-block; background-color: #1B263B; color: #ffffff; text-decoration: none; padding: 12px 24px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px;">Verify Email Address</a>
-          <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #636E72; margin-top: 40px;">
-            If you did not request this, please ignore this email.
-          </p>
+      <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-top: 4px solid #D4AF37; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); padding: 40px;">
+          <h2 style="font-family: 'Times New Roman', serif; color: #1B263B; font-size: 28px; font-weight: normal; margin-top: 0; text-align: center; letter-spacing: 1px;">THE SATURATION POINT</h2>
+          
+          <hr style="border: none; border-bottom: 1px solid #E2E8F0; margin: 30px 0;">
+          
+          <p style="font-size: 16px; margin-bottom: 20px;">Dear ${firstName} ${lastName},</p>
+          <p style="font-size: 16px; line-height: 1.6;">Thank you for registering an account with us. To complete your registration and gain access to our premium catalog, please click the button below to verify your email address.</p>
+          
+          <div style="margin: 40px 0; text-align: center;">
+            <a href="${verificationUrl}" style="display: inline-block; background-color: #1B263B; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-size: 14px; letter-spacing: 1px;">VERIFY EMAIL ADDRESS</a>
+          </div>
+          
+          <hr style="border: none; border-bottom: 1px solid #E2E8F0; margin: 30px 0;">
+          
+          <p style="font-size: 14px; color: #636E72; text-align: center; margin-bottom: 5px;">If you did not request this, please ignore this email.</p>
+          <p style="font-size: 12px; color: #a8a29e; text-align: center; margin-top: 0;">This is an automated message, please do not reply.</p>
         </div>
+      </div>
       `
     };
 
