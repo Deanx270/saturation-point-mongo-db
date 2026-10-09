@@ -69,7 +69,12 @@ const sendVerificationEmail = async (req, res) => {
   try {
     const { email, firstName, lastName } = req.body;
     const { auth } = require('../utils/firebaseAdmin');
-    const verificationUrl = await auth.generateEmailVerificationLink(email);
+    const rawVerificationUrl = await auth.generateEmailVerificationLink(email);
+    
+    // Intercept the Firebase action URL and rewrite it to point to our gorgeous custom React page
+    const urlObj = new URL(rawVerificationUrl);
+    const verificationUrl = `http://localhost:5173/verify-email${urlObj.search}`;
+    
     const sent = await sendEmailVerification(email, verificationUrl, firstName, lastName);
     if (sent) {
       res.status(200).json({ message: 'Verification email sent' });
