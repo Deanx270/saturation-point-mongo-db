@@ -111,6 +111,7 @@ const AdminUsers = () => {
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Display Name</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Username</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
@@ -119,13 +120,13 @@ const AdminUsers = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
               ) : users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 5, color: '#78716C' }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 5, color: '#78716C' }}>
                     No users found.
                   </TableCell>
                 </TableRow>
@@ -146,6 +147,7 @@ const AdminUsers = () => {
                         <Typography variant="body2">{user.displayName}</Typography>
                       </Box>
                     </TableCell>
+                    <TableCell sx={{ color: '#44403C' }}>{user.username || <Typography variant="caption" sx={{ fontStyle: 'italic', color: '#A8A29E' }}>Not set</Typography>}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
