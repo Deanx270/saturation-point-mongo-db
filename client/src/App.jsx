@@ -61,10 +61,10 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/login" element={
-              currentUser ? <Navigate to="/profile" /> : <Login />
+              currentUser && currentUser.emailVerified ? <Navigate to="/profile" /> : <Login />
             } />
             <Route path="/register" element={
-              currentUser ? <Navigate to="/profile" /> : <Register />
+              currentUser && currentUser.emailVerified ? <Navigate to="/profile" /> : <Register />
             } />
             <Route path="/profile" element={
               <ProtectedRoute>
