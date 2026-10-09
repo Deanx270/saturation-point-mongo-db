@@ -1,0 +1,214 @@
+import React, { useState, useRef } from 'react';
+import { 
+  Container, Paper, Box, Typography, TextField, 
+  Button, CircularProgress 
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+
+const CompleteProfile = () => {
+  const { currentUser, logout, mongoUser, setMongoUser } = useAuth();
+  const [username, setUsername] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileError, setFileError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFileError('');
+    if (file) {
+      const isValidType = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/gif'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024;
+      
+      if (!isValidType) {
+        setFileError('Only image files are allowed.');
+        setProfilePicture(null);
+        setPreviewUrl(null);
+        return;
+      }
+      
+      if (!isValidSize) {
+        setFileError('File is too large (max 5MB).');
+        setProfilePicture(null);
+        setPreviewUrl(null);
+        return;
+      }
+      
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setUsernameError('');
+    if (!username.trim()) {
+      setUsernameError('Username is required.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setUsernameError('Only letters, numbers, and underscores are allowed.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const usernameCheck = await axios.get(`http://localhost:5000/api/users/check-username?username=${username}`);
+      if (!usernameCheck.data.available) {
+        setUsernameError('Username is already taken.');
+        setLoading(false);
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+      const formData = new FormData();
+      formData.append('username', username);
+      if (profilePicture) {
+        formData.append('photo', profilePicture);
+      }
+
+      const res = await axios.put('http://localhost:5000/api/users/profile', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}` 
+        }
+      });
+
+      // Update local state, triggering App.jsx to unmount this page and show normal routes
+      setMongoUser(res.data.user);
+    } catch (err) {
+      console.error(err);
+      setUsernameError('An error occurred. Please try again.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: { xs: 3, sm: 4 }, 
+          textAlign: 'center', 
+          border: '1px solid rgba(28, 25, 23, 0.08)',
+          boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)'
+        }}
+      >
+        <Typography 
+          variant="h6" 
+          color="primary" 
+          gutterBottom 
+          sx={{ textTransform: 'uppercase', letterSpacing: '0.18em', mb: 2, fontWeight: 600, fontSize: '1.25rem' }}
+        >
+          The Saturation Point
+        </Typography>
+        
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, fontSize: '0.85rem' }}>
+          Please complete your profile to continue.
+        </Typography>
+
+        <form onSubmit={handleSave} noValidate>
+          <Box sx={{ mt: 3, mb: 4, textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ mb: 1, fontSize: '0.85rem', color: '#44403C' }}>
+              Profile Picture (Optional) <Typography component="span" sx={{ fontSize: '0.75rem', color: '#78716C' }}>(Max 5MB)</Typography>
+            </Typography>
+            <Box 
+              onClick={() => fileInputRef.current.click()}
+              sx={{
+                width: 75, height: 75, borderRadius: '50%', mx: 'auto',
+                border: '2px dashed rgba(28, 25, 23, 0.08)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', position: 'relative',
+                backgroundImage: previewUrl ? `url(${previewUrl})` : `url(${mongoUser?.photoURL}), url(/images/default-avatar.png)`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
+                transition: 'border-color 0.2s ease',
+                '&:hover': { borderColor: '#1C1917' }
+              }}
+            >
+              <Box sx={{
+                position: 'absolute', bottom: 0, right: 0, 
+                bgcolor: '#CA8A04', color: '#fff', width: 21, height: 21, 
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}>
+                <AddIcon sx={{ fontSize: 14 }} />
+              </Box>
+            </Box>
+            <Typography 
+              variant="caption" 
+              onClick={() => fileInputRef.current.click()}
+              sx={{ color: '#44403C', mt: 1, display: 'block', cursor: 'pointer', '&:hover': { color: '#1C1917' } }}
+            >
+              Upload Photo
+            </Typography>
+            <input 
+              type="file" 
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+            />
+            {fileError && (
+              <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+                {fileError}
+              </Typography>
+            )}
+          </Box>
+
+          <TextField
+            fullWidth
+            label="Choose a Username *"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            error={Boolean(usernameError)}
+            helperText={usernameError}
+            size="small"
+            sx={{ mb: 4 }}
+            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
+            inputProps={{ style: { fontSize: '0.9rem' } }}
+          />
+
+          <Button 
+            fullWidth 
+            type="submit"
+            variant="contained" 
+            disabled={loading}
+            sx={{ 
+              bgcolor: '#1C1917', 
+              color: '#fff',
+              mb: 2,
+              '&:hover': { bgcolor: '#292524' }
+            }}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Save & Continue'}
+          </Button>
+
+          <Button 
+            fullWidth 
+            variant="text" 
+            onClick={() => logout()}
+            disabled={loading}
+            sx={{ 
+              color: '#78716C',
+              fontSize: '0.8rem',
+              '&:hover': { color: '#1C1917', bgcolor: 'transparent' }
+            }}
+          >
+            Sign out instead
+          </Button>
+        </form>
+      </Paper>
+    </Container>
+  );
+};
+
+export default CompleteProfile;

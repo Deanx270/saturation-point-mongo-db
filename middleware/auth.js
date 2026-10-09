@@ -26,6 +26,18 @@ const verifyToken = async (req, res, next) => {
     }
     
     req.mongoUser = user; // Attach MongoDB user object to request
+    
+    // Block incomplete profiles from using the API, except for endpoints needed to complete the profile
+    const exemptUrls = [
+      '/api/users/profile',
+      '/api/users/check-username'
+    ];
+    const isExempt = exemptUrls.some(url => req.originalUrl.startsWith(url));
+    
+    if (!user.username && !isExempt) {
+      return res.status(403).json({ message: 'Profile completion required.', needsProfileCompletion: true });
+    }
+
     next();
   } catch (error) {
     console.error('Token verification failed:', error);

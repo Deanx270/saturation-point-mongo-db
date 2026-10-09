@@ -18,7 +18,7 @@ import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 
 import ErrorPage from './pages/ErrorPage';
-import CompleteProfileModal from './components/CompleteProfileModal';
+import CompleteProfile from './pages/CompleteProfile';
 import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
@@ -45,43 +45,54 @@ function App() {
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
       <Box component="main" sx={{ flexGrow: 1 }}>
-        <CompleteProfileModal open={needsProfileCompletion} />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/catalog" element={<Catalog />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={
-            <ProtectedRoute>
-              <Cart />
-            </ProtectedRoute>
-          } />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/403" element={<ErrorPage code={403} />} />
-          <Route path="*" element={<ErrorPage code={404} />} />
-          
-          <Route path="/admin/*" element={
-            <AdminRoute>
-              <AdminLayout>
-                <Routes>
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="transactions" element={<AdminTransactions />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="brands" element={<AdminBrands />} />
-                  <Route path="*" element={<Navigate to="dashboard" />} />
-                </Routes>
-              </AdminLayout>
-            </AdminRoute>
-          } />
-        </Routes>
+        {needsProfileCompletion ? (
+          <Routes>
+            <Route path="/complete-profile" element={<CompleteProfile />} />
+            <Route path="*" element={<Navigate to="/complete-profile" />} />
+          </Routes>
+        ) : (
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/catalog" element={<Catalog />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            } />
+            <Route path="/login" element={
+              currentUser ? <Navigate to="/profile" /> : <Login />
+            } />
+            <Route path="/register" element={
+              currentUser ? <Navigate to="/profile" /> : <Register />
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/complete-profile" element={<Navigate to="/profile" />} />
+            <Route path="/403" element={<ErrorPage code={403} />} />
+            <Route path="*" element={<ErrorPage code={404} />} />
+            
+            <Route path="/admin/*" element={
+              <AdminRoute>
+                <AdminLayout>
+                  <Routes>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="transactions" element={<AdminTransactions />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="brands" element={<AdminBrands />} />
+                    <Route path="*" element={<Navigate to="dashboard" />} />
+                  </Routes>
+                </AdminLayout>
+              </AdminRoute>
+            } />
+          </Routes>
+        )}
       </Box>
       <Footer />
     </Box>
