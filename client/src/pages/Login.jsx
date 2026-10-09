@@ -83,6 +83,16 @@ const Login = () => {
     }
   };
 
+  const handleDynamicChange = (e) => {
+    formik.handleChange(e);
+    const { name, value } = e.target;
+    if (value.length > 0 && formik.errors[name]?.includes('required')) {
+      formik.setFieldError(name, '');
+    } else if (value.length === 0 && formik.touched[name]) {
+      formik.setFieldError(name, `${name === 'identifier' ? 'Email or Username' : 'Password'} is required.`);
+    }
+  };
+
   return (
     <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Paper 
@@ -116,7 +126,7 @@ const Login = () => {
             variant="outlined"
             margin="normal"
             value={formik.values.identifier}
-            onChange={formik.handleChange}
+            onChange={handleDynamicChange}
             onBlur={formik.handleBlur}
             error={formik.touched.identifier && Boolean(formik.errors.identifier)}
             helperText={formik.touched.identifier && formik.errors.identifier}
@@ -132,7 +142,7 @@ const Login = () => {
               label="Password"
               type={showPassword ? 'text' : 'password'}
               value={formik.values.password}
-              onChange={formik.handleChange}
+              onChange={handleDynamicChange}
               onBlur={formik.handleBlur}
               inputProps={{ style: { fontSize: '0.9rem' } }}
               endAdornment={
