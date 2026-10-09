@@ -19,6 +19,7 @@ import Cart from './pages/Cart';
 
 import ErrorPage from './pages/ErrorPage';
 import CompleteProfile from './pages/CompleteProfile';
+import VerifyEmail from './pages/VerifyEmail';
 import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
@@ -66,6 +67,7 @@ function App() {
             <Route path="/register" element={
               currentUser && currentUser.emailVerified ? <Navigate to="/profile" /> : <Register />
             } />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
