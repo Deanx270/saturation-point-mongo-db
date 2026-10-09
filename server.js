@@ -38,6 +38,19 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Welcome to The Saturation Point API!' });
 });
 
+// Global Error Handler for Multer/Uploads
+app.use((err, req, res, next) => {
+  if (err instanceof require('multer').MulterError) {
+    return res.status(400).json({ message: err.message });
+  } else if (err) {
+    if (err.message === 'GIF files are not supported' || err.message === 'Only image files are allowed') {
+      return res.status(400).json({ message: err.message });
+    }
+    return res.status(500).json({ message: err.message || 'Server Error' });
+  }
+  next();
+});
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
