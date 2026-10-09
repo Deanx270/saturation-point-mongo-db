@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate, Link } from 'react-router-dom';
@@ -82,6 +82,12 @@ const Login = () => {
       setAuthError(formatFirebaseError(err.message));
     }
   };
+
+  useEffect(() => {
+    if (authError) {
+      setAuthError('');
+    }
+  }, [formik.values.identifier, formik.values.password, authError]);
 
   return (
     <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>

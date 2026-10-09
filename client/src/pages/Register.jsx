@@ -166,6 +166,12 @@ const Register = () => {
     return () => clearTimeout(handler);
   }, [formik.values.username, checkUsername]);
 
+  useEffect(() => {
+    if (authError) {
+      setAuthError('');
+    }
+  }, [formik.values.email, formik.values.password, authError]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFileError('');
