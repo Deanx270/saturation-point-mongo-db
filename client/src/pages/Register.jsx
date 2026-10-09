@@ -170,7 +170,8 @@ const Register = () => {
     if (authError) {
       setAuthError('');
     }
-  }, [formik.values.email, formik.values.password, authError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formik.values.email, formik.values.password]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
