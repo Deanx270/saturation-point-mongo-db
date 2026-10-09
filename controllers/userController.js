@@ -112,6 +112,7 @@ const updateUserRole = async (req, res) => {
 
 // ADMIN: Delete user
 const { auth } = require('../utils/firebaseAdmin');
+const { cloudinary } = require('../utils/cloudinary');
 const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -122,6 +123,18 @@ const deleteUser = async (req, res) => {
       await auth.deleteUser(user.firebaseUid);
     } catch (firebaseErr) {
       console.error('Failed to delete from Firebase:', firebaseErr);
+    }
+    
+    // Delete profile picture from Cloudinary
+    if (user.photoURL && user.photoURL.includes('cloudinary.com')) {
+      try {
+        const parts = user.photoURL.split('/');
+        const filename = parts[parts.length - 1];
+        const publicId = `saturation_point_new/${filename.split('.')[0]}`;
+        await cloudinary.uploader.destroy(publicId);
+      } catch (cloudErr) {
+        console.error('Failed to delete from Cloudinary:', cloudErr);
+      }
     }
     
     // Delete from MongoDB
