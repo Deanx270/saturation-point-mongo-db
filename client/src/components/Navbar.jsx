@@ -13,7 +13,8 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const needsProfileCompletion = mongoUser && !mongoUser.username;
+  const isFullyAuthenticated = currentUser && currentUser.emailVerified;
+  const needsProfileCompletion = isFullyAuthenticated && mongoUser && !mongoUser.username;
   
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -78,7 +79,7 @@ const Navbar = () => {
 
       {isMobile ? (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {currentUser && !needsProfileCompletion && (
+          {isFullyAuthenticated && !needsProfileCompletion && (
             <IconButton component={Link} to="/cart" sx={{ color: '#1C1917' }}>
               <Badge badgeContent={cartItemCount} color="error" sx={{ '& .MuiBadge-badge': { fontFamily: 'Montserrat', fontSize: '0.7rem' } }}>
                 <ShoppingCartOutlinedIcon />
@@ -97,7 +98,7 @@ const Navbar = () => {
             }}
           >
             {!needsProfileCompletion && <MenuItem onClick={handleMenuClose} component={Link} to="/catalog" sx={navLinksStyle}>Catalog</MenuItem>}
-            {!currentUser ? (
+            {!isFullyAuthenticated ? (
               <>
                 <MenuItem onClick={handleMenuClose} component={Link} to="/login" sx={navLinksStyle}>Login</MenuItem>
                 <MenuItem onClick={handleMenuClose} component={Link} to="/register" sx={navLinksStyle}>Register</MenuItem>
@@ -117,7 +118,7 @@ const Navbar = () => {
         <Box sx={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {!needsProfileCompletion && <Typography component={Link} to="/catalog" sx={navLinksStyle}>Catalog</Typography>}
 
-          {!currentUser ? (
+          {!isFullyAuthenticated ? (
             <>
               <Typography component={Link} to="/login" sx={navLinksStyle}>Login</Typography>
               <Typography component={Link} to="/register" sx={navLinksStyle}>Register</Typography>
