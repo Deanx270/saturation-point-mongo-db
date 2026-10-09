@@ -79,7 +79,7 @@ const AdminUsers = () => {
             headers: { Authorization: `Bearer ${token}` }
           });
           Swal.fire('Deleted!', 'User has been deleted.', 'success');
-          fetchUsers();
+          setUsers(prevUsers => prevUsers.filter(u => u._id !== id));
         } catch (error) {
           console.error("Error deleting user", error);
           Swal.fire('Error!', 'Failed to delete user.', 'error');
