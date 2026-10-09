@@ -1,28 +1,41 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        return JSON.parse(savedCart);
-      } catch (err) {
-        console.error('Failed to parse cart from localStorage', err);
-        return [];
+  const { currentUser } = useAuth();
+  
+  const [cart, setCart] = useState([]);
+
+  // Load cart from localStorage when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      const savedCart = localStorage.getItem(`cart_${currentUser.uid}`);
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+        } catch (err) {
+          console.error('Failed to parse cart from localStorage', err);
+          setCart([]);
+        }
+      } else {
+        setCart([]);
       }
+    } else {
+      setCart([]);
     }
-    return [];
-  });
+  }, [currentUser]);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    if (currentUser) {
+      localStorage.setItem(`cart_${currentUser.uid}`, JSON.stringify(cart));
+    }
+  }, [cart, currentUser]);
 
   const addToCart = async (product, quantity = 1) => {
     let latestStock = product.stock || 0;
