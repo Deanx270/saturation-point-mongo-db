@@ -11,6 +11,7 @@ const CompleteProfile = () => {
   const { currentUser, logout, mongoUser, setMongoUser } = useAuth();
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [hasTouched, setHasTouched] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileError, setFileError] = useState('');
@@ -40,7 +41,13 @@ const CompleteProfile = () => {
   }, []);
 
   useEffect(() => {
-    setUsernameError('');
+    if (username.length > 0) {
+      setHasTouched(true);
+      setUsernameError('');
+    } else if (username.length === 0 && hasTouched) {
+      setUsernameError('Username is required.');
+    }
+
     setUsernameAvailable(false);
     
     if (username && username.length < 3) {
@@ -93,7 +100,7 @@ const CompleteProfile = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setUsernameError('');
+    setHasTouched(true);
     if (!username.trim()) {
       setUsernameError('Username is required.');
       return;
