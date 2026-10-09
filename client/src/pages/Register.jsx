@@ -54,7 +54,7 @@ const Register = () => {
   };
 
   const formik = useFormik({
-    validateOnChange: false,
+    validateOnChange: true,
     initialValues: {
       firstName: '',
       lastName: '',
@@ -65,8 +65,8 @@ const Register = () => {
       profilePicture: null
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().max(50, 'Must be 50 characters or less').required('First Name is required.'),
-      lastName: Yup.string().max(50, 'Must be 50 characters or less').required('Last Name is required.'),
+      firstName: Yup.string().matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes are allowed.').max(50, 'Must be 50 characters or less').required('First Name is required.'),
+      lastName: Yup.string().matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes are allowed.').max(50, 'Must be 50 characters or less').required('Last Name is required.'),
       username: Yup.string().min(3, 'Must be at least 3 characters').matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores').required('Username is required.'),
       email: Yup.string().email('Please enter a valid email address.').required('Email address is required.'),
       password: Yup.string().min(6, 'Password must be at least 6 characters.').required('Password is required.'),
@@ -88,8 +88,11 @@ const Register = () => {
         const userCredential = await signup(values.email, values.password);
         const token = await userCredential.user.getIdToken();
 
+        const formattedFirstName = values.firstName.replace(/\w\S*/g, (t) => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
+        const formattedLastName = values.lastName.replace(/\w\S*/g, (t) => t.charAt(0).toUpperCase() + t.substr(1).toLowerCase());
+
         const formData = new FormData();
-        formData.append('displayName', `${values.firstName} ${values.lastName}`);
+        formData.append('displayName', `${formattedFirstName} ${formattedLastName}`);
         formData.append('username', values.username);
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
@@ -106,8 +109,8 @@ const Register = () => {
 
         await axios.post('http://localhost:5000/api/users/send-verification', {
           email: values.email,
-          firstName: values.firstName,
-          lastName: values.lastName
+          firstName: formattedFirstName,
+          lastName: formattedLastName
         });
 
         await logout();
@@ -162,24 +165,6 @@ const Register = () => {
 
     return () => clearTimeout(handler);
   }, [formik.values.username, checkUsername]);
-
-  const handleDynamicChange = (e) => {
-    formik.handleChange(e);
-    const { name, value } = e.target;
-    if (value.length > 0 && formik.errors[name]?.includes('required')) {
-      formik.setFieldError(name, '');
-    } else if (value.length === 0 && formik.touched[name]) {
-      const labels = {
-        firstName: 'First Name',
-        lastName: 'Last Name',
-        username: 'Username',
-        email: 'Email',
-        password: 'Password',
-        confirmPassword: 'Confirm Password'
-      };
-      formik.setFieldError(name, `${labels[name] || 'Field'} is required.`);
-    }
-  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -245,7 +230,7 @@ const Register = () => {
               label="First Name"
               variant="outlined"
               value={formik.values.firstName}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.firstName && Boolean(formik.errors.firstName)}
               helperText={formik.touched.firstName && formik.errors.firstName}
@@ -260,7 +245,7 @@ const Register = () => {
               label="Last Name"
               variant="outlined"
               value={formik.values.lastName}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.lastName && Boolean(formik.errors.lastName)}
               helperText={formik.touched.lastName && formik.errors.lastName}
@@ -325,7 +310,7 @@ const Register = () => {
             variant="outlined"
             margin="normal"
             value={formik.values.username}
-            onChange={handleDynamicChange}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={Boolean(formik.touched.username && formik.errors.username) || Boolean(usernameCheckError)}
             helperText={(formik.touched.username && formik.errors.username) || usernameCheckError}
@@ -342,7 +327,7 @@ const Register = () => {
             variant="outlined"
             margin="normal"
             value={formik.values.email}
-            onChange={handleDynamicChange}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched.email && Boolean(formik.errors.email)}
             helperText={formik.touched.email && formik.errors.email}
@@ -359,7 +344,7 @@ const Register = () => {
               label="Password"
               type={showPassword ? 'text' : 'password'}
               value={formik.values.password}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               inputProps={{ style: { fontSize: '0.9rem' } }}
               endAdornment={
@@ -389,7 +374,7 @@ const Register = () => {
               label="Confirm Password"
               type={showConfirmPassword ? 'text' : 'password'}
               value={formik.values.confirmPassword}
-              onChange={handleDynamicChange}
+              onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               inputProps={{ style: { fontSize: '0.9rem' } }}
               endAdornment={
