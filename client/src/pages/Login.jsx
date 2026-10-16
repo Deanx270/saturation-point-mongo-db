@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Container, Box, Typography, TextField, Button, Paper, Alert, IconButton, InputAdornment,
-  FormControl, InputLabel, OutlinedInput, FormHelperText
+  Container, Box, Typography, TextField, Button, Paper, Alert, IconButton, InputAdornment
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -20,16 +19,28 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const hasTyped = useRef({ identifier: false, password: false });
 
   const formatFirebaseError = (errorMsg) => {
-    const msg = errorMsg.replace('Firebase: ', '').toLowerCase();
+    if (!errorMsg) return 'An unexpected error occurred. Please try again.';
+    const raw = String(errorMsg);
+    const msg = raw.replace('Firebase: ', '').toLowerCase();
     if (msg.includes('auth/invalid-credential') || msg.includes('auth/wrong-password') || msg.includes('auth/user-not-found')) {
       return 'Invalid email or password. Please try again.';
     }
     if (msg.includes('auth/email-already-in-use')) {
       return 'This email is already registered. Please sign in instead.';
     }
-    return errorMsg.replace('Firebase: ', '');
+    if (msg.includes('auth/account-exists-with-different-credential')) {
+      return 'An account already exists with this email address using another sign-in method. Please sign in with that method instead.';
+    }
+    if (msg.includes('auth/popup-closed-by-user')) {
+      return 'The sign-in popup was closed before completion.';
+    }
+    if (msg.includes('auth/operation-not-allowed')) {
+      return 'Facebook login is not enabled in Firebase Console. Please verify under Authentication > Sign-in method.';
+    }
+    return raw.replace('Firebase: ', '');
   };
 
   const formik = useFormik({
@@ -67,11 +78,29 @@ const Login = () => {
 
         navigate('/profile');
       } catch (err) {
-        setAuthError(formatFirebaseError(err.message));
+        setAuthError(formatFirebaseError(err?.message || err));
       }
       setLoading(false);
     },
   });
+
+  const handleInputChange = (e) => {
+    const { name } = e.target;
+    if (name) {
+      hasTyped.current[name] = true;
+    }
+    formik.handleChange(e);
+  };
+
+  const shouldShowError = (field) => {
+    if (formik.submitCount > 0) {
+      return Boolean(formik.errors[field]);
+    }
+    if (!hasTyped.current[field]) {
+      return false;
+    }
+    return Boolean(formik.touched[field] && formik.errors[field]);
+  };
 
   const handleSocialLogin = async (providerFunc) => {
     setAuthError('');
@@ -79,7 +108,8 @@ const Login = () => {
       await providerFunc();
       navigate('/profile');
     } catch (err) {
-      setAuthError(formatFirebaseError(err.message));
+      console.error('Social login error details:', err);
+      setAuthError(formatFirebaseError(err?.message || err?.code || err));
     }
   };
 
@@ -91,7 +121,7 @@ const Login = () => {
   }, [formik.values.identifier, formik.values.password]);
 
   return (
-    <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Container maxWidth={false} sx={{ maxWidth: { xs: '100%', sm: 480 }, mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -105,64 +135,94 @@ const Login = () => {
           variant="h6" 
           color="primary" 
           gutterBottom 
-          sx={{ textTransform: 'uppercase', letterSpacing: '0.18em', mb: 2, fontWeight: 600, fontSize: '1.25rem' }}
+          sx={{ 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.14em', 
+            mb: 1.5, 
+            fontWeight: 600, 
+            fontSize: '1.35rem',
+            whiteSpace: 'nowrap'
+          }}
         >
           The Saturation Point
         </Typography>
         
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, fontSize: '0.85rem' }}>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, fontSize: '0.95rem' }}>
           Sign in to continue to your account.
         </Typography>
 
-        <form onSubmit={formik.handleSubmit} noValidate>
+        <Box 
+          component="form" 
+          onSubmit={formik.handleSubmit} 
+          noValidate
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           <TextField
             fullWidth
+            size="small"
             id="identifier"
             name="identifier"
             label="Email or Username"
             variant="outlined"
-            margin="normal"
             value={formik.values.identifier}
-            onChange={formik.handleChange}
+            onChange={handleInputChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.identifier && Boolean(formik.errors.identifier)}
-            helperText={formik.touched.identifier && formik.errors.identifier}
-            size="small"
-            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-            inputProps={{ style: { fontSize: '0.9rem' } }}
-          />
-          <FormControl fullWidth variant="outlined" size="small" margin="normal" sx={{ mb: 3 }} error={formik.touched.password && Boolean(formik.errors.password)}>
-            <InputLabel htmlFor="password" sx={{ fontSize: '0.85rem' }}>Password</InputLabel>
-            <OutlinedInput
-              id="password"
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              inputProps={{ style: { fontSize: '0.9rem' } }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    edge="end"
-                    size="small"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                  </IconButton>
-                </InputAdornment>
+            error={shouldShowError('identifier')}
+            helperText={shouldShowError('identifier') ? formik.errors.identifier : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
               }
-            />
-            {formik.touched.password && formik.errors.password && (
-              <FormHelperText>{formik.errors.password}</FormHelperText>
-            )}
-          </FormControl>
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } }
+            }}
+          />
+          <TextField
+            fullWidth
+            size="small"
+            id="password"
+            name="password"
+            label="Password"
+            variant="outlined"
+            type={showPassword ? 'text' : 'password'}
+            value={formik.values.password}
+            onChange={handleInputChange}
+            onBlur={formik.handleBlur}
+            error={shouldShowError('password')}
+            helperText={shouldShowError('password') ? formik.errors.password : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
+              }
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <Visibility sx={{ fontSize: '1.25rem' }} /> : <VisibilityOff sx={{ fontSize: '1.25rem' }} />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }
+            }}
+          />
 
           {authError && (
-            <Alert severity="error" sx={{ mb: 3, borderRadius: 0, textAlign: 'left', fontSize: '0.85rem' }}>
+            <Alert severity="error" sx={{ borderRadius: 0, textAlign: 'left', fontSize: '0.9rem' }}>
               {authError}
             </Alert>
           )}
@@ -172,16 +232,15 @@ const Login = () => {
             fullWidth 
             variant="contained" 
             color="primary" 
-            size="medium"
             disabled={loading}
-            sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
+            sx={{ height: '44px', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.04em' }}
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
-        </form>
+        </Box>
 
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#44403C' }}>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#44403C' }}>
             Don't have an account?{' '}
             <Link 
               to="/register" 
@@ -189,7 +248,7 @@ const Login = () => {
                 color: '#1C1917', 
                 textDecoration: 'underline', 
                 fontWeight: 600,
-                textUnderlineOffset: '2px'
+                textUnderlineOffset: '3px'
               }}
             >
               Sign Up
@@ -199,26 +258,38 @@ const Login = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
           <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(28, 25, 23, 0.1)' }} />
-          <Typography variant="caption" sx={{ mx: 2, color: '#44403C', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.7rem' }}>Or</Typography>
+          <Typography variant="caption" sx={{ mx: 2, color: '#44403C', textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '0.8rem', fontWeight: 500 }}>Or</Typography>
           <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(28, 25, 23, 0.1)' }} />
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Button 
             variant="outlined" 
-            size="small"
-            startIcon={<GoogleIcon sx={{ fontSize: '1.2rem' }} />}
+            startIcon={<GoogleIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithGoogle)}
-            sx={{ borderColor: 'rgba(28, 25, 23, 0.2)', color: '#1C1917', '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, py: 1, fontSize: '0.8rem' }}
+            sx={{ 
+              height: '44px',
+              borderColor: 'rgba(28, 25, 23, 0.2)', 
+              color: '#1C1917', 
+              '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, 
+              fontSize: '0.95rem',
+              fontWeight: 500
+            }}
           >
             Continue with Google
           </Button>
           <Button 
             variant="outlined" 
-            size="small"
-            startIcon={<FacebookIcon sx={{ fontSize: '1.2rem' }} />}
+            startIcon={<FacebookIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithFacebook)}
-            sx={{ borderColor: 'rgba(28, 25, 23, 0.2)', color: '#1C1917', '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, py: 1, fontSize: '0.8rem' }}
+            sx={{ 
+              height: '44px',
+              borderColor: 'rgba(28, 25, 23, 0.2)', 
+              color: '#1C1917', 
+              '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, 
+              fontSize: '0.95rem',
+              fontWeight: 500
+            }}
           >
             Continue with Facebook
           </Button>

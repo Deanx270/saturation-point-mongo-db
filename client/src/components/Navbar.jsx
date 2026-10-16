@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Menu, MenuItem, useMediaQuery, useTheme, B
 import { Link, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, isUserVerified } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 const Navbar = () => {
@@ -13,7 +13,7 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const isFullyAuthenticated = currentUser && currentUser.emailVerified;
+  const isFullyAuthenticated = isUserVerified(currentUser);
   const needsProfileCompletion = isFullyAuthenticated && mongoUser && !mongoUser.username;
   
   const [anchorEl, setAnchorEl] = useState(null);

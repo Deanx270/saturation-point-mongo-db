@@ -14,6 +14,14 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+export const isUserVerified = (user) => {
+  if (!user) return false;
+  const isSocial = user.providerData?.some(
+    (p) => p.providerId === 'facebook.com' || p.providerId === 'google.com'
+  );
+  return Boolean(user.emailVerified || isSocial);
+};
+
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -79,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     mongoUser,
     setMongoUser,
+    isUserVerified: () => isUserVerified(currentUser),
     login,
     signup,
     loginWithGoogle,
