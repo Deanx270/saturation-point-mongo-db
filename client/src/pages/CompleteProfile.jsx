@@ -225,8 +225,10 @@ const CompleteProfile = () => {
             helperText={usernameError}
             size="small"
             sx={{ mb: 4 }}
-            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-            inputProps={{ style: { fontSize: '0.9rem' } }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.85rem' } },
+              htmlInput: { sx: { fontSize: '0.9rem' } }
+            }}
           />
 
           <Button 
@@ -235,6 +237,7 @@ const CompleteProfile = () => {
             variant="contained" 
             disabled={loading || isCheckingUsername || Boolean(usernameError) || !usernameAvailable || username.length < 3}
             sx={{ 
+              height: '40px',
               bgcolor: '#1C1917', 
               color: '#fff',
               mb: 2,

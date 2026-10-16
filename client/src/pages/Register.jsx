@@ -2,8 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Container, Box, Typography, TextField, Button, Paper, Alert, IconButton, InputAdornment,
-  FormControl, InputLabel, OutlinedInput, FormHelperText
+  Container, Box, Typography, TextField, Button, Paper, Alert, IconButton, InputAdornment
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -30,17 +29,52 @@ const Register = () => {
   const fileInputRef = useRef(null);
 
   const formatFirebaseError = (errorMsg) => {
-    const msg = errorMsg.replace('Firebase: ', '').toLowerCase();
+    if (!errorMsg) return 'An unexpected error occurred. Please try again.';
+    const raw = String(errorMsg);
+    const msg = raw.replace('Firebase: ', '').toLowerCase();
     if (msg.includes('auth/email-already-in-use')) {
       return 'This email is already registered. Please sign in instead.';
     }
     if (msg.includes('auth/weak-password')) {
       return 'Password is too weak. Please use at least 6 characters.';
     }
+    if (msg.includes('auth/account-exists-with-different-credential')) {
+      return 'An account already exists with this email address using another sign-in method. Please sign in with that method instead.';
+    }
+    if (msg.includes('auth/popup-closed-by-user')) {
+      return 'The sign-in popup was closed before completion.';
+    }
     if (msg.includes('network error')) {
       return 'Failed to connect to the server. Please check your internet connection.';
     }
-    return errorMsg.replace('Firebase: ', '');
+    return raw.replace('Firebase: ', '');
+  };
+
+  const hasTyped = useRef({
+    firstName: false,
+    lastName: false,
+    username: false,
+    email: false,
+    password: false,
+    confirmPassword: false
+  });
+
+  const handleInputChange = (e) => {
+    const { name } = e.target;
+    if (name) {
+      hasTyped.current[name] = true;
+    }
+    formik.handleChange(e);
+  };
+
+  const shouldShowError = (field) => {
+    if (formik.submitCount > 0) {
+      return Boolean(formik.errors[field]);
+    }
+    if (!hasTyped.current[field]) {
+      return false;
+    }
+    return Boolean(formik.touched[field] && formik.errors[field]);
   };
 
   const handleSocialLogin = async (providerFunc) => {
@@ -49,7 +83,8 @@ const Register = () => {
       await providerFunc();
       navigate('/profile');
     } catch (err) {
-      setAuthError(formatFirebaseError(err.message));
+      console.error('Social login error details:', err);
+      setAuthError(formatFirebaseError(err?.message || err?.code || err));
     }
   };
 
@@ -205,7 +240,7 @@ const Register = () => {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Container maxWidth={false} sx={{ maxWidth: { xs: '100%', sm: 480 }, mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Paper 
         elevation={0} 
         sx={{ 
@@ -219,57 +254,85 @@ const Register = () => {
           variant="h6" 
           color="primary" 
           gutterBottom 
-          sx={{ textTransform: 'uppercase', letterSpacing: '0.18em', mb: 2, fontWeight: 600, fontSize: '1.25rem' }}
+          sx={{ 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.14em', 
+            mb: 1.5, 
+            fontWeight: 600, 
+            fontSize: '1.35rem',
+            whiteSpace: 'nowrap'
+          }}
         >
           The Saturation Point
         </Typography>
         
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, fontSize: '0.85rem' }}>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 4, fontSize: '0.95rem' }}>
           Create an account to begin.
         </Typography>
 
-        <form onSubmit={formik.handleSubmit} noValidate>
-          <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+        <Box 
+          component="form" 
+          onSubmit={formik.handleSubmit} 
+          noValidate
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
+          <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
+              size="small"
               id="firstName"
               name="firstName"
               label="First Name"
               variant="outlined"
               value={formik.values.firstName}
-              onChange={formik.handleChange}
+              onChange={handleInputChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-              helperText={formik.touched.firstName && formik.errors.firstName}
-              size="small"
-              InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-              inputProps={{ style: { fontSize: '0.9rem' } }}
+              error={shouldShowError('firstName')}
+              helperText={shouldShowError('firstName') ? formik.errors.firstName : ''}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  height: '44px',
+                }
+              }}
+              slotProps={{
+                inputLabel: { sx: { fontSize: '0.95rem' } },
+                htmlInput: { sx: { fontSize: '0.95rem' } },
+                formHelperText: { sx: { fontSize: '0.8rem' } }
+              }}
             />
             <TextField
               fullWidth
+              size="small"
               id="lastName"
               name="lastName"
               label="Last Name"
               variant="outlined"
               value={formik.values.lastName}
-              onChange={formik.handleChange}
+              onChange={handleInputChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-              helperText={formik.touched.lastName && formik.errors.lastName}
-              size="small"
-              InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-              inputProps={{ style: { fontSize: '0.9rem' } }}
+              error={shouldShowError('lastName')}
+              helperText={shouldShowError('lastName') ? formik.errors.lastName : ''}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  height: '44px',
+                }
+              }}
+              slotProps={{
+                inputLabel: { sx: { fontSize: '0.95rem' } },
+                htmlInput: { sx: { fontSize: '0.95rem' } },
+                formHelperText: { sx: { fontSize: '0.8rem' } }
+              }}
             />
           </Box>
 
-          <Box sx={{ mt: 3, mb: 3, textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ mb: 1, fontSize: '0.85rem', color: '#44403C' }}>
-              Profile Picture (Optional) <Typography component="span" sx={{ fontSize: '0.75rem', color: '#78716C' }}>(Max 5MB)</Typography>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ mb: 1, fontSize: '0.95rem', color: '#44403C' }}>
+              Profile Picture (Optional) <Typography component="span" sx={{ fontSize: '0.8rem', color: '#78716C' }}>(Max 5MB)</Typography>
             </Typography>
             <Box 
               onClick={() => fileInputRef.current.click()}
               sx={{
-                width: 75, height: 75, borderRadius: '50%', mx: 'auto',
+                width: 82, height: 82, borderRadius: '50%', mx: 'auto',
                 border: '2px dashed rgba(28, 25, 23, 0.08)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', position: 'relative',
@@ -281,17 +344,17 @@ const Register = () => {
             >
               <Box sx={{
                 position: 'absolute', bottom: 0, right: 0, 
-                bgcolor: '#CA8A04', color: '#fff', width: 21, height: 21, 
+                bgcolor: '#CA8A04', color: '#fff', width: 23, height: 23, 
                 borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }}>
-                <AddIcon sx={{ fontSize: 14 }} />
+                <AddIcon sx={{ fontSize: 15 }} />
               </Box>
             </Box>
             <Typography 
               variant="caption" 
               onClick={() => fileInputRef.current.click()}
-              sx={{ color: '#44403C', mt: 1, display: 'block', cursor: 'pointer', '&:hover': { color: '#1C1917' } }}
+              sx={{ color: '#44403C', mt: 1, display: 'block', cursor: 'pointer', fontSize: '0.85rem', '&:hover': { color: '#1C1917' } }}
             >
               Upload Photo
             </Typography>
@@ -303,7 +366,7 @@ const Register = () => {
               style={{ display: 'none' }}
             />
             {fileError && (
-              <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+              <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1, fontSize: '0.8rem' }}>
                 {fileError}
               </Typography>
             )}
@@ -311,100 +374,136 @@ const Register = () => {
 
           <TextField
             fullWidth
+            size="small"
             id="username"
             name="username"
             label="Username"
             variant="outlined"
-            margin="normal"
             value={formik.values.username}
-            onChange={formik.handleChange}
+            onChange={handleInputChange}
             onBlur={formik.handleBlur}
-            error={Boolean(formik.touched.username && formik.errors.username) || Boolean(usernameCheckError)}
-            helperText={(formik.touched.username && formik.errors.username) || usernameCheckError}
-            size="small"
-            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-            inputProps={{ style: { fontSize: '0.9rem' } }}
+            error={Boolean(shouldShowError('username') && formik.errors.username) || Boolean(usernameCheckError)}
+            helperText={(shouldShowError('username') && formik.errors.username) || usernameCheckError}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
+              }
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } }
+            }}
           />
 
           <TextField
             fullWidth
+            size="small"
             id="email"
             name="email"
             label="Email Address"
             variant="outlined"
-            margin="normal"
             value={formik.values.email}
-            onChange={formik.handleChange}
+            onChange={handleInputChange}
             onBlur={formik.handleBlur}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-            size="small"
-            InputLabelProps={{ style: { fontSize: '0.85rem' } }}
-            inputProps={{ style: { fontSize: '0.9rem' } }}
+            error={shouldShowError('email')}
+            helperText={shouldShowError('email') ? formik.errors.email : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
+              }
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } }
+            }}
           />
 
-          <FormControl fullWidth variant="outlined" size="small" margin="normal" error={formik.touched.password && Boolean(formik.errors.password)}>
-            <InputLabel htmlFor="password" sx={{ fontSize: '0.85rem' }}>Password</InputLabel>
-            <OutlinedInput
-              id="password"
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              inputProps={{ style: { fontSize: '0.9rem' } }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    edge="end"
-                    size="small"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                  </IconButton>
-                </InputAdornment>
+          <TextField
+            fullWidth
+            size="small"
+            id="password"
+            name="password"
+            label="Password"
+            variant="outlined"
+            type={showPassword ? 'text' : 'password'}
+            value={formik.values.password}
+            onChange={handleInputChange}
+            onBlur={formik.handleBlur}
+            error={shouldShowError('password')}
+            helperText={shouldShowError('password') ? formik.errors.password : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
               }
-            />
-            {formik.touched.password && formik.errors.password && (
-              <FormHelperText>{formik.errors.password}</FormHelperText>
-            )}
-          </FormControl>
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <Visibility sx={{ fontSize: '1.25rem' }} /> : <VisibilityOff sx={{ fontSize: '1.25rem' }} />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }
+            }}
+          />
 
-          <FormControl fullWidth variant="outlined" size="small" margin="normal" sx={{ mb: 3 }} error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}>
-            <InputLabel htmlFor="confirmPassword" sx={{ fontSize: '0.85rem' }}>Confirm Password</InputLabel>
-            <OutlinedInput
-              id="confirmPassword"
-              name="confirmPassword"
-              label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={formik.values.confirmPassword}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              inputProps={{ style: { fontSize: '0.9rem' } }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    edge="end"
-                    size="small"
-                    tabIndex={-1}
-                  >
-                    {showConfirmPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-                  </IconButton>
-                </InputAdornment>
+          <TextField
+            fullWidth
+            size="small"
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm Password"
+            variant="outlined"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={formik.values.confirmPassword}
+            onChange={handleInputChange}
+            onBlur={formik.handleBlur}
+            error={shouldShowError('confirmPassword')}
+            helperText={shouldShowError('confirmPassword') ? formik.errors.confirmPassword : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                height: '44px',
               }
-            />
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <FormHelperText>{formik.errors.confirmPassword}</FormHelperText>
-            )}
-          </FormControl>
+            }}
+            slotProps={{
+              inputLabel: { sx: { fontSize: '0.95rem' } },
+              htmlInput: { sx: { fontSize: '0.95rem' } },
+              formHelperText: { sx: { fontSize: '0.8rem' } },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                      tabIndex={-1}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? <Visibility sx={{ fontSize: '1.25rem' }} /> : <VisibilityOff sx={{ fontSize: '1.25rem' }} />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }
+            }}
+          />
           
           {authError && (
-            <Alert severity="error" sx={{ mb: 3, borderRadius: 0, textAlign: 'left', fontSize: '0.85rem' }}>
+            <Alert severity="error" sx={{ borderRadius: 0, textAlign: 'left', fontSize: '0.9rem' }}>
               {authError}
             </Alert>
           )}
@@ -414,16 +513,15 @@ const Register = () => {
             fullWidth 
             variant="contained" 
             color="primary" 
-            size="medium"
             disabled={loading || isCheckingUsername || Boolean(usernameCheckError) || !usernameAvailable || formik.values.username.length < 3}
-            sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
+            sx={{ height: '44px', fontSize: '0.95rem', fontWeight: 600, letterSpacing: '0.04em' }}
           >
             {loading || isCheckingUsername ? 'Creating Account...' : 'Register'}
           </Button>
-        </form>
+        </Box>
 
-        <Box sx={{ mt: 1 }}>
-          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#44403C' }}>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#44403C' }}>
             Already have an account?{' '}
             <Link 
               to="/login" 
@@ -431,7 +529,7 @@ const Register = () => {
                 color: '#1C1917', 
                 textDecoration: 'underline', 
                 fontWeight: 600,
-                textUnderlineOffset: '2px'
+                textUnderlineOffset: '3px'
               }}
             >
               Sign In
@@ -441,26 +539,38 @@ const Register = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
           <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(28, 25, 23, 0.1)' }} />
-          <Typography variant="caption" sx={{ mx: 2, color: '#44403C', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.7rem' }}>Or</Typography>
+          <Typography variant="caption" sx={{ mx: 2, color: '#44403C', textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '0.8rem', fontWeight: 500 }}>Or</Typography>
           <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(28, 25, 23, 0.1)' }} />
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Button 
             variant="outlined" 
-            size="small"
-            startIcon={<GoogleIcon sx={{ fontSize: '1.2rem' }} />}
+            startIcon={<GoogleIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithGoogle)}
-            sx={{ borderColor: 'rgba(28, 25, 23, 0.2)', color: '#1C1917', '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, py: 1, fontSize: '0.8rem' }}
+            sx={{ 
+              height: '44px',
+              borderColor: 'rgba(28, 25, 23, 0.2)', 
+              color: '#1C1917', 
+              '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, 
+              fontSize: '0.95rem',
+              fontWeight: 500
+            }}
           >
             Continue with Google
           </Button>
           <Button 
             variant="outlined" 
-            size="small"
-            startIcon={<FacebookIcon sx={{ fontSize: '1.2rem' }} />}
+            startIcon={<FacebookIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithFacebook)}
-            sx={{ borderColor: 'rgba(28, 25, 23, 0.2)', color: '#1C1917', '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, py: 1, fontSize: '0.8rem' }}
+            sx={{ 
+              height: '44px',
+              borderColor: 'rgba(28, 25, 23, 0.2)', 
+              color: '#1C1917', 
+              '&:hover': { borderColor: '#1C1917', backgroundColor: 'transparent' }, 
+              fontSize: '0.95rem',
+              fontWeight: 500
+            }}
           >
             Continue with Facebook
           </Button>

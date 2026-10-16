@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { useAuth, isUserVerified } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Login from './pages/Login';
@@ -24,14 +24,14 @@ import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
-  if (!currentUser || !currentUser.emailVerified) return <Navigate to="/login" />;
+  if (!isUserVerified(currentUser)) return <Navigate to="/login" />;
   return children;
 };
 
 const AdminRoute = ({ children }) => {
   const { currentUser, mongoUser } = useAuth();
   
-  if (!currentUser || !currentUser.emailVerified) return <Navigate to="/login" />;
+  if (!isUserVerified(currentUser)) return <Navigate to="/login" />;
   if (mongoUser && mongoUser.role !== 'admin') return <Navigate to="/403" />;
   
   return children;
@@ -40,7 +40,8 @@ const AdminRoute = ({ children }) => {
 function App() {
   const { currentUser, mongoUser } = useAuth();
   
-  const needsProfileCompletion = currentUser && currentUser.emailVerified && mongoUser && !mongoUser.username;
+  const verified = isUserVerified(currentUser);
+  const needsProfileCompletion = verified && mongoUser && !mongoUser.username;
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -62,10 +63,10 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/login" element={
-              currentUser && currentUser.emailVerified ? <Navigate to="/profile" /> : <Login />
+              verified ? <Navigate to="/profile" /> : <Login />
             } />
             <Route path="/register" element={
-              currentUser && currentUser.emailVerified ? <Navigate to="/profile" /> : <Register />
+              verified ? <Navigate to="/profile" /> : <Register />
             } />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/profile" element={
