@@ -2,241 +2,251 @@ const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 
 const generatePDFReceipt = (order) => {
-    return new Promise((resolve, reject) => {
-        try {
-            const doc = new PDFDocument({ margin: 50, size: 'A4' });
-            const buffers = [];
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const buffers = [];
 
-            doc.on('data', buffers.push.bind(buffers));
-            doc.on('end', () => {
-                const pdfData = Buffer.concat(buffers);
-                resolve(pdfData);
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => {
+        const pdfData = Buffer.concat(buffers);
+        resolve(pdfData);
+      });
+
+      doc
+        .font('Times-Roman')
+        .fontSize(28)
+        .fillColor('#1B263B')
+        .text('THE SATURATION POINT', {
+          align: 'center',
+          characterSpacing: 2,
+        })
+        .moveDown(0.5);
+
+      doc
+        .font('Helvetica')
+        .fontSize(10)
+        .fillColor('#D4AF37')
+        .text('OFFICIAL RECEIPT', {
+          align: 'center',
+          characterSpacing: 4,
+        })
+        .moveDown(3);
+
+      doc.fillColor('#2D3436');
+      doc
+        .fontSize(10)
+        .text(`ORDER ID:`, { continued: true })
+        .font('Helvetica-Bold')
+        .text(` ${order._id}`)
+        .font('Helvetica')
+        .text(`DATE:`, { continued: true })
+        .font('Helvetica-Bold')
+        .text(
+          ` ${new Date(order.updatedAt || order.createdAt).toLocaleString()}`,
+        )
+        .font('Helvetica')
+        .text(`PAYMENT:`, { continued: true })
+        .font('Helvetica-Bold')
+        .text(` ${order.paymentMethod}`)
+        .moveDown();
+
+      const userName =
+        order.user && order.user.displayName
+          ? order.user.displayName
+          : 'Customer';
+      const userEmail = order.user ? order.user.email : 'N/A';
+
+      doc
+        .font('Helvetica')
+        .text(`CUSTOMER:`, { continued: true })
+        .font('Helvetica-Bold')
+        .text(` ${userName}`)
+        .font('Helvetica')
+        .text(`EMAIL:`, { continued: true })
+        .font('Helvetica-Bold')
+        .text(` ${userEmail}`)
+        .moveDown(3);
+
+      const tableTop = doc.y;
+      doc
+        .font('Times-Bold')
+        .fontSize(10)
+        .fillColor('#636E72')
+        .text('ITEM DESCRIPTION', 50, tableTop)
+        .text('UNIT PRICE', 300, tableTop, {
+          width: 80,
+          align: 'right',
+        })
+        .text('QTY', 400, tableTop, { width: 40, align: 'center' })
+        .text('SUBTOTAL', 460, tableTop, { width: 90, align: 'right' });
+
+      doc
+        .moveTo(50, tableTop + 15)
+        .lineTo(550, tableTop + 15)
+        .strokeColor('#E2E8F0')
+        .stroke();
+
+      let yPosition = tableTop + 30;
+      doc.font('Helvetica').fillColor('#2D3436');
+
+      if (order.orderItems && order.orderItems.length > 0) {
+        order.orderItems.forEach((item) => {
+          const name = item.name || 'Unknown Product';
+          const price = parseFloat(item.price).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          });
+          const qty = item.quantity;
+          const subtotal = parseFloat(
+            item.price * item.quantity,
+          ).toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+          doc
+            .text(name, 50, yPosition, { width: 240 })
+            .text(`PHP ${price}`, 300, yPosition, {
+              width: 80,
+              align: 'right',
+            })
+            .text(qty.toString(), 400, yPosition, {
+              width: 40,
+              align: 'center',
+            })
+            .text(`PHP ${subtotal}`, 460, yPosition, {
+              width: 90,
+              align: 'right',
             });
 
-            doc.font('Times-Roman')
-                .fontSize(28)
-                .fillColor('#1B263B')
-                .text('THE SATURATION POINT', {
-                    align: 'center',
-                    characterSpacing: 2,
-                })
-                .moveDown(0.5);
+          yPosition += 25;
+        });
+      }
 
-            doc.font('Helvetica')
-                .fontSize(10)
-                .fillColor('#D4AF37')
-                .text('OFFICIAL RECEIPT', {
-                    align: 'center',
-                    characterSpacing: 4,
-                })
-                .moveDown(3);
+      doc
+        .moveTo(50, yPosition + 10)
+        .lineTo(550, yPosition + 10)
+        .strokeColor('#E2E8F0')
+        .stroke();
 
-            doc.fillColor('#2D3436');
-            doc.fontSize(10)
-                .text(`ORDER ID:`, { continued: true })
-                .font('Helvetica-Bold')
-                .text(` ${order._id}`)
-                .font('Helvetica')
-                .text(`DATE:`, { continued: true })
-                .font('Helvetica-Bold')
-                .text(
-                    ` ${new Date(order.updatedAt || order.createdAt).toLocaleString()}`,
-                )
-                .font('Helvetica')
-                .text(`PAYMENT:`, { continued: true })
-                .font('Helvetica-Bold')
-                .text(` ${order.paymentMethod}`)
-                .moveDown();
+      const subtotalVal = parseFloat(order.totalAmount) - 150;
+      yPosition += 30;
 
-            const userName =
-                order.user && order.user.displayName
-                    ? order.user.displayName
-                    : 'Customer';
-            const userEmail = order.user ? order.user.email : 'N/A';
+      doc
+        .font('Helvetica')
+        .text('Subtotal:', 360, yPosition, {
+          width: 80,
+          align: 'right',
+        })
+        .text(
+          `PHP ${subtotalVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+          460,
+          yPosition,
+          { width: 90, align: 'right' },
+        )
+        .moveDown();
 
-            doc.font('Helvetica')
-                .text(`CUSTOMER:`, { continued: true })
-                .font('Helvetica-Bold')
-                .text(` ${userName}`)
-                .font('Helvetica')
-                .text(`EMAIL:`, { continued: true })
-                .font('Helvetica-Bold')
-                .text(` ${userEmail}`)
-                .moveDown(3);
+      yPosition += 20;
+      doc
+        .text('Shipping Fee:', 360, yPosition, {
+          width: 80,
+          align: 'right',
+        })
+        .text('PHP 150.00', 460, yPosition, {
+          width: 90,
+          align: 'right',
+        })
+        .moveDown();
 
-            const tableTop = doc.y;
-            doc.font('Times-Bold')
-                .fontSize(10)
-                .fillColor('#636E72')
-                .text('ITEM DESCRIPTION', 50, tableTop)
-                .text('UNIT PRICE', 300, tableTop, {
-                    width: 80,
-                    align: 'right',
-                })
-                .text('QTY', 400, tableTop, { width: 40, align: 'center' })
-                .text('SUBTOTAL', 460, tableTop, { width: 90, align: 'right' });
+      yPosition += 30;
+      doc
+        .font('Times-Bold')
+        .fontSize(12)
+        .fillColor('#D4AF37')
+        .text('GRAND TOTAL:', 340, yPosition, {
+          width: 100,
+          align: 'right',
+        })
+        .text(
+          `PHP ${parseFloat(order.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+          460,
+          yPosition,
+          { width: 90, align: 'right' },
+        );
 
-            doc.moveTo(50, tableTop + 15)
-                .lineTo(550, tableTop + 15)
-                .strokeColor('#E2E8F0')
-                .stroke();
-
-            let yPosition = tableTop + 30;
-            doc.font('Helvetica').fillColor('#2D3436');
-
-            if (order.orderItems && order.orderItems.length > 0) {
-                order.orderItems.forEach((item) => {
-                    const name = item.name || 'Unknown Product';
-                    const price = parseFloat(item.price).toLocaleString(
-                        undefined,
-                        { minimumFractionDigits: 2 },
-                    );
-                    const qty = item.quantity;
-                    const subtotal = parseFloat(
-                        item.price * item.quantity,
-                    ).toLocaleString(undefined, { minimumFractionDigits: 2 });
-
-                    doc.text(name, 50, yPosition, { width: 240 })
-                        .text(`PHP ${price}`, 300, yPosition, {
-                            width: 80,
-                            align: 'right',
-                        })
-                        .text(qty.toString(), 400, yPosition, {
-                            width: 40,
-                            align: 'center',
-                        })
-                        .text(`PHP ${subtotal}`, 460, yPosition, {
-                            width: 90,
-                            align: 'right',
-                        });
-
-                    yPosition += 25;
-                });
-            }
-
-            doc.moveTo(50, yPosition + 10)
-                .lineTo(550, yPosition + 10)
-                .strokeColor('#E2E8F0')
-                .stroke();
-
-            const subtotalVal = parseFloat(order.totalAmount) - 150;
-            yPosition += 30;
-
-            doc.font('Helvetica')
-                .text('Subtotal:', 360, yPosition, {
-                    width: 80,
-                    align: 'right',
-                })
-                .text(
-                    `PHP ${subtotalVal.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
-                    460,
-                    yPosition,
-                    { width: 90, align: 'right' },
-                )
-                .moveDown();
-
-            yPosition += 20;
-            doc.text('Shipping Fee:', 360, yPosition, {
-                width: 80,
-                align: 'right',
-            })
-                .text('PHP 150.00', 460, yPosition, {
-                    width: 90,
-                    align: 'right',
-                })
-                .moveDown();
-
-            yPosition += 30;
-            doc.font('Times-Bold')
-                .fontSize(12)
-                .fillColor('#D4AF37')
-                .text('GRAND TOTAL:', 340, yPosition, {
-                    width: 100,
-                    align: 'right',
-                })
-                .text(
-                    `PHP ${parseFloat(order.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
-                    460,
-                    yPosition,
-                    { width: 90, align: 'right' },
-                );
-
-            doc.end();
-        } catch (error) {
-            reject(error);
-        }
-    });
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 const getStatusMessage = (status) => {
-    let color = '#1B263B';
-    if (status === 'delivered') color = '#166534';
-    if (status === 'cancelled') color = '#991b1b';
+  let color = '#1B263B';
+  if (status === 'delivered') color = '#166534';
+  if (status === 'cancelled') color = '#991b1b';
 
-    const statusEmphasis = `<strong style="color: ${color}; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">${status}</strong>`;
+  const statusEmphasis = `<strong style="color: ${color}; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">${status}</strong>`;
 
-    if (status === 'shipped')
-        return `Your order has been ${statusEmphasis} and is on its way.`;
-    if (status === 'delivered')
-        return `Your order has been successfully ${statusEmphasis}.`;
-    if (status === 'cancelled') return `Your order has been ${statusEmphasis}.`;
-    return `Your order is now ${statusEmphasis}.`;
+  if (status === 'shipped')
+    return `Your order has been ${statusEmphasis} and is on its way.`;
+  if (status === 'delivered')
+    return `Your order has been successfully ${statusEmphasis}.`;
+  if (status === 'cancelled') return `Your order has been ${statusEmphasis}.`;
+  return `Your order is now ${statusEmphasis}.`;
 };
 
 const sendOrderStatusEmail = async (order, isCheckout = false) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || 'sandbox.smtp.mailtrap.io',
-            port: process.env.EMAIL_PORT || 2525,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'sandbox.smtp.mailtrap.io',
+      port: process.env.EMAIL_PORT || 2525,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.log(
-                'WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.',
-            );
-            return false;
-        }
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log(
+        'WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.',
+      );
+      return false;
+    }
 
-        const shouldAttachReceipt = order.status === 'delivered';
+    const shouldAttachReceipt = order.status === 'delivered';
 
-        let attachments = [];
-        if (shouldAttachReceipt) {
-            const pdfBuffer = await generatePDFReceipt(order);
-            attachments.push({
-                filename: `Receipt-${order._id}.pdf`,
-                content: pdfBuffer,
-                contentType: 'application/pdf',
-            });
-        }
+    let attachments = [];
+    if (shouldAttachReceipt) {
+      const pdfBuffer = await generatePDFReceipt(order);
+      attachments.push({
+        filename: `Receipt-${order._id}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      });
+    }
 
-        const subtotal = order.totalAmount - 150;
-        const userName =
-            order.user && order.user.displayName
-                ? order.user.displayName
-                : 'Customer';
+    const subtotal = order.totalAmount - 150;
+    const userName =
+      order.user && order.user.displayName
+        ? order.user.displayName
+        : 'Customer';
 
-        let itemsHtml = order.orderItems
-            .map(
-                (item) =>
-                    `<tr>
+    let itemsHtml = order.orderItems
+      .map(
+        (item) =>
+          `<tr>
         <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #2D3436; font-size: 14px;">${item.name}</td>
         <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; text-align: center; color: #2D3436; font-size: 14px;">${item.quantity}</td>
         <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; text-align: right; color: #2D3436; font-size: 14px;">PHP ${(item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
       </tr>`,
-            )
-            .join('');
+      )
+      .join('');
 
-        const message = isCheckout
-            ? `Thank you for your purchase. Your order is now <strong style="color: #1B263B; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">PENDING</strong>.`
-            : getStatusMessage(order.status);
+    const message = isCheckout
+      ? `Thank you for your purchase. Your order is now <strong style="color: #1B263B; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">PENDING</strong>.`
+      : getStatusMessage(order.status);
 
-        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
-        const htmlContent = `
+    const htmlContent = `
       <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-top: 4px solid #D4AF37; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); padding: 40px;">
           <h2 style="font-family: 'Times New Roman', serif; color: #1B263B; font-size: 28px; font-weight: normal; margin-top: 0; text-align: center; letter-spacing: 1px;">THE SATURATION POINT</h2>
@@ -288,53 +298,53 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
       </div>
     `;
 
-        const mailOptions = {
-            from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
-            to: order.user.email,
-            subject: `Update on your Order #${order._id.toString().substring(0, 8)}`,
-            html: htmlContent,
-            attachments: attachments,
-        };
+    const mailOptions = {
+      from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
+      to: order.user.email,
+      subject: `Update on your Order #${order._id.toString().substring(0, 8)}`,
+      html: htmlContent,
+      attachments: attachments,
+    };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(
-            `Order status email sent to ${order.user.email} (Message ID: ${info.messageId})`,
-        );
-        return true;
-    } catch (error) {
-        console.error('Error sending order status email:', error);
-        return false;
-    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Order status email sent to ${order.user.email} (Message ID: ${info.messageId})`,
+    );
+    return true;
+  } catch (error) {
+    console.error('Error sending order status email:', error);
+    return false;
+  }
 };
 
 const sendVerificationEmail = async (
-    toEmail,
-    verificationUrl,
-    firstName = '',
-    lastName = '',
+  toEmail,
+  verificationUrl,
+  firstName = '',
+  lastName = '',
 ) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.EMAIL_HOST || 'sandbox.smtp.mailtrap.io',
-            port: process.env.EMAIL_PORT || 2525,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'sandbox.smtp.mailtrap.io',
+      port: process.env.EMAIL_PORT || 2525,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-            console.log(
-                'WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.',
-            );
-            return false;
-        }
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log(
+        'WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.',
+      );
+      return false;
+    }
 
-        const mailOptions = {
-            from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
-            to: toEmail,
-            subject: 'Welcome to The Saturation Point - Verify Your Email',
-            html: `
+    const mailOptions = {
+      from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
+      to: toEmail,
+      subject: 'Welcome to The Saturation Point - Verify Your Email',
+      html: `
       <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-top: 4px solid #D4AF37; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); padding: 40px;">
           <h2 style="font-family: 'Times New Roman', serif; color: #1B263B; font-size: 28px; font-weight: normal; margin-top: 0; text-align: center; letter-spacing: 1px;">THE SATURATION POINT</h2>
@@ -355,20 +365,20 @@ const sendVerificationEmail = async (
         </div>
       </div>
       `,
-        };
+    };
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(
-            `Verification email sent to ${toEmail} (Message ID: ${info.messageId})`,
-        );
-        return true;
-    } catch (error) {
-        console.error('Error sending verification email:', error);
-        return false;
-    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Verification email sent to ${toEmail} (Message ID: ${info.messageId})`,
+    );
+    return true;
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    return false;
+  }
 };
 
 module.exports = {
-    sendOrderStatusEmail,
-    sendVerificationEmail,
+  sendOrderStatusEmail,
+  sendVerificationEmail,
 };
