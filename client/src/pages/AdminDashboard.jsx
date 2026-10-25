@@ -21,6 +21,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
     const fetchOrders = async () => {
       try {
         const token = await currentUser.getIdToken();
-        const res = await axios.get('http://localhost:5000/api/orders', {
+        const res = await axios.get(`${API_BASE_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setOrders(res.data);

@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 import { useCart } from '../context/CartContext';
 
@@ -35,7 +36,7 @@ const ProductDetails = () => {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+      const res = await axios.get(`${API_BASE_URL}/api/products/${id}`);
       const found = res.data;
       setProduct(found);
       if (found && found.images && found.images.length > 0) {
@@ -67,7 +68,7 @@ const ProductDetails = () => {
         // Fetch orders to check if they purchased it
         try {
           const token = await currentUser.getIdToken();
-          const ordersRes = await axios.get(`http://localhost:5000/api/orders/myorders`, {
+          const ordersRes = await axios.get(`${API_BASE_URL}/api/orders/myorders`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const orders = ordersRes.data;
@@ -105,7 +106,7 @@ const ProductDetails = () => {
       setReviewLoading(true);
       try {
         const token = await currentUser.getIdToken();
-        await axios.post(`http://localhost:5000/api/products/${id}/reviews`, {
+        await axios.post(`${API_BASE_URL}/api/products/${id}/reviews`, {
           rating: values.rating,
           comment: values.comment,
           name: currentUser.displayName || currentUser.email
@@ -148,7 +149,7 @@ const ProductDetails = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      await axios.delete(`http://localhost:5000/api/products/${id}/reviews/${reviewId}`, {
+      await axios.delete(`${API_BASE_URL}/api/products/${id}/reviews/${reviewId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       Swal.fire('Deleted!', 'Review has been deleted.', 'success');

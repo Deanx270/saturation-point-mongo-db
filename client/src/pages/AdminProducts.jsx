@@ -13,6 +13,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 
 const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData, categories, brands }) => {
@@ -59,12 +60,12 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
 
         const token = await currentUser.getIdToken();
         if (editingId) {
-          await axios.put(`http://localhost:5000/api/products/${editingId}`, formData, {
+          await axios.put(`${API_BASE_URL}/api/products/${editingId}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
           });
           Swal.fire('Success!', 'Product updated successfully.', 'success');
         } else {
-          await axios.post('http://localhost:5000/api/products', formData, {
+          await axios.post(`${API_BASE_URL}/api/products`, formData, {
             headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
           });
           Swal.fire('Success!', 'Product created successfully.', 'success');
@@ -439,7 +440,7 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     setFetchLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/products?page=${page + 1}&limit=${rowsPerPage}`);
+      const res = await axios.get(`${API_BASE_URL}/api/products?page=${page + 1}&limit=${rowsPerPage}`);
       setProducts(res.data.products || []);
       setTotalProducts(res.data.total || res.data.products?.length || 0);
     } catch (error) {
@@ -450,9 +451,9 @@ const AdminProducts = () => {
 
   const fetchOptions = async () => {
     try {
-      const catRes = await axios.get('http://localhost:5000/api/categories');
+      const catRes = await axios.get(`${API_BASE_URL}/api/categories`);
       setCategories(catRes.data);
-      const brandRes = await axios.get('http://localhost:5000/api/brands');
+      const brandRes = await axios.get(`${API_BASE_URL}/api/brands`);
       setBrands(brandRes.data);
     } catch (error) {
       console.error("Error fetching categories or brands", error);
@@ -486,7 +487,7 @@ const AdminProducts = () => {
     setDeleteLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      await axios.post('http://localhost:5000/api/products/bulk-delete', { ids: selectedIds }, {
+      await axios.post(`${API_BASE_URL}/api/products/bulk-delete`, { ids: selectedIds }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchProducts();
@@ -516,7 +517,7 @@ const AdminProducts = () => {
     setDeleteLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchProducts();

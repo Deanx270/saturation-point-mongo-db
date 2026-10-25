@@ -8,6 +8,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, clearCart, cartTotal, verifyCartStock } = useCart();
@@ -52,7 +53,7 @@ const Cart = () => {
             quantity: item.quantity
           }));
 
-          await axios.post('http://localhost:5000/api/orders', {
+          await axios.post(`${API_BASE_URL}/api/orders`, {
             items,
             paymentMethod: 'Cash on Delivery'
           }, {

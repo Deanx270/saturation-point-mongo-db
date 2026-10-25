@@ -8,6 +8,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 import CopyableId from '../components/CopyableId';
 
@@ -23,7 +24,7 @@ const AdminUsers = () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      const res = await axios.get('http://localhost:5000/api/users', {
+      const res = await axios.get(`${API_BASE_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data);
@@ -47,7 +48,7 @@ const AdminUsers = () => {
 
     try {
       const token = await currentUser.getIdToken();
-      await axios.put(`http://localhost:5000/api/users/${userId}/role`, { role: newRole }, {
+      await axios.put(`${API_BASE_URL}/api/users/${userId}/role`, { role: newRole }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUpdatingRoles(prev => ({ ...prev, [userId]: 'success' }));
@@ -75,7 +76,7 @@ const AdminUsers = () => {
       if (result.isConfirmed) {
         try {
           const token = await currentUser.getIdToken();
-          await axios.delete(`http://localhost:5000/api/users/${id}`, {
+          await axios.delete(`${API_BASE_URL}/api/users/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           Swal.fire('Deleted!', 'User has been deleted.', 'success');

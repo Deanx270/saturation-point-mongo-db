@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   const fetchMongoProfile = async (firebaseUser) => {
     try {
       const token = await firebaseUser.getIdToken();
-      const res = await axios.get('http://localhost:5000/api/users/profile', {
+      const res = await axios.get(`${API_BASE_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMongoUser(res.data);
