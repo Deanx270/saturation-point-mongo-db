@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #faf9f6;
-    overflow-y: scroll;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #faf9f6;
+  overflow-y: scroll;
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* Hide native Edge/IE password reveal and clear icons which conflict with MUI */
 input::-ms-reveal,
 input::-ms-clear {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    pointer-events: none !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
 }
 
 .swal2-container {
-    z-index: 9999 !important;
+  z-index: 9999 !important;
 }
