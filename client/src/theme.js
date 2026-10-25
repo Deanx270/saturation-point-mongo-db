@@ -4,18 +4,18 @@ export const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1C1917', // accent-dark
+      main: '#1C1917',
     },
     secondary: {
-      main: '#CA8A04', // accent-gold
+      main: '#CA8A04',
     },
     background: {
-      default: '#FAF9F6', // bg-primary
-      paper: '#FFFFFF', // bg-card
+      default: '#FAF9F6',
+      paper: '#FFFFFF',
     },
     text: {
-      primary: '#0C0A09', // text-main
-      secondary: '#44403C', // text-muted
+      primary: '#0C0A09',
+      secondary: '#44403C',
     },
   },
   typography: {
@@ -33,7 +33,7 @@ export const theme = createTheme({
     }
   },
   shape: {
-    borderRadius: 0, // Old system looks sharp/minimalist
+    borderRadius: 0,
   },
   components: {
     MuiButton: {
@@ -42,7 +42,7 @@ export const theme = createTheme({
           padding: '12px 24px',
           boxShadow: 'none',
           '&:hover': {
-            boxShadow: '0 8px 32px rgba(28, 25, 23, 0.08)', // shadow-hover from old system
+            boxShadow: '0 8px 32px rgba(28, 25, 23, 0.08)',
           }
         },
         contained: {

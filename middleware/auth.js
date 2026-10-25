@@ -12,7 +12,6 @@ const verifyToken = async (req, res, next) => {
     const decodedToken = await auth.verifyIdToken(token);
     req.user = decodedToken;
     
-    // Check if user exists in MongoDB, if not, create them
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
     
     if (!user) {
@@ -25,9 +24,8 @@ const verifyToken = async (req, res, next) => {
       });
     }
     
-    req.mongoUser = user; // Attach MongoDB user object to request
+    req.mongoUser = user;
     
-    // Block incomplete profiles from using the API, except for endpoints needed to complete the profile
     const exemptUrls = [
       '/api/users/profile',
       '/api/users/check-username'

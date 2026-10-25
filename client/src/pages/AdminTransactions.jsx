@@ -233,7 +233,6 @@ const AdminTransactions = () => {
         />
       </Paper>
 
-      {/* Transaction Details Modal */}
       <Dialog 
         open={Boolean(selectedOrder)} 
         onClose={() => setSelectedOrder(null)}
@@ -259,7 +258,6 @@ const AdminTransactions = () => {
             </DialogTitle>
             
             <DialogContent sx={{ p: 4, bgcolor: '#FAFAFA' }}>
-              {/* Info Grid - Matching old system strictly */}
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, mb: 4, p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                 <Box>
                   <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Customer</Typography>
@@ -282,7 +280,6 @@ const AdminTransactions = () => {
                 </Box>
               </Box>
 
-              {/* Status Update Box - Restored from old system */}
               <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 1.5, p: { xs: 2, sm: 3 }, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>Update Order Status</Typography>

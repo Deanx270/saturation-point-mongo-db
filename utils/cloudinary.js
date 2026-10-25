@@ -12,7 +12,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'saturation_point_new', // Keeps images separate from old-system
+    folder: 'saturation_point_new',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
   },
 });
@@ -29,7 +29,7 @@ const upload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 5 * 1024 * 1024
   }
 });
 

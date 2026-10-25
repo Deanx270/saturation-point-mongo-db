@@ -26,13 +26,11 @@ async function fix() {
     for (const p of products) {
       let changed = false;
       
-      // If the brand field is a 24-char ObjectId string, map it
       if (p.brand && p.brand.length === 24 && brandMap[p.brand]) {
         p.brand = brandMap[p.brand];
         changed = true;
       }
       
-      // If category field is an ObjectId string, map it
       if (p.category && p.category.length === 24 && catMap[p.category]) {
         p.category = catMap[p.category];
         changed = true;

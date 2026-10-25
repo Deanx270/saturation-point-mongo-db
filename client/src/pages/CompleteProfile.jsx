@@ -135,7 +135,6 @@ const CompleteProfile = () => {
         }
       });
 
-      // Update local state, triggering App.jsx to unmount this page and show normal routes
       setMongoUser(res.data.user);
     } catch (err) {
       console.error(err);

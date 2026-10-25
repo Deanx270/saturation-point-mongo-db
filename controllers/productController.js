@@ -1,15 +1,12 @@
 const Product = require('../models/Product');
 const { Filter } = require('bad-words');
 
-// Get all products (with search, filter, and pagination)
 exports.getProducts = async (req, res) => {
   try {
     const { keyword, category, minPrice, maxPrice, minRating, page, limit } = req.query;
     
-    // Build query object
     let query = {};
     
-    // Search by name or description
     if (keyword) {
       query.$or = [
         { name: { $regex: keyword, $options: 'i' } },
@@ -17,30 +14,25 @@ exports.getProducts = async (req, res) => {
       ];
     }
     
-    // Filter by category
     if (category) {
-      // split by comma if multiple categories are passed
       const categories = category.split(',').map(c => c.trim());
       if (categories.length > 0) {
         query.category = { $in: categories };
       }
     }
     
-    // Filter by price
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
     
-    // Filter by rating
     if (minRating) {
       query.rating = { $gte: Number(minRating) };
     }
 
-    // Pagination setup
     const pageNum = Number(page) || 1;
-    const pageSize = Number(limit) || 12; // Default 12 products per page
+    const pageSize = Number(limit) || 12;
     const skip = (pageNum - 1) * pageSize;
 
     const total = await Product.countDocuments(query);
@@ -60,7 +52,6 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// Get single product
 exports.getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate('reviews.user', 'displayName email photoURL');
@@ -71,7 +62,6 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// Get all distinct categories
 exports.getCategories = async (req, res) => {
   try {
     const categories = await Product.distinct('category');
@@ -81,12 +71,10 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-// Create a new product (handles multiple images)
 exports.createProduct = async (req, res) => {
   try {
     const { name, description, price, brand, category, stock } = req.body;
     
-    // Extract image URLs from multer's req.files array
     const images = req.files ? req.files.map(file => file.path) : [];
 
     const product = await Product.create({
@@ -99,7 +87,6 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Update a product
 exports.updateProduct = async (req, res) => {
   try {
     const { name, description, price, brand, category, stock, imageOrder } = req.body;
@@ -123,7 +110,6 @@ exports.updateProduct = async (req, res) => {
       }
       updateData.images = finalImages;
 
-      // Find old product to compare and delete removed images from Cloudinary
       const oldProduct = await Product.findById(req.params.id);
       if (oldProduct && oldProduct.images) {
         const deletedImages = oldProduct.images.filter(img => !finalImages.includes(img));
@@ -135,7 +121,7 @@ exports.updateProduct = async (req, res) => {
               const parts = url.split('/');
               const uploadIndex = parts.indexOf('upload');
               if (uploadIndex !== -1) {
-                const pathParts = parts.slice(uploadIndex + 2); // skip upload and version
+                const pathParts = parts.slice(uploadIndex + 2);
                 const fullPath = pathParts.join('/');
                 const publicId = fullPath.substring(0, fullPath.lastIndexOf('.')) || fullPath;
                 await cloudinary.uploader.destroy(publicId);
@@ -147,10 +133,9 @@ exports.updateProduct = async (req, res) => {
         }
       }
     } else {
-      // Fallback if no imageOrder is provided
       if (req.files && req.files.length > 0) {
         const newImages = req.files.map(file => file.path);
-        updateData.$push = { images: { $each: newImages } }; // Append new images
+        updateData.$push = { images: { $each: newImages } };
       }
     }
 
@@ -161,7 +146,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// Delete a single product
 exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
@@ -171,10 +155,9 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// Bulk Delete (MP1 Requirement: using checkboxes in frontend to send array of IDs)
 exports.bulkDeleteProducts = async (req, res) => {
   try {
-    const { ids } = req.body; // Expects an array of product IDs
+    const { ids } = req.body;
     if (!ids || ids.length === 0) {
       return res.status(400).json({ message: 'No product IDs provided' });
     }
@@ -186,7 +169,6 @@ exports.bulkDeleteProducts = async (req, res) => {
   }
 };
 
-// Create or update a review
 exports.createProductReview = async (req, res) => {
   try {
     const { rating, comment, name } = req.body;
@@ -209,12 +191,10 @@ exports.createProductReview = async (req, res) => {
     const alreadyReviewed = product.reviews.find(r => r.user.toString() === req.mongoUser._id.toString());
 
     if (alreadyReviewed) {
-      // Update existing review (MP3 Requirement: Users can update their own review/rating)
       alreadyReviewed.rating = Number(rating);
       alreadyReviewed.comment = sanitizedComment;
       alreadyReviewed.name = name;
     } else {
-      // Create new review
       const review = {
         name,
         rating: Number(rating),
@@ -234,7 +214,6 @@ exports.createProductReview = async (req, res) => {
   }
 };
 
-// Delete a review (Admin)
 exports.deleteReview = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -246,7 +225,6 @@ exports.deleteReview = async (req, res) => {
     const reviewIndex = product.reviews.findIndex(r => r._id.toString() === reviewId);
     if (reviewIndex === -1) return res.status(404).json({ message: 'Review not found' });
 
-    // Ensure it's the admin deleting (this will be protected by verifyAdmin in routes anyway)
     product.reviews.splice(reviewIndex, 1);
     
     product.numReviews = product.reviews.length;

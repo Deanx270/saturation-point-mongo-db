@@ -4,23 +4,19 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Successfully connected to MongoDB Atlas!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Routes
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -33,12 +29,14 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Basic Route for testing
+app.get('/', (req, res) => {
+  res.json({ message: 'The Saturation Point API is running' });
+});
+
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Welcome to The Saturation Point API!' });
 });
 
-// Global Error Handler for Multer/Uploads
 app.use((err, req, res, next) => {
   if (err instanceof require('multer').MulterError) {
     return res.status(400).json({ message: err.message });
@@ -51,7 +49,6 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

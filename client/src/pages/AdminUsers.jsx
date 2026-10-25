@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Box, Typography, Paper, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Button, Select, 
+import {
+  Box, Typography, Paper, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Button, Select,
   MenuItem, CircularProgress, Tooltip, TablePagination
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -91,10 +91,10 @@ const AdminUsers = () => {
 
   return (
     <Box>
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: { xs: 3, sm: 5 }, 
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 5 },
           border: '1px solid rgba(28, 25, 23, 0.08)',
           boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
           borderRadius: 2
@@ -139,9 +139,9 @@ const AdminUsers = () => {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box 
-                          component="img" 
-                          src={user.photoURL || '/images/default-avatar.png'} 
+                        <Box
+                          component="img"
+                          src={user.photoURL || '/images/default-avatar.png'}
                           alt={user.displayName}
                           sx={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
                         />
@@ -167,11 +167,11 @@ const AdminUsers = () => {
                       </Box>
                     </TableCell>
                     <TableCell align="right">
-                      <Button 
-                        size="small" 
-                        disabled={currentUser.email === user.email} 
-                        onClick={() => handleDelete(user._id)} 
-                        startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />} 
+                      <Button
+                        size="small"
+                        disabled={currentUser.email === user.email}
+                        onClick={() => handleDelete(user._id)}
+                        startIcon={<DeleteIcon sx={{ width: 16, height: 16 }} />}
                         sx={{ color: '#991b1b', textTransform: 'none', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', color: '#7f1d1d' } }}
                       >
                         Delete

@@ -13,14 +13,12 @@ exports.createOrder = async (req, res) => {
     let totalAmount = 0;
     const orderItems = [];
 
-    // Fetch prices from DB to avoid client-side manipulation
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
         return res.status(404).json({ message: `Product not found: ${item.productId}` });
       }
       
-      // Check stock
       if (product.stock < item.quantity) {
         return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
       }
@@ -35,11 +33,9 @@ exports.createOrder = async (req, res) => {
 
       totalAmount += (product.price * item.quantity);
       
-      // Decrease stock atomically to prevent race conditions and bypass unrelated schema validations
       await Product.findByIdAndUpdate(product._id, { $inc: { stock: -item.quantity } });
     }
 
-    // Add shipping fee (150)
     totalAmount += 150;
 
     const order = new Order({
@@ -52,7 +48,6 @@ exports.createOrder = async (req, res) => {
 
     const createdOrder = await order.save();
     
-    // Send order confirmation email asynchronously
     Order.findById(createdOrder._id).populate('user', 'email displayName')
       .then(populatedOrder => {
         if (populatedOrder) {
@@ -91,7 +86,6 @@ exports.updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
-    // If order is cancelled, refund the stock
     if (status === 'cancelled') {
       for (const item of order.orderItems) {
         if (item.product) {
@@ -100,7 +94,6 @@ exports.updateOrderStatus = async (req, res) => {
       }
     }
     
-    // Send email with PDF receipt in the background to prevent UI delay
     sendOrderStatusEmail(order).catch(console.error);
     
     res.status(200).json(order);
@@ -109,7 +102,6 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// Placeholder for user's own orders (for profile page)
 exports.getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.mongoUser._id }).sort({ createdAt: -1 });

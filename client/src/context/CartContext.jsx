@@ -12,7 +12,6 @@ export const CartProvider = ({ children }) => {
   
   const [cart, setCart] = useState([]);
 
-  // Load cart from localStorage when currentUser changes
   useEffect(() => {
     if (currentUser) {
       const savedCart = localStorage.getItem(`cart_${currentUser.uid}`);
@@ -31,7 +30,6 @@ export const CartProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem(`cart_${currentUser.uid}`, JSON.stringify(cart));
@@ -97,7 +95,6 @@ export const CartProvider = ({ children }) => {
   const verifyCartStock = async () => {
     if (cart.length === 0) return;
     try {
-      // Fetch all products (or we could fetch specifically, but /api/products is easy)
       const res = await axios.get(`${API_BASE_URL}/api/products`);
       const products = res.data.products || res.data;
       

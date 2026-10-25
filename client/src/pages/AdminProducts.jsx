@@ -365,7 +365,6 @@ const ProductFormModal = ({ open, onClose, fetchProducts, editingId, productData
                       sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 1, border: index === 0 ? '2px solid #CA8A04' : '1px solid rgba(28, 25, 23, 0.1)' }}
                     />
                     
-                    {/* Main Image Overlay */}
                     {index === 0 ? (
                       <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, bgcolor: 'rgba(202, 138, 4, 0.9)', color: '#fff', fontSize: '0.6rem', textAlign: 'center', py: 0.5, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, pointerEvents: 'none' }}>
                         MAIN
