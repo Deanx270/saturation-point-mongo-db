@@ -12,6 +12,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const Login = () => {
   const { login, loginWithGoogle, loginWithFacebook, logout } = useAuth();
@@ -62,7 +63,7 @@ const Login = () => {
         // If it doesn't look like an email, assume it's a username and fetch the email from backend
         if (!loginEmail.includes('@')) {
           try {
-            const res = await axios.get(`http://localhost:5000/api/users/email-by-username/${loginEmail}`);
+            const res = await axios.get(`${API_BASE_URL}/api/users/email-by-username/${loginEmail}`);
             loginEmail = res.data.email;
           } catch (err) {
             throw new Error('Firebase: User not found with that username.');

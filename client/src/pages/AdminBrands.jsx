@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 import CopyableId from '../components/CopyableId';
 
@@ -29,7 +30,7 @@ const AdminBrands = () => {
   const fetchBrands = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/brands');
+      const res = await axios.get(`${API_BASE_URL}/api/brands`);
       setBrands(res.data);
     } catch (error) {
       console.error("Error fetching brands", error);
@@ -64,10 +65,10 @@ const AdminBrands = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/brands/${editingId}`, { name, description }, config);
+        await axios.put(`${API_BASE_URL}/api/brands/${editingId}`, { name, description }, config);
         Swal.fire({ toast: true, position: 'bottom-end', icon: 'success', title: 'Brand updated', showConfirmButton: false, timer: 3000 });
       } else {
-        await axios.post('http://localhost:5000/api/brands', { name, description }, config);
+        await axios.post(`${API_BASE_URL}/api/brands`, { name, description }, config);
         Swal.fire({ toast: true, position: 'bottom-end', icon: 'success', title: 'Brand added', showConfirmButton: false, timer: 3000 });
       }
       setOpen(false);
@@ -91,7 +92,7 @@ const AdminBrands = () => {
       if (result.isConfirmed) {
         try {
           const token = await currentUser.getIdToken();
-          await axios.delete(`http://localhost:5000/api/brands/${id}`, {
+          await axios.delete(`${API_BASE_URL}/api/brands/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           Swal.fire('Deleted!', 'Brand has been deleted.', 'success');

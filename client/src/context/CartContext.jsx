@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
@@ -40,7 +41,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product, quantity = 1) => {
     let latestStock = product.stock || 0;
     try {
-      const res = await axios.get(`http://localhost:5000/api/products/${product._id}`);
+      const res = await axios.get(`${API_BASE_URL}/api/products/${product._id}`);
       if (res.data) {
         latestStock = res.data.stock;
       }
@@ -97,7 +98,7 @@ export const CartProvider = ({ children }) => {
     if (cart.length === 0) return;
     try {
       // Fetch all products (or we could fetch specifically, but /api/products is easy)
-      const res = await axios.get('http://localhost:5000/api/products');
+      const res = await axios.get(`${API_BASE_URL}/api/products`);
       const products = res.data.products || res.data;
       
       setCart(prevCart => {

@@ -12,6 +12,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import CopyableId from '../components/CopyableId';
 import ErrorBoundary from '../components/ErrorBoundary';
 
@@ -36,7 +37,7 @@ const Profile = () => {
       if (!currentUser || !mongoUser) return;
       try {
         const token = await currentUser.getIdToken();
-        const res = await axios.get('http://localhost:5000/api/orders/myorders', {
+        const res = await axios.get(`${API_BASE_URL}/api/orders/myorders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = res.data;
@@ -114,7 +115,7 @@ const Profile = () => {
         }
 
         const token = await currentUser.getIdToken();
-        const res = await axios.put('http://localhost:5000/api/users/profile', formData, {
+        const res = await axios.put(`${API_BASE_URL}/api/users/profile`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
@@ -154,7 +155,7 @@ const Profile = () => {
 
     setIsCheckingUsername(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      const res = await axios.get(`${API_BASE_URL}/api/users/check-username?username=${val}`);
       setUsernameAvailable(res.data.available);
       if (!res.data.available) {
         setUsernameCheckError('Username is already taken.');

@@ -12,6 +12,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 
 const Register = () => {
@@ -113,7 +114,7 @@ const Register = () => {
       setLoading(true);
       setAuthError('');
       try {
-        const usernameCheck = await axios.get(`http://localhost:5000/api/users/check-username?username=${values.username}`);
+        const usernameCheck = await axios.get(`${API_BASE_URL}/api/users/check-username?username=${values.username}`);
         if (!usernameCheck.data.available) {
           formik.setFieldError('username', 'Username is already taken.');
           setLoading(false);
@@ -135,14 +136,14 @@ const Register = () => {
 
         await new Promise(r => setTimeout(r, 1000));
         
-        await axios.put('http://localhost:5000/api/users/profile', formData, {
+        await axios.put(`${API_BASE_URL}/api/users/profile`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${token}`
           }
         });
 
-        await axios.post('http://localhost:5000/api/users/send-verification', {
+        await axios.post(`${API_BASE_URL}/api/users/send-verification`, {
           email: values.email,
           firstName: formattedFirstName,
           lastName: formattedLastName
@@ -174,7 +175,7 @@ const Register = () => {
 
     setIsCheckingUsername(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      const res = await axios.get(`${API_BASE_URL}/api/users/check-username?username=${val}`);
       setUsernameAvailable(res.data.available);
       if (!res.data.available) {
         setUsernameCheckError('Username is already taken.');

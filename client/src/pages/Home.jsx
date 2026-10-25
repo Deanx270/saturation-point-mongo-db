@@ -8,6 +8,7 @@ import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlined';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 // Assets
 import heroImg from '../assets/hero.png'; // Fallback
@@ -26,7 +27,7 @@ const Home = () => {
     // Fetch only up to 3 products for the featured section
     const fetchFeatured = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products?limit=3');
+        const res = await axios.get(`${API_BASE_URL}/api/products?limit=3`);
         setFeatured(res.data.products);
       } catch (err) {
         console.error(err);

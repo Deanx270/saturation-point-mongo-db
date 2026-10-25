@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import { useCart } from '../context/CartContext';
 import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
@@ -44,7 +45,7 @@ const Catalog = () => {
     else setIsFetchingMore(true);
 
     try {
-      let url = `http://localhost:5000/api/products?limit=8&page=${pageParam}`;
+      let url = `${API_BASE_URL}/api/products?limit=8&page=${pageParam}`;
       if (debouncedKeyword) url += `&keyword=${debouncedKeyword}`;
       if (selectedCategories.length > 0) url += `&category=${selectedCategories.join(',')}`;
       if (minPrice) url += `&minPrice=${minPrice}`;
@@ -114,7 +115,7 @@ const Catalog = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products/categories');
+        const res = await axios.get(`${API_BASE_URL}/api/products/categories`);
         setCategories(res.data);
       } catch (err) {
         console.error(err);

@@ -8,6 +8,7 @@ import {
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 import CopyableId from '../components/CopyableId';
 
@@ -25,7 +26,7 @@ const AdminTransactions = () => {
     setLoading(true);
     try {
       const token = await currentUser.getIdToken();
-      const res = await axios.get('http://localhost:5000/api/orders', {
+      const res = await axios.get(`${API_BASE_URL}/api/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(res.data);
@@ -59,7 +60,7 @@ const AdminTransactions = () => {
     
     try {
       const token = await currentUser.getIdToken();
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
+      await axios.put(`${API_BASE_URL}/api/orders/${orderId}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -84,7 +85,7 @@ const AdminTransactions = () => {
     
     try {
       const token = await currentUser.getIdToken();
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus }, {
+      await axios.put(`${API_BASE_URL}/api/orders/${orderId}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       Swal.fire({

@@ -6,6 +6,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const CompleteProfile = () => {
   const { currentUser, logout, mongoUser, setMongoUser } = useAuth();
@@ -29,7 +30,7 @@ const CompleteProfile = () => {
 
     setIsCheckingUsername(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/users/check-username?username=${val}`);
+      const res = await axios.get(`${API_BASE_URL}/api/users/check-username?username=${val}`);
       setUsernameAvailable(res.data.available);
       if (!res.data.available) {
         setUsernameError('Username is already taken.');
@@ -127,7 +128,7 @@ const CompleteProfile = () => {
         formData.append('photo', profilePicture);
       }
 
-      const res = await axios.put('http://localhost:5000/api/users/profile', formData, {
+      const res = await axios.put(`${API_BASE_URL}/api/users/profile`, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}` 
