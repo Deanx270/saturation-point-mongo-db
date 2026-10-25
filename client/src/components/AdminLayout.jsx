@@ -28,13 +28,13 @@ const AdminLayout = ({ children }) => {
           mb: 5, 
           py: 2,
           position: 'sticky', 
-          top: { xs: 70, md: 90 }, // Navbar height offset
+          top: { xs: 70, md: 90 },
           zIndex: 10,
           bgcolor: 'transparent',
-          overflowX: 'auto', // For mobile scrolling
+          overflowX: 'auto',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
-          '&::-webkit-scrollbar': { display: 'none' } // Hide scrollbar cleanly
+          '&::-webkit-scrollbar': { display: 'none' }
         }}
       >
         {tabs.map(tab => {

@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const { sendVerificationEmail: sendEmailVerification } = require('../utils/emailService');
 
-// Get Current User Profile
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.mongoUser._id);
@@ -11,7 +10,6 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// Update User Profile (MP2 Requirement)
 const updateUserProfile = async (req, res) => {
   try {
     const { displayName, username } = req.body;
@@ -20,7 +18,6 @@ const updateUserProfile = async (req, res) => {
     if (displayName) updateData.displayName = displayName;
     if (username) updateData.username = username;
     
-    // If a file was uploaded to Cloudinary, update the photoURL
     if (req.file) {
       updateData.photoURL = req.file.path; 
     }
@@ -40,7 +37,6 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-// Check if username is available (Public)
 const checkUsername = async (req, res) => {
   try {
     const { username } = req.query;
@@ -52,7 +48,6 @@ const checkUsername = async (req, res) => {
   }
 };
 
-// Get email by username (Public, for login)
 const getEmailByUsername = async (req, res) => {
   try {
     const { username } = req.params;
@@ -64,16 +59,15 @@ const getEmailByUsername = async (req, res) => {
   }
 };
 
-// Send Verification Email
 const sendVerificationEmail = async (req, res) => {
   try {
     const { email, firstName, lastName } = req.body;
     const { auth } = require('../utils/firebaseAdmin');
     const rawVerificationUrl = await auth.generateEmailVerificationLink(email);
     
-    // Intercept the Firebase action URL and rewrite it to point to our gorgeous custom React page
     const urlObj = new URL(rawVerificationUrl);
-    const verificationUrl = `http://localhost:5173/verify-email${urlObj.search}`;
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const verificationUrl = `${clientUrl}/verify-email${urlObj.search}`;
     
     const sent = await sendEmailVerification(email, verificationUrl, firstName, lastName);
     if (sent) {
@@ -86,7 +80,6 @@ const sendVerificationEmail = async (req, res) => {
   }
 };
 
-// ADMIN: Get all users
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
@@ -96,7 +89,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// ADMIN: Update user role
 const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -110,7 +102,6 @@ const updateUserRole = async (req, res) => {
   }
 };
 
-// ADMIN: Delete user
 const { auth } = require('../utils/firebaseAdmin');
 const { cloudinary } = require('../utils/cloudinary');
 const deleteUser = async (req, res) => {
@@ -118,14 +109,12 @@ const deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
     
-    // Delete from Firebase Auth
     try {
       await auth.deleteUser(user.firebaseUid);
     } catch (firebaseErr) {
       console.error('Failed to delete from Firebase:', firebaseErr);
     }
     
-    // Delete profile picture from Cloudinary
     if (user.photoURL && user.photoURL.includes('cloudinary.com')) {
       try {
         const parts = user.photoURL.split('/');
@@ -137,7 +126,6 @@ const deleteUser = async (req, res) => {
       }
     }
     
-    // Delete from MongoDB
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'User deleted' });
   } catch (error) {

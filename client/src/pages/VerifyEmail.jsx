@@ -9,13 +9,12 @@ import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
+  const [status, setStatus] = useState('verifying');
   const [errorMessage, setErrorMessage] = useState('');
   
   const oobCode = searchParams.get('oobCode');
   const mode = searchParams.get('mode');
   
-  // Use a ref to prevent strict-mode double firing
   const hasAttempted = useRef(false);
 
   useEffect(() => {

@@ -18,7 +18,6 @@ const AdminBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Modal state
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState('');
@@ -202,7 +201,6 @@ const AdminBrands = () => {
         />
       </Paper>
 
-      {/* Modal */}
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontFamily: '"Lora", serif', fontWeight: 600, fontSize: '1.5rem' }}>
           {editingId ? 'Edit Brand' : 'Add Brand'}

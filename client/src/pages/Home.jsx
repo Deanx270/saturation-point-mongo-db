@@ -10,8 +10,7 @@ import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlin
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
-// Assets
-import heroImg from '../assets/hero.png'; // Fallback
+import heroImg from '../assets/hero.png';
 import storyImg from '../../public/images/story_ink_flow.png';
 import bentoNib from '../../public/images/bento_nib_macro.png';
 import bentoInk from '../../public/images/bento_ink_bottle.png';
@@ -24,7 +23,6 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch only up to 3 products for the featured section
     const fetchFeatured = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/api/products?limit=3`);
@@ -47,7 +45,6 @@ const Home = () => {
 
   return (
     <Box>
-      {/* 1. HERO SECTION */}
       <Box 
         sx={{ 
           width: '100%', 
@@ -63,7 +60,7 @@ const Home = () => {
             content: '""',
             position: 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(27, 38, 59, 0.4)', // matches #1B263B 
+            backgroundColor: 'rgba(27, 38, 59, 0.4)',
             zIndex: 1
           }
         }}
@@ -76,7 +73,6 @@ const Home = () => {
             Curated instruments for the modern connoisseur. Experience elite craftsmanship designed for those who appreciate the permanence of ink.
           </Typography>
 
-          {/* Embedded Search Bar */}
           <Box 
             component="form" 
             onSubmit={handleSearchSubmit}
@@ -130,7 +126,6 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* 2. FEATURED ADDITIONS */}
       <Container maxWidth="lg" sx={{ py: 10 }}>
         <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
           Featured Additions
@@ -196,7 +191,6 @@ const Home = () => {
         )}
       </Container>
 
-      {/* 3. STORYTELLING */}
       <Box sx={{ bgcolor: '#FAF9F6', py: 12 }}>
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 8, alignItems: 'center' }}>
@@ -251,7 +245,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* 4. THE COLLECTION (BENTO GRID) */}
       <Container maxWidth="lg" sx={{ py: 12 }}>
         <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 6, color: '#1B263B', textAlign: 'center' }}>
           The Collection
@@ -265,7 +258,6 @@ const Home = () => {
             gap: 3 
           }}
         >
-          {/* Nibs (Large spanning 2 cols) */}
           <Box 
             component={Link} 
             to="/catalog?category=Fountain%20Pens"
@@ -286,7 +278,6 @@ const Home = () => {
             </Box>
           </Box>
 
-          {/* Inks (Tall spanning 2 rows) */}
           <Box 
             component={Link} 
             to="/catalog?category=Inks"
@@ -307,7 +298,6 @@ const Home = () => {
             </Box>
           </Box>
 
-          {/* Paper */}
           <Box 
             component={Link} 
             to="/catalog?category=Paper"
@@ -327,7 +317,6 @@ const Home = () => {
             </Box>
           </Box>
 
-          {/* Bespoke Editions */}
           <Box 
             sx={{ 
               bgcolor: '#1C1917', 

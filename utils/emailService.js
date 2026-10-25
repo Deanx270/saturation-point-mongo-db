@@ -1,7 +1,6 @@
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 
-// Generates PDF receipt exactly matching old-system style
 const generatePDFReceipt = (order) => {
   return new Promise((resolve, reject) => {
     try {
@@ -128,7 +127,6 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
       return false;
     }
 
-    // Attach PDF only when delivered based on old-system logic and new request to not attach everytime
     const shouldAttachReceipt = order.status === 'delivered';
     
     let attachments = [];
@@ -144,8 +142,6 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
     const subtotal = order.totalAmount - 150;
     const userName = order.user && order.user.displayName ? order.user.displayName : 'Customer';
     
-    // Create the items table to satisfy the new project rubric requirements 
-    // "the email contains the list of products/services, their subtotal and grand total"
     let itemsHtml = order.orderItems.map(item => 
       `<tr>
         <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #2D3436; font-size: 14px;">${item.name}</td>
@@ -157,6 +153,8 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
     const message = isCheckout 
       ? `Thank you for your purchase. Your order is now <strong style="color: #1B263B; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">PENDING</strong>.`
       : getStatusMessage(order.status);
+
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
     const htmlContent = `
       <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
@@ -199,7 +197,7 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
           ${shouldAttachReceipt ? '<p style="font-size: 16px; line-height: 1.6; margin-top: 20px; text-align: center;">Your official order documentation is attached to this email for your records.</p>' : ''}
           
           <div style="margin: 40px 0; text-align: center;">
-            <a href="http://localhost:5173" style="display: inline-block; background-color: #1B263B; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-size: 14px; letter-spacing: 1px;">VISIT STORE</a>
+            <a href="${clientUrl}" style="display: inline-block; background-color: #1B263B; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 4px; font-size: 14px; letter-spacing: 1px;">VISIT STORE</a>
           </div>
           
           <hr style="border: none; border-bottom: 1px solid #E2E8F0; margin: 30px 0;">

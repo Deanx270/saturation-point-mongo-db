@@ -28,7 +28,6 @@ const ProductDetails = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [quantity, setQuantity] = useState(1);
   
-  // Track existing review and purchases
   const [hasReviewed, setHasReviewed] = useState(false);
   const [userReviewData, setUserReviewData] = useState(null);
   const [isEditingReview, setIsEditingReview] = useState(false);
@@ -44,18 +43,12 @@ const ProductDetails = () => {
       }
       
       if (currentUser && found) {
-        // Check if user is admin via token
         const tokenResult = await currentUser.getIdTokenResult();
-        // Since we don't store role in custom claims yet, we can check email
         if (currentUser.email === 'admin@admin.com') {
           setIsAdmin(true);
         }
 
-        // Check if user has already reviewed
         const userReview = found.reviews.find(r => r.name === currentUser.displayName || r.name === currentUser.email);
-        // Better check would be user ID, but we only have firebase UID on frontend right now.
-        // Let's rely on the backend to tell us by doing a dry-run check or we can map it via an API.
-        // For this MP3 requirement, we'll populate formik if they already reviewed based on name match for simplicity.
         if (userReview) {
           setHasReviewed(true);
           setUserReviewData(userReview);
@@ -65,7 +58,6 @@ const ProductDetails = () => {
           });
         }
         
-        // Fetch orders to check if they purchased it
         try {
           const token = await currentUser.getIdToken();
           const ordersRes = await axios.get(`${API_BASE_URL}/api/orders/myorders`, {
@@ -88,7 +80,6 @@ const ProductDetails = () => {
 
   useEffect(() => {
     fetchProduct();
-    // eslint-disable-next-line
   }, [id, currentUser]);
 
   const formik = useFormik({
@@ -125,7 +116,7 @@ const ProductDetails = () => {
         
         setHasReviewed(true);
         setIsEditingReview(false);
-        fetchProduct(); // Refresh reviews and will set userReviewData
+        fetchProduct();
       } catch (error) {
         Swal.fire('Error', error.response?.data?.message || 'Failed to submit review', 'error');
       }
@@ -190,7 +181,6 @@ const ProductDetails = () => {
       </Button>
 
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, mb: 10 }}>
-        {/* Product Images Area */}
         <Box sx={{ flex: 1 }}>
           <Box sx={{ width: '100%', height: { xs: 300, md: 500 }, bgcolor: '#fff', mb: 2, position: 'relative' }}>
             {mainImage ? (
@@ -217,7 +207,6 @@ const ProductDetails = () => {
               <Box component="img" src="/images/default-avatar.png" sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 4, boxSizing: 'border-box' }} />
             )}
           </Box>
-          {/* Thumbnails */}
           {product.images && product.images.length > 1 && (
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               {product.images.map((img, idx) => (
@@ -238,7 +227,6 @@ const ProductDetails = () => {
           )}
         </Box>
 
-        {/* Product Info Area */}
         <Box sx={{ flex: 1 }}>
           <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1 }}>
             {product.category}
@@ -377,13 +365,11 @@ const ProductDetails = () => {
         </Box>
       </Box>
 
-      {/* Reviews Section */}
       <Box id="reviews-section" sx={{ borderTop: '1px solid rgba(28, 25, 23, 0.08)', pt: 4, mt: 4 }}>
         <Typography variant="h4" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 4, color: '#1C1917' }}>
           Customer Reviews
         </Typography>
 
-        {/* Write a Review Form */}
         {currentUser ? (
           hasPurchased ? (
             <Box sx={{ mb: 4 }}>
@@ -517,7 +503,6 @@ const ProductDetails = () => {
           </Alert>
         )}
 
-        {/* Display Reviews */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {product.reviews.length === 0 ? (
             <Typography variant="body1" sx={{ color: '#78716C' }}>No reviews yet. Be the first to review!</Typography>

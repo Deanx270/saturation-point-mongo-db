@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
     default: 1
   },
   images: [{
-    type: String // Array of Cloudinary image URLs
+    type: String
   }],
   reviews: [
     new mongoose.Schema({

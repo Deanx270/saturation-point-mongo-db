@@ -206,7 +206,6 @@ const Register = () => {
     if (authError) {
       setAuthError('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formik.values.email, formik.values.password]);
 
   const handleFileChange = (e) => {
@@ -230,7 +229,6 @@ const Register = () => {
         return;
       }
       
-      // Valid file
       formik.setFieldValue('profilePicture', file);
       const reader = new FileReader();
       reader.onloadend = () => {

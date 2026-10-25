@@ -28,7 +28,7 @@ const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Default to current month
+  
   const today = new Date();
   const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
   const defaultEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -55,18 +55,12 @@ const AdminDashboard = () => {
     }
   }, [currentUser]);
 
-  // 1. Monthly sales charts. all months on the chart label. line chart
   const monthlyData = useMemo(() => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    // Initialize array with all 12 months with 0 sales
     const data = months.map(month => ({ name: month, Sales: 0 }));
-    
-    // Current year (or could be dynamic, let's use current year for the chart)
     const currentYear = new Date().getFullYear();
 
     orders.forEach(order => {
-      // Only count completed/paid orders usually, but we will count any non-cancelled order
       if (order.status !== 'cancelled') {
         const orderDate = new Date(order.createdAt);
         if (orderDate.getFullYear() === currentYear) {
@@ -79,7 +73,6 @@ const AdminDashboard = () => {
     return data;
   }, [orders]);
 
-  // 2. Sales charts with date range filter
   const filteredData = useMemo(() => {
     if (!startDate || !endDate) return [];
     
@@ -88,10 +81,8 @@ const AdminDashboard = () => {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
     
-    // Group sales by day
     const dailySalesMap = {};
     
-    // Pre-fill all days in range to ensure chart connects properly
     let currDate = new Date(start);
     while (currDate <= end) {
       const dateStr = currDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -127,8 +118,6 @@ const AdminDashboard = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        
-        {/* Monthly Sales Chart */}
         <Box>
           <Paper elevation={0} sx={{ p: 4, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 2 }}>
             <Typography variant="h5" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, color: '#1C1917', mb: 1 }}>
@@ -163,7 +152,6 @@ const AdminDashboard = () => {
           </Paper>
         </Box>
 
-        {/* Date Range Filtered Sales Chart */}
         <Box>
           <Paper elevation={0} sx={{ p: 4, border: '1px solid rgba(28, 25, 23, 0.08)', borderRadius: 2 }}>
             <Box sx={{ mb: 4 }}>
@@ -232,7 +220,6 @@ const AdminDashboard = () => {
             )}
           </Paper>
         </Box>
-        
     </Box>
   );
 };

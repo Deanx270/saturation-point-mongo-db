@@ -21,20 +21,16 @@ const Catalog = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
-  // Filter states
   const [keyword, setKeyword] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minRating, setMinRating] = useState(0);
 
-  // Popover state
   const [anchorEl, setAnchorEl] = useState(null);
   
-  // Debounce search
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
 
-  // Pagination and Infinite Scroll states
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -54,7 +50,6 @@ const Catalog = () => {
       
       const res = await axios.get(url);
       
-      // Artificial delay for infinite scroll to make the loading spinner visible
       if (append) {
         await new Promise(resolve => setTimeout(resolve, 600));
       }
@@ -68,7 +63,6 @@ const Catalog = () => {
       
       if (append) {
         setProducts(prev => {
-          // Avoid duplicates by using a Map
           const newMap = new Map();
           prev.forEach(p => newMap.set(p._id, p));
           fetchedProducts.forEach(p => newMap.set(p._id, p));
@@ -86,13 +80,11 @@ const Catalog = () => {
     }
   }, [debouncedKeyword, selectedCategories, minPrice, maxPrice, minRating]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
     fetchProducts(1, false);
   }, [fetchProducts]);
 
-  // Infinite Scroll Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
@@ -124,7 +116,6 @@ const Catalog = () => {
     fetchCategories();
   }, []);
 
-  // Debounce search effect
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
     return () => clearTimeout(timer);
@@ -144,7 +135,6 @@ const Catalog = () => {
         The Complete Catalog
       </Typography>
 
-      {/* Sticky Pill Filter Bar */}
       <Box sx={{ position: 'sticky', top: { xs: 70, md: 85 }, zIndex: 50, bgcolor: 'transparent', py: 2, mb: 6, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
         <Box 
           sx={{ 
@@ -447,7 +437,6 @@ const Catalog = () => {
         </Box>
       )}
 
-      {/* Infinite Scroll Loading Indicator */}
       {products.length > 0 && (
         <Box ref={observerTarget} sx={{ py: 4, display: 'flex', justifyContent: 'center', height: 100 }}>
           {isFetchingMore && <CircularProgress sx={{ color: '#CA8A04' }} />}

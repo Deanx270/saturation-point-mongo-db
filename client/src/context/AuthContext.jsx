@@ -30,7 +30,6 @@ export const AuthProvider = ({ children }) => {
   const [mongoUser, setMongoUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Helper to fetch MongoDB profile when Firebase user logs in
   const fetchMongoProfile = async (firebaseUser) => {
     try {
       const token = await firebaseUser.getIdToken();

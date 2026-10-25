@@ -60,7 +60,6 @@ const Login = () => {
       try {
         let loginEmail = values.identifier;
 
-        // If it doesn't look like an email, assume it's a username and fetch the email from backend
         if (!loginEmail.includes('@')) {
           try {
             const res = await axios.get(`${API_BASE_URL}/api/users/email-by-username/${loginEmail}`);
@@ -118,7 +117,6 @@ const Login = () => {
     if (authError) {
       setAuthError('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formik.values.identifier, formik.values.password]);
 
   return (

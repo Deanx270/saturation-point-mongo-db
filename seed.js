@@ -11,7 +11,6 @@ const Product = require('./models/Product');
 const Order = require('./models/Order');
 const User = require('./models/User');
 
-// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -36,12 +35,10 @@ async function seed() {
     });
     console.log('Connected to MySQL.');
 
-    // 1. Seed Brands
     console.log('Fetching brands from MySQL...');
     const [mysqlBrands] = await connection.execute('SELECT * FROM brands');
     const brandIdMap = {};
     for (const b of mysqlBrands) {
-      // Check if brand exists
       let newBrand = await Brand.findOne({ name: b.name });
       if (!newBrand) {
         newBrand = await Brand.create({
@@ -55,7 +52,6 @@ async function seed() {
       brandIdMap[b.id] = newBrand._id;
     }
 
-    // 2. Seed Categories
     console.log('Fetching categories from MySQL...');
     const [mysqlCategories] = await connection.execute('SELECT * FROM categories');
     const categoryIdMap = {};
@@ -68,22 +64,20 @@ async function seed() {
         });
         console.log(`Created Category: ${newCategory.name}`);
       }
-      categoryIdMap[c.id] = newCategory._id; // In old system, ID is a string like 'ink', 'pen'
+      categoryIdMap[c.id] = newCategory._id;
     }
 
-    // 3. Seed Products
     console.log('Fetching products from MySQL...');
     const [mysqlProducts] = await connection.execute('SELECT * FROM products');
     for (const p of mysqlProducts) {
       let newProduct = await Product.findOne({ name: p.name });
       if (!newProduct) {
-        // Upload images to Cloudinary
         const imagesArr = [];
         if (p.images) {
           try {
             const oldImages = JSON.parse(p.images);
             for (const imgPath of oldImages) {
-              if (imgPath.includes('default-avatar.png')) continue; // Skip default images
+              if (imgPath.includes('default-avatar.png')) continue;
               
               const localPath = path.join(OLD_PUBLIC_DIR, imgPath);
               if (fs.existsSync(localPath)) {
@@ -110,21 +104,16 @@ async function seed() {
       }
     }
 
-    // 4. Seed Random Transactions for Charting
     console.log('Seeding random transactions for Monthly Sales Chart...');
-    const user = await User.findOne({ role: 'admin' }); // Find an admin user to assign orders to
+    const user = await User.findOne({ role: 'admin' });
     const randomProduct = await Product.findOne();
     
     if (user && randomProduct) {
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth();
       
-      // Create one transaction per month up to the current month to have a nice looking chart
       for (let month = 0; month <= currentMonth; month++) {
-        // Random amount between 2000 and 15000
         const amount = Math.floor(Math.random() * (15000 - 2000 + 1) + 2000);
-        
-        // Random day in the month
         const day = Math.floor(Math.random() * 25) + 1;
         const date = new Date(currentYear, month, day, 12, 0, 0);
         

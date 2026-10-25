@@ -125,8 +125,6 @@ const Cart = () => {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
-          
-          {/* Cart Items List */}
           <Box sx={{ flex: '1 1 65%' }}>
             {cart.map((item) => (
               <Paper 
@@ -220,7 +218,6 @@ const Cart = () => {
             ))}
           </Box>
 
-          {/* Order Summary */}
           <Box sx={{ flex: '1 1 35%' }}>
             <Paper 
               elevation={0}

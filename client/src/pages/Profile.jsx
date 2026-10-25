@@ -123,7 +123,6 @@ const Profile = () => {
         });
         setMongoUser(res.data.user);
         
-        // Reset password fields but keep display name
         resetForm({ 
           values: { ...values, password: '', confirmPassword: '', profilePicture: null } 
         });
@@ -141,7 +140,6 @@ const Profile = () => {
   });
 
   const checkUsername = useCallback(async (val) => {
-    // If it's their current username, it's automatically available to them
     if (val === mongoUser?.username) {
       setUsernameAvailable(true);
       setUsernameCheckError('');
@@ -171,7 +169,6 @@ const Profile = () => {
   useEffect(() => {
     const val = formik.values.username;
     
-    // Skip if it's their own username
     if (val === mongoUser?.username) {
       setUsernameAvailable(true);
       setUsernameCheckError('');
@@ -243,7 +240,6 @@ const Profile = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Grid container spacing={4} sx={{ justifyContent: 'center', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
-        {/* Profile Settings Column */}
         <Grid item xs={12} md={3} sx={{ minWidth: { md: '320px' }, maxWidth: { md: '320px' }, width: '100%' }}>
       <Paper 
         elevation={0} 
@@ -458,7 +454,6 @@ const Profile = () => {
       </Paper>
         </Grid>
         
-        {/* Transaction History Column */}
         <Grid item xs={12} md={9} sx={{ minWidth: 0, width: '100%' }}>
           <ErrorBoundary>
             <Paper 
@@ -568,7 +563,6 @@ const Profile = () => {
         </Grid>
       </Grid>
 
-      {/* Transaction Details Modal */}
       <Dialog 
         open={Boolean(selectedOrder)} 
         onClose={() => setSelectedOrder(null)}
@@ -594,7 +588,6 @@ const Profile = () => {
             </DialogTitle>
             
             <DialogContent sx={{ p: 4, bgcolor: '#FAFAFA' }}>
-              {/* Info Grid */}
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3, mb: 4, p: 3, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E7E5E4', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                 <Box>
                   <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, display: 'block', mb: 0.5 }}>Date & Time</Typography>
@@ -611,7 +604,6 @@ const Profile = () => {
                 </Box>
               </Box>
 
-              {/* Order Items */}
               <Typography variant="h6" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2, color: '#1C1917' }}>
                 Items Ordered
               </Typography>
@@ -653,7 +645,6 @@ const Profile = () => {
                 </Table>
               </Box>
               
-              {/* Totals */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Box sx={{ width: '100%', maxWidth: 300 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
