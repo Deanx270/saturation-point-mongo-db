@@ -1,0 +1,10 @@
+node_modules
+client/node_modules
+client/dist
+.git
+old-system
+itcp318-ns-2026
+package-lock.json
+client/package-lock.json
+RULES.md
+.env

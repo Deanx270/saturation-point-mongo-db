@@ -1,7 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Container, Typography, Box, Paper, Button, CircularProgress, 
-  Popover, TextField, FormControl, InputLabel, Select, MenuItem, Rating, Checkbox, ListItemText, Tooltip
+import {
+    Container,
+    Typography,
+    Box,
+    Paper,
+    Button,
+    CircularProgress,
+    Popover,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Rating,
+    Checkbox,
+    ListItemText,
+    Tooltip,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -14,440 +28,626 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../context/AuthContext';
 
 const Catalog = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { addToCart } = useCart();
-  const { currentUser } = useAuth();
-  const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const { addToCart } = useCart();
+    const { currentUser } = useAuth();
+    const navigate = useNavigate();
+    const [categories, setCategories] = useState([]);
 
-  const [keyword, setKeyword] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [minRating, setMinRating] = useState(0);
+    const [keyword, setKeyword] = useState('');
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [minRating, setMinRating] = useState(0);
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  
-  const [debouncedKeyword, setDebouncedKeyword] = useState('');
+    const [anchorEl, setAnchorEl] = useState(null);
 
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const observerTarget = React.useRef(null);
+    const [debouncedKeyword, setDebouncedKeyword] = useState('');
 
-  const fetchProducts = useCallback(async (pageParam = 1, append = false) => {
-    if (pageParam === 1) setLoading(true);
-    else setIsFetchingMore(true);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const observerTarget = React.useRef(null);
 
-    try {
-      let url = `${API_BASE_URL}/api/products?limit=8&page=${pageParam}`;
-      if (debouncedKeyword) url += `&keyword=${debouncedKeyword}`;
-      if (selectedCategories.length > 0) url += `&category=${selectedCategories.join(',')}`;
-      if (minPrice) url += `&minPrice=${minPrice}`;
-      if (maxPrice) url += `&maxPrice=${maxPrice}`;
-      if (minRating > 0) url += `&minRating=${minRating}`;
-      
-      const res = await axios.get(url);
-      
-      if (append) {
-        await new Promise(resolve => setTimeout(resolve, 600));
-      }
+    const fetchProducts = useCallback(
+        async (pageParam = 1, append = false) => {
+            if (pageParam === 1) setLoading(true);
+            else setIsFetchingMore(true);
 
-      let fetchedProducts = res.data.products || res.data;
-      fetchedProducts.sort((a, b) => {
-        if (a.stock === 0 && b.stock !== 0) return 1;
-        if (a.stock !== 0 && b.stock === 0) return -1;
-        return 0;
-      });
-      
-      if (append) {
-        setProducts(prev => {
-          const newMap = new Map();
-          prev.forEach(p => newMap.set(p._id, p));
-          fetchedProducts.forEach(p => newMap.set(p._id, p));
-          return Array.from(newMap.values());
-        });
-      } else {
-        setProducts(fetchedProducts);
-      }
-      setTotalPages(res.data.pages || 1);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setIsFetchingMore(false);
-    }
-  }, [debouncedKeyword, selectedCategories, minPrice, maxPrice, minRating]);
+            try {
+                let url = `${API_BASE_URL}/api/products?limit=8&page=${pageParam}`;
+                if (debouncedKeyword) url += `&keyword=${debouncedKeyword}`;
+                if (selectedCategories.length > 0)
+                    url += `&category=${selectedCategories.join(',')}`;
+                if (minPrice) url += `&minPrice=${minPrice}`;
+                if (maxPrice) url += `&maxPrice=${maxPrice}`;
+                if (minRating > 0) url += `&minRating=${minRating}`;
 
-  useEffect(() => {
-    setPage(1);
-    fetchProducts(1, false);
-  }, [fetchProducts]);
+                const res = await axios.get(url);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && !isFetchingMore && page < totalPages) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchProducts(nextPage, true);
-        }
-      },
-      { threshold: 1.0 }
+                if (append) {
+                    await new Promise((resolve) => setTimeout(resolve, 600));
+                }
+
+                let fetchedProducts = res.data.products || res.data;
+                fetchedProducts.sort((a, b) => {
+                    if (a.stock === 0 && b.stock !== 0) return 1;
+                    if (a.stock !== 0 && b.stock === 0) return -1;
+                    return 0;
+                });
+
+                if (append) {
+                    setProducts((prev) => {
+                        const newMap = new Map();
+                        prev.forEach((p) => newMap.set(p._id, p));
+                        fetchedProducts.forEach((p) => newMap.set(p._id, p));
+                        return Array.from(newMap.values());
+                    });
+                } else {
+                    setProducts(fetchedProducts);
+                }
+                setTotalPages(res.data.pages || 1);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+                setIsFetchingMore(false);
+            }
+        },
+        [debouncedKeyword, selectedCategories, minPrice, maxPrice, minRating],
     );
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-    return () => {
-      if (observerTarget.current) observer.unobserve(observerTarget.current);
+
+    useEffect(() => {
+        setPage(1);
+        fetchProducts(1, false);
+    }, [fetchProducts]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (
+                    entries[0].isIntersecting &&
+                    !isFetchingMore &&
+                    page < totalPages
+                ) {
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    fetchProducts(nextPage, true);
+                }
+            },
+            { threshold: 1.0 },
+        );
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+        return () => {
+            if (observerTarget.current)
+                observer.unobserve(observerTarget.current);
+        };
+    }, [isFetchingMore, page, totalPages, fetchProducts]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await axios.get(
+                    `${API_BASE_URL}/api/products/categories`,
+                );
+                setCategories(res.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
+        return () => clearTimeout(timer);
+    }, [keyword]);
+
+    const handleFilterClick = (event) => {
+        setAnchorEl(event.currentTarget);
     };
-  }, [isFetchingMore, page, totalPages, fetchProducts]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get(`${API_BASE_URL}/api/products/categories`);
-        setCategories(res.data);
-      } catch (err) {
-        console.error(err);
-      }
+    const handleFilterClose = () => {
+        setAnchorEl(null);
     };
-    fetchCategories();
-  }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
-    return () => clearTimeout(timer);
-  }, [keyword]);
-
-  const handleFilterClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleFilterClose = () => {
-    setAnchorEl(null);
-  };
-
-  return (
-    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 12 }}>
-      <Typography variant="h3" sx={{ fontFamily: '"Lora", serif', fontWeight: 600, mb: 2, color: '#1C1917', textAlign: 'center' }}>
-        The Complete Catalog
-      </Typography>
-
-      <Box sx={{ position: 'sticky', top: { xs: 70, md: 85 }, zIndex: 50, bgcolor: 'transparent', py: 2, mb: 6, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Box 
-          sx={{ 
-            pointerEvents: 'auto',
-            display: 'flex', 
-            alignItems: 'center', 
-            bgcolor: '#FFFFFF', 
-            borderRadius: '50px', 
-            boxShadow: '0 8px 32px rgba(0,0,0,0.08)', 
-            border: '1px solid rgba(27,38,59,0.08)', 
-            p: '6px 12px', 
-            width: '100%', 
-            maxWidth: '650px' 
-          }}
-        >
-          <SearchIcon sx={{ color: '#78716C', ml: 1, width: 20 }} />
-          <input 
-            type="text" 
-            placeholder="Search products..."
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            style={{
-              border: 'none',
-              outline: 'none',
-              background: 'transparent',
-              padding: '12px 15px',
-              width: '100%',
-              fontFamily: '"Montserrat", sans-serif',
-              fontSize: '1rem'
-            }}
-          />
-          <Button 
-            onClick={handleFilterClick}
-            sx={{ 
-              bgcolor: 'transparent', 
-              border: 'none', 
-              borderLeft: '1px solid rgba(27,38,59,0.1)', 
-              borderRadius: 0,
-              pl: 2, 
-              pr: 1, 
-              color: '#1C1917',
-              fontFamily: '"Montserrat", sans-serif',
-              fontWeight: 500,
-              textTransform: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              '&:hover': { bgcolor: 'transparent', opacity: 0.7 }
-            }}
-          >
-            <TuneIcon sx={{ width: 18, height: 18 }} />
-            Filter
-          </Button>
-        </Box>
-      </Box>
-
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={handleFilterClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        sx={{ mt: 1 }}
-      >
-        <Box sx={{ p: 3, width: 300, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <Typography variant="h6" sx={{ fontFamily: '"Montserrat", sans-serif', fontWeight: 600 }}>
-            Filters
-          </Typography>
-
-          <FormControl fullWidth size="small">
-            <InputLabel>Category</InputLabel>
-            <Select
-              multiple
-              value={selectedCategories}
-              onChange={(e) => setSelectedCategories(e.target.value)}
-              renderValue={(selected) => selected.join(', ')}
-              label="Category"
+    return (
+        <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 12 }}>
+            <Typography
+                variant="h3"
+                sx={{
+                    fontFamily: '"Lora", serif',
+                    fontWeight: 600,
+                    mb: 2,
+                    color: '#1C1917',
+                    textAlign: 'center',
+                }}
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  <Checkbox checked={selectedCategories.indexOf(cat) > -1} />
-                  <ListItemText primary={cat} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                The Complete Catalog
+            </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField 
-              size="small" 
-              label="Min Price" 
-              type="number" 
-              value={minPrice} 
-              onChange={(e) => setMinPrice(e.target.value)} 
-            />
-            <TextField 
-              size="small" 
-              label="Max Price" 
-              type="number" 
-              value={maxPrice} 
-              onChange={(e) => setMaxPrice(e.target.value)} 
-            />
-          </Box>
-
-          <Box>
-            <Typography variant="body2" sx={{ color: '#78716C', mb: 1 }}>Minimum Rating</Typography>
-            <Rating 
-              value={minRating}
-              onChange={(event, newValue) => {
-                setMinRating(newValue);
-              }}
-            />
-          </Box>
-          
-          <Button 
-            variant="contained" 
-            onClick={() => {
-              setSelectedCategories([]);
-              setMinPrice('');
-              setMaxPrice('');
-              setMinRating(0);
-            }}
-            sx={{ bgcolor: '#1C1917', '&:hover': { bgcolor: '#292524' } }}
-          >
-            Clear Filters
-          </Button>
-        </Box>
-      </Popover>
-
-      {loading && page === 1 ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
-          <CircularProgress sx={{ color: '#CA8A04' }} />
-        </Box>
-      ) : products.length === 0 ? (
-        <Typography variant="h6" sx={{ textAlign: 'center', mt: 10, color: '#78716C', fontFamily: '"Montserrat", sans-serif' }}>
-          No products found matching your filters.
-        </Typography>
-      ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 4 }}>
-          {products.map(product => (
-            <Paper 
-              key={product._id} 
-              elevation={0}
-              sx={{ 
-                borderRadius: 0, 
-                border: '1px solid rgba(28, 25, 23, 0.08)',
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'translateY(-4px)', borderColor: '#CA8A04' }
-              }}
+            <Box
+                sx={{
+                    position: 'sticky',
+                    top: { xs: 70, md: 85 },
+                    zIndex: 50,
+                    bgcolor: 'transparent',
+                    py: 2,
+                    mb: 6,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                }}
             >
-              <Box 
-                component={Link} 
-                to={`/product/${product._id}`}
-                sx={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-              >
-                <Box sx={{ aspectRatio: '1 / 1', bgcolor: '#fff', overflow: 'hidden', position: 'relative' }}>
-                  {product.stock === 0 && (
-                    <Box sx={{
-                      position: 'absolute',
-                      top: 0, left: 0, right: 0, bottom: 0,
-                      bgcolor: 'rgba(255, 255, 255, 0.6)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1
-                    }}>
-                      <Typography sx={{
-                        fontFamily: '"Lora", serif',
-                        fontWeight: 700,
-                        fontSize: '1.2rem',
-                        color: '#9f1239',
-                        bgcolor: 'rgba(255,255,255,0.9)',
-                        px: 2, py: 1,
-                        border: '2px solid #9f1239',
-                        transform: 'rotate(-10deg)'
-                      }}>
-                        OUT OF STOCK
-                      </Typography>
-                    </Box>
-                  )}
-                  {product.images && product.images.length > 0 ? (
-                    <Box 
-                      component="img"
-                      src={product.images[0]}
-                      alt={product.name}
-                      sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
+                <Box
+                    sx={{
+                        pointerEvents: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        bgcolor: '#FFFFFF',
+                        borderRadius: '50px',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                        border: '1px solid rgba(27,38,59,0.08)',
+                        p: '6px 12px',
+                        width: '100%',
+                        maxWidth: '650px',
+                    }}
+                >
+                    <SearchIcon sx={{ color: '#78716C', ml: 1, width: 20 }} />
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        style={{
+                            border: 'none',
+                            outline: 'none',
+                            background: 'transparent',
+                            padding: '12px 15px',
+                            width: '100%',
+                            fontFamily: '"Montserrat", sans-serif',
+                            fontSize: '1rem',
+                        }}
                     />
-                  ) : (
-                    <Box 
-                      component="img"
-                      src="/images/default-avatar.png"
-                      alt="default"
-                      sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 2, boxSizing: 'border-box' }}
-                    />
-                  )}
-                </Box>
-                
-                <Box sx={{ p: 3 }}>
-                  <Typography variant="caption" sx={{ color: '#78716C', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 500 }}>
-                    {product.category}
-                  </Typography>
-                  <Tooltip title={product.name} placement="top" arrow>
-                    <Typography 
-                      variant="h6" 
-                      sx={{ 
-                        fontFamily: '"Lora", serif', 
-                        fontWeight: 600, 
-                        mt: 1, 
-                        mb: 2, 
-                        color: '#1C1917',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
+                    <Button
+                        onClick={handleFilterClick}
+                        sx={{
+                            bgcolor: 'transparent',
+                            border: 'none',
+                            borderLeft: '1px solid rgba(27,38,59,0.1)',
+                            borderRadius: 0,
+                            pl: 2,
+                            pr: 1,
+                            color: '#1C1917',
+                            fontFamily: '"Montserrat", sans-serif',
+                            fontWeight: 500,
+                            textTransform: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            '&:hover': { bgcolor: 'transparent', opacity: 0.7 },
+                        }}
                     >
-                      {product.name}
-                    </Typography>
-                  </Tooltip>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: '#1C1917', fontFamily: '"Montserrat", sans-serif' }}>
-                      ₱{parseFloat(product.price).toFixed(2)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#78716C' }}>
-                      <span style={{ color: '#CA8A04' }}>★</span> {product.rating > 0 ? product.rating.toFixed(1) : 'No reviews'} 
-                      {' '}({product.numReviews})
-                    </Typography>
-                  </Box>
-                  <Button 
-                    fullWidth 
-                    variant="outlined" 
-                    disabled={product.stock === 0}
-                    startIcon={<AddShoppingCartIcon />}
-                    onClick={async (e) => {
-                      e.preventDefault();
-                      if (!currentUser) {
-                        Swal.fire({
-                          icon: 'warning',
-                          title: '<span style="font-family: \'Lora\', serif;">Login Required</span>',
-                          text: 'Please log in to add items to your cart.',
-                          confirmButtonText: 'Log In',
-                          confirmButtonColor: '#1C1917',
-                          showCancelButton: true,
-                          cancelButtonText: 'Cancel',
-                          customClass: { popup: 'premium-swal-popup' }
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            navigate('/login');
-                          }
-                        });
-                        return;
-                      }
-                      const productToAdd = {
-                        _id: product._id,
-                        name: product.name,
-                        price: product.price,
-                        photos: product.images,
-                        stock: product.stock
-                      };
-                      const wasAdded = await addToCart(productToAdd, 1);
-                      if (wasAdded) {
-                        Swal.fire({
-                          icon: 'success',
-                          title: '<span style="font-family: \'Lora\', serif;">Added to Cart</span>',
-                          showConfirmButton: false,
-                          timer: 1500,
-                          customClass: { popup: 'premium-swal-popup' }
-                        });
-                      } else {
-                        Swal.fire({
-                          icon: 'error',
-                          title: '<span style="font-family: \'Lora\', serif;">Stock Limit Reached</span>',
-                          text: 'You cannot add more of this item.',
-                          confirmButtonColor: '#1C1917',
-                          customClass: { popup: 'premium-swal-popup' }
-                        });
-                      }
-                    }}
-                    sx={{ 
-                      mt: 2, 
-                      borderColor: '#1C1917', 
-                      color: '#1C1917', 
-                      textTransform: 'none', 
-                      fontFamily: '"Montserrat", sans-serif',
-                      '&:hover': { borderColor: '#CA8A04', color: '#CA8A04', bgcolor: 'transparent' }
-                    }}
-                  >
-                    Add to Cart
-                  </Button>
+                        <TuneIcon sx={{ width: 18, height: 18 }} />
+                        Filter
+                    </Button>
                 </Box>
-              </Box>
-            </Paper>
-          ))}
-        </Box>
-      )}
+            </Box>
 
-      {products.length > 0 && (
-        <Box ref={observerTarget} sx={{ py: 4, display: 'flex', justifyContent: 'center', height: 100 }}>
-          {isFetchingMore && <CircularProgress sx={{ color: '#CA8A04' }} />}
-          {!isFetchingMore && page >= totalPages && (
-            <Typography sx={{ color: '#78716C', fontFamily: '"Montserrat", sans-serif' }}>End of catalog</Typography>
-          )}
-        </Box>
-      )}
-    </Container>
-  );
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={handleFilterClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                sx={{ mt: 1 }}
+            >
+                <Box
+                    sx={{
+                        p: 3,
+                        width: 300,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 3,
+                    }}
+                >
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontFamily: '"Montserrat", sans-serif',
+                            fontWeight: 600,
+                        }}
+                    >
+                        Filters
+                    </Typography>
+
+                    <FormControl fullWidth size="small">
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                            multiple
+                            value={selectedCategories}
+                            onChange={(e) =>
+                                setSelectedCategories(e.target.value)
+                            }
+                            renderValue={(selected) => selected.join(', ')}
+                            label="Category"
+                        >
+                            {categories.map((cat) => (
+                                <MenuItem key={cat} value={cat}>
+                                    <Checkbox
+                                        checked={
+                                            selectedCategories.indexOf(cat) > -1
+                                        }
+                                    />
+                                    <ListItemText primary={cat} />
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <TextField
+                            size="small"
+                            label="Min Price"
+                            type="number"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                        />
+                        <TextField
+                            size="small"
+                            label="Max Price"
+                            type="number"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                    </Box>
+
+                    <Box>
+                        <Typography
+                            variant="body2"
+                            sx={{ color: '#78716C', mb: 1 }}
+                        >
+                            Minimum Rating
+                        </Typography>
+                        <Rating
+                            value={minRating}
+                            onChange={(event, newValue) => {
+                                setMinRating(newValue);
+                            }}
+                        />
+                    </Box>
+
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            setSelectedCategories([]);
+                            setMinPrice('');
+                            setMaxPrice('');
+                            setMinRating(0);
+                        }}
+                        sx={{
+                            bgcolor: '#1C1917',
+                            '&:hover': { bgcolor: '#292524' },
+                        }}
+                    >
+                        Clear Filters
+                    </Button>
+                </Box>
+            </Popover>
+
+            {loading && page === 1 ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+                    <CircularProgress sx={{ color: '#CA8A04' }} />
+                </Box>
+            ) : products.length === 0 ? (
+                <Typography
+                    variant="h6"
+                    sx={{
+                        textAlign: 'center',
+                        mt: 10,
+                        color: '#78716C',
+                        fontFamily: '"Montserrat", sans-serif',
+                    }}
+                >
+                    No products found matching your filters.
+                </Typography>
+            ) : (
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns:
+                            'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: 4,
+                    }}
+                >
+                    {products.map((product) => (
+                        <Paper
+                            key={product._id}
+                            elevation={0}
+                            sx={{
+                                borderRadius: 0,
+                                border: '1px solid rgba(28, 25, 23, 0.08)',
+                                transition: 'transform 0.2s',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    borderColor: '#CA8A04',
+                                },
+                            }}
+                        >
+                            <Box
+                                component={Link}
+                                to={`/product/${product._id}`}
+                                sx={{
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    display: 'block',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        aspectRatio: '1 / 1',
+                                        bgcolor: '#fff',
+                                        overflow: 'hidden',
+                                        position: 'relative',
+                                    }}
+                                >
+                                    {product.stock === 0 && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                bgcolor:
+                                                    'rgba(255, 255, 255, 0.6)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                zIndex: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    fontFamily: '"Lora", serif',
+                                                    fontWeight: 700,
+                                                    fontSize: '1.2rem',
+                                                    color: '#9f1239',
+                                                    bgcolor:
+                                                        'rgba(255,255,255,0.9)',
+                                                    px: 2,
+                                                    py: 1,
+                                                    border: '2px solid #9f1239',
+                                                    transform: 'rotate(-10deg)',
+                                                }}
+                                            >
+                                                OUT OF STOCK
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {product.images &&
+                                    product.images.length > 0 ? (
+                                        <Box
+                                            component="img"
+                                            src={product.images[0]}
+                                            alt={product.name}
+                                            sx={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'contain',
+                                                p: 2,
+                                                boxSizing: 'border-box',
+                                            }}
+                                        />
+                                    ) : (
+                                        <Box
+                                            component="img"
+                                            src="/images/default-avatar.png"
+                                            alt="default"
+                                            sx={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'contain',
+                                                p: 2,
+                                                boxSizing: 'border-box',
+                                            }}
+                                        />
+                                    )}
+                                </Box>
+
+                                <Box sx={{ p: 3 }}>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: '#78716C',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: 1,
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        {product.category}
+                                    </Typography>
+                                    <Tooltip
+                                        title={product.name}
+                                        placement="top"
+                                        arrow
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontFamily: '"Lora", serif',
+                                                fontWeight: 600,
+                                                mt: 1,
+                                                mb: 2,
+                                                color: '#1C1917',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                            }}
+                                        >
+                                            {product.name}
+                                        </Typography>
+                                    </Tooltip>
+
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                fontWeight: 600,
+                                                color: '#1C1917',
+                                                fontFamily:
+                                                    '"Montserrat", sans-serif',
+                                            }}
+                                        >
+                                            ₱
+                                            {parseFloat(product.price).toFixed(
+                                                2,
+                                            )}
+                                        </Typography>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 0.5,
+                                                color: '#78716C',
+                                            }}
+                                        >
+                                            <span style={{ color: '#CA8A04' }}>
+                                                ★
+                                            </span>{' '}
+                                            {product.rating > 0
+                                                ? product.rating.toFixed(1)
+                                                : 'No reviews'}{' '}
+                                            ({product.numReviews})
+                                        </Typography>
+                                    </Box>
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        disabled={product.stock === 0}
+                                        startIcon={<AddShoppingCartIcon />}
+                                        onClick={async (e) => {
+                                            e.preventDefault();
+                                            if (!currentUser) {
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: '<span style="font-family: \'Lora\', serif;">Login Required</span>',
+                                                    text: 'Please log in to add items to your cart.',
+                                                    confirmButtonText: 'Log In',
+                                                    confirmButtonColor:
+                                                        '#1C1917',
+                                                    showCancelButton: true,
+                                                    cancelButtonText: 'Cancel',
+                                                    customClass: {
+                                                        popup: 'premium-swal-popup',
+                                                    },
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        navigate('/login');
+                                                    }
+                                                });
+                                                return;
+                                            }
+                                            const productToAdd = {
+                                                _id: product._id,
+                                                name: product.name,
+                                                price: product.price,
+                                                photos: product.images,
+                                                stock: product.stock,
+                                            };
+                                            const wasAdded = await addToCart(
+                                                productToAdd,
+                                                1,
+                                            );
+                                            if (wasAdded) {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: '<span style="font-family: \'Lora\', serif;">Added to Cart</span>',
+                                                    showConfirmButton: false,
+                                                    timer: 1500,
+                                                    customClass: {
+                                                        popup: 'premium-swal-popup',
+                                                    },
+                                                });
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: '<span style="font-family: \'Lora\', serif;">Stock Limit Reached</span>',
+                                                    text: 'You cannot add more of this item.',
+                                                    confirmButtonColor:
+                                                        '#1C1917',
+                                                    customClass: {
+                                                        popup: 'premium-swal-popup',
+                                                    },
+                                                });
+                                            }
+                                        }}
+                                        sx={{
+                                            mt: 2,
+                                            borderColor: '#1C1917',
+                                            color: '#1C1917',
+                                            textTransform: 'none',
+                                            fontFamily:
+                                                '"Montserrat", sans-serif',
+                                            '&:hover': {
+                                                borderColor: '#CA8A04',
+                                                color: '#CA8A04',
+                                                bgcolor: 'transparent',
+                                            },
+                                        }}
+                                    >
+                                        Add to Cart
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Paper>
+                    ))}
+                </Box>
+            )}
+
+            {products.length > 0 && (
+                <Box
+                    ref={observerTarget}
+                    sx={{
+                        py: 4,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        height: 100,
+                    }}
+                >
+                    {isFetchingMore && (
+                        <CircularProgress sx={{ color: '#CA8A04' }} />
+                    )}
+                    {!isFetchingMore && page >= totalPages && (
+                        <Typography
+                            sx={{
+                                color: '#78716C',
+                                fontFamily: '"Montserrat", sans-serif',
+                            }}
+                        >
+                            End of catalog
+                        </Typography>
+                    )}
+                </Box>
+            )}
+        </Container>
+    );
 };
 
 export default Catalog;
-

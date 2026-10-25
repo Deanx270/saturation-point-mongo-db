@@ -13,9 +13,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Successfully connected to MongoDB Atlas!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log('Successfully connected to MongoDB Atlas!'))
+    .catch((err) => console.error('MongoDB connection error:', err));
 
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -30,26 +31,29 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
-  res.json({ message: 'The Saturation Point API is running' });
+    res.json({ message: 'The Saturation Point API is running' });
 });
 
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'Welcome to The Saturation Point API!' });
+    res.json({ message: 'Welcome to The Saturation Point API!' });
 });
 
 app.use((err, req, res, next) => {
-  if (err instanceof require('multer').MulterError) {
-    return res.status(400).json({ message: err.message });
-  } else if (err) {
-    if (err.message === 'GIF files are not supported' || err.message === 'Only image files are allowed') {
-      return res.status(400).json({ message: err.message });
+    if (err instanceof require('multer').MulterError) {
+        return res.status(400).json({ message: err.message });
+    } else if (err) {
+        if (
+            err.message === 'GIF files are not supported' ||
+            err.message === 'Only image files are allowed'
+        ) {
+            return res.status(400).json({ message: err.message });
+        }
+        return res.status(500).json({ message: err.message || 'Server Error' });
     }
-    return res.status(500).json({ message: err.message || 'Server Error' });
-  }
-  next();
+    next();
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

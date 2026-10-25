@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getUserProfile, updateUserProfile, getAllUsers, updateUserRole, deleteUser, checkUsername, getEmailByUsername, sendVerificationEmail } = require('../controllers/userController');
+const {
+    getUserProfile,
+    updateUserProfile,
+    getAllUsers,
+    updateUserRole,
+    deleteUser,
+    checkUsername,
+    getEmailByUsername,
+    sendVerificationEmail,
+} = require('../controllers/userController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { upload } = require('../utils/cloudinary');
 
