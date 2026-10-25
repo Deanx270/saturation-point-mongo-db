@@ -44,56 +44,120 @@ function App() {
     const needsProfileCompletion = verified && mongoUser && !mongoUser.username;
 
     return (
-        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+        >
             <Navbar />
             <Box component="main" sx={{ flexGrow: 1 }}>
                 {needsProfileCompletion ? (
                     <Routes>
-                        <Route path="/complete-profile" element={<CompleteProfile />} />
-                        <Route path="*" element={<Navigate to="/complete-profile" />} />
+                        <Route
+                            path="/complete-profile"
+                            element={<CompleteProfile />}
+                        />
+                        <Route
+                            path="*"
+                            element={<Navigate to="/complete-profile" />}
+                        />
                     </Routes>
                 ) : (
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/catalog" element={<Catalog />} />
-                        <Route path="/product/:id" element={<ProductDetails />} />
-                        <Route path="/cart" element={
-                            <ProtectedRoute>
-                                <Cart />
-                            </ProtectedRoute>
-                        } />
-                        <Route path="/login" element={
-                            verified ? <Navigate to="/profile" /> : <Login />
-                        } />
-                        <Route path="/register" element={
-                            verified ? <Navigate to="/profile" /> : <Register />
-                        } />
+                        <Route
+                            path="/product/:id"
+                            element={<ProductDetails />}
+                        />
+                        <Route
+                            path="/cart"
+                            element={
+                                <ProtectedRoute>
+                                    <Cart />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/login"
+                            element={
+                                verified ? (
+                                    <Navigate to="/profile" />
+                                ) : (
+                                    <Login />
+                                )
+                            }
+                        />
+                        <Route
+                            path="/register"
+                            element={
+                                verified ? (
+                                    <Navigate to="/profile" />
+                                ) : (
+                                    <Register />
+                                )
+                            }
+                        />
                         <Route path="/verify-email" element={<VerifyEmail />} />
-                        <Route path="/profile" element={
-                            <ProtectedRoute>
-                                <Profile />
-                            </ProtectedRoute>
-                        } />
+                        <Route
+                            path="/profile"
+                            element={
+                                <ProtectedRoute>
+                                    <Profile />
+                                </ProtectedRoute>
+                            }
+                        />
 
-                        <Route path="/complete-profile" element={<Navigate to="/profile" />} />
+                        <Route
+                            path="/complete-profile"
+                            element={<Navigate to="/profile" />}
+                        />
                         <Route path="/403" element={<ErrorPage code={403} />} />
                         <Route path="*" element={<ErrorPage code={404} />} />
 
-                        <Route path="/admin/*" element={
-                            <AdminRoute>
-                                <AdminLayout>
-                                    <Routes>
-                                        <Route path="dashboard" element={<AdminDashboard />} />
-                                        <Route path="products" element={<AdminProducts />} />
-                                        <Route path="transactions" element={<AdminTransactions />} />
-                                        <Route path="users" element={<AdminUsers />} />
-                                        <Route path="categories" element={<AdminCategories />} />
-                                        <Route path="brands" element={<AdminBrands />} />
-                                        <Route path="*" element={<Navigate to="dashboard" />} />
-                                    </Routes>
-                                </AdminLayout>
-                            </AdminRoute>
-                        } />
+                        <Route
+                            path="/admin/*"
+                            element={
+                                <AdminRoute>
+                                    <AdminLayout>
+                                        <Routes>
+                                            <Route
+                                                path="dashboard"
+                                                element={<AdminDashboard />}
+                                            />
+                                            <Route
+                                                path="products"
+                                                element={<AdminProducts />}
+                                            />
+                                            <Route
+                                                path="transactions"
+                                                element={<AdminTransactions />}
+                                            />
+                                            <Route
+                                                path="users"
+                                                element={<AdminUsers />}
+                                            />
+                                            <Route
+                                                path="categories"
+                                                element={<AdminCategories />}
+                                            />
+                                            <Route
+                                                path="brands"
+                                                element={<AdminBrands />}
+                                            />
+                                            <Route
+                                                path="*"
+                                                element={
+                                                    <Navigate to="dashboard" />
+                                                }
+                                            />
+                                        </Routes>
+                                    </AdminLayout>
+                                </AdminRoute>
+                            }
+                        />
                     </Routes>
                 )}
             </Box>

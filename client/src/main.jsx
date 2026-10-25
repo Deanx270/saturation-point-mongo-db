@@ -10,18 +10,18 @@ import './index.css';
 import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(
-	<StrictMode>
-		<BrowserRouter>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<AuthProvider>
-					<CartProvider>
-						<ErrorBoundary>
-							<App />
-						</ErrorBoundary>
-					</CartProvider>
-				</AuthProvider>
-			</ThemeProvider>
-		</BrowserRouter>
-	</StrictMode>,
+    <StrictMode>
+        <BrowserRouter>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <AuthProvider>
+                    <CartProvider>
+                        <ErrorBoundary>
+                            <App />
+                        </ErrorBoundary>
+                    </CartProvider>
+                </AuthProvider>
+            </ThemeProvider>
+        </BrowserRouter>
+    </StrictMode>,
 );
