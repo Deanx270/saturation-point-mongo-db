@@ -26,8 +26,25 @@ const verifyToken = async (req, res, next) => {
     const resolvedEmail = decodedToken.email || clientEmail;
 
     if (user && resolvedEmail && user.email.endsWith('@users.thesaturationpoint.com')) {
-      user.email = resolvedEmail;
-      await user.save();
+      const conflictUser = await User.findOne({
+        email: resolvedEmail,
+        _id: { $ne: user._id },
+      });
+      if (conflictUser) {
+        conflictUser.firebaseUid = decodedToken.uid;
+        if (!conflictUser.photoURL && (decodedToken.picture || user.photoURL)) {
+          conflictUser.photoURL = decodedToken.picture || user.photoURL;
+        }
+        await conflictUser.save();
+        await User.deleteOne({ _id: user._id });
+        user = conflictUser;
+      } else {
+        user.email = resolvedEmail;
+        if (resolvedEmail === 'admin@admin.com') {
+          user.role = 'admin';
+        }
+        await user.save();
+      }
     }
 
     if (!user && resolvedEmail) {
@@ -37,23 +54,35 @@ const verifyToken = async (req, res, next) => {
         if (!user.photoURL && decodedToken.picture) {
           user.photoURL = decodedToken.picture;
         }
+        if (resolvedEmail === 'admin@admin.com') {
+          user.role = 'admin';
+        }
         await user.save();
       }
     }
 
     if (!user) {
+      const clientName = req.headers['x-user-name']
+        ? decodeURIComponent(req.headers['x-user-name'])
+        : null;
+      const clientPhoto = req.headers['x-user-photo'] || null;
+
       const email =
         resolvedEmail ||
         `${decodedToken.uid}@users.thesaturationpoint.com`;
       const displayName =
         decodedToken.name ||
+        clientName ||
         (resolvedEmail ? resolvedEmail.split('@')[0] : 'User');
 
       user = await User.create({
         firebaseUid: decodedToken.uid,
         email,
         displayName,
-        photoURL: decodedToken.picture || '/images/default-avatar.png',
+        photoURL:
+          decodedToken.picture ||
+          clientPhoto ||
+          '/images/default-avatar.png',
         role: email === 'admin@admin.com' ? 'admin' : 'user',
       });
     }

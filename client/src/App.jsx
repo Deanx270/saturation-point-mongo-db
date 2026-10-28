@@ -41,8 +41,25 @@ function App() {
   const { currentUser, mongoUser } = useAuth();
 
   const verified = isUserVerified(currentUser);
-  const needsProfileCompletion =
-    verified && (!mongoUser || !mongoUser.username);
+
+  if (verified && !mongoUser) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
+
+  const needsProfileCompletion = Boolean(
+    verified && mongoUser && !mongoUser.username,
+  );
 
   return (
     <Box
@@ -77,9 +94,9 @@ function App() {
               element={
                 verified ? (
                   mongoUser?.role === 'admin' ? (
-                    <Navigate to="/admin/dashboard" />
+                    <Navigate to="/admin/dashboard" replace />
                   ) : (
-                    <Navigate to="/profile" />
+                    <Navigate to="/profile" replace />
                   )
                 ) : (
                   <Login />
@@ -91,9 +108,9 @@ function App() {
               element={
                 verified ? (
                   mongoUser?.role === 'admin' ? (
-                    <Navigate to="/admin/dashboard" />
+                    <Navigate to="/admin/dashboard" replace />
                   ) : (
-                    <Navigate to="/profile" />
+                    <Navigate to="/profile" replace />
                   )
                 ) : (
                   <Register />
@@ -112,7 +129,13 @@ function App() {
 
             <Route
               path="/complete-profile"
-              element={<Navigate to="/profile" />}
+              element={
+                mongoUser?.role === 'admin' ? (
+                  <Navigate to="/admin/dashboard" replace />
+                ) : (
+                  <Navigate to="/profile" replace />
+                )
+              }
             />
             <Route path="/403" element={<ErrorPage code={403} />} />
             <Route path="*" element={<ErrorPage code={404} />} />
