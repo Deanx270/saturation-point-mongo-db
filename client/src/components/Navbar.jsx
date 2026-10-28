@@ -24,7 +24,7 @@ const Navbar = () => {
 
   const isFullyAuthenticated = isUserVerified(currentUser);
   const needsProfileCompletion =
-    isFullyAuthenticated && mongoUser && !mongoUser.username;
+    isFullyAuthenticated && (!mongoUser || !mongoUser.username);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

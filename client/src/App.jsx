@@ -41,7 +41,8 @@ function App() {
   const { currentUser, mongoUser } = useAuth();
 
   const verified = isUserVerified(currentUser);
-  const needsProfileCompletion = verified && mongoUser && !mongoUser.username;
+  const needsProfileCompletion =
+    verified && (!mongoUser || !mongoUser.username);
 
   return (
     <Box

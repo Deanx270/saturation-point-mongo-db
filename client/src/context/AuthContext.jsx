@@ -37,8 +37,10 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMongoUser(res.data);
+      return res.data;
     } catch (error) {
       console.error('Error fetching MongoDB profile', error);
+      return null;
     }
   };
 
@@ -52,11 +54,16 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = () => {
     const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+    provider.setCustomParameters({ prompt: 'select_account' });
     return signInWithPopup(auth, provider);
   };
 
   const loginWithFacebook = () => {
     const provider = new FacebookAuthProvider();
+    provider.addScope('email');
+    provider.addScope('public_profile');
     return signInWithPopup(auth, provider);
   };
 
@@ -87,6 +94,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     mongoUser,
     setMongoUser,
+    fetchMongoProfile,
     isUserVerified: () => isUserVerified(currentUser),
     login,
     signup,

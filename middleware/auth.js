@@ -16,13 +16,31 @@ const verifyToken = async (req, res, next) => {
 
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
 
+    if (!user && decodedToken.email) {
+      user = await User.findOne({ email: decodedToken.email });
+      if (user) {
+        user.firebaseUid = decodedToken.uid;
+        if (!user.photoURL && decodedToken.picture) {
+          user.photoURL = decodedToken.picture;
+        }
+        await user.save();
+      }
+    }
+
     if (!user) {
+      const email =
+        decodedToken.email ||
+        `${decodedToken.uid}@users.thesaturationpoint.com`;
+      const displayName =
+        decodedToken.name ||
+        (decodedToken.email ? decodedToken.email.split('@')[0] : 'User');
+
       user = await User.create({
         firebaseUid: decodedToken.uid,
-        email: decodedToken.email,
-        displayName: decodedToken.name || decodedToken.email.split('@')[0],
+        email,
+        displayName,
         photoURL: decodedToken.picture || '/images/default-avatar.png',
-        role: decodedToken.email === 'admin@admin.com' ? 'admin' : 'user',
+        role: email === 'admin@admin.com' ? 'admin' : 'user',
       });
     }
 
