@@ -24,7 +24,13 @@ import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 
 const Register = () => {
-  const { signup, loginWithGoogle, loginWithFacebook, logout } = useAuth();
+  const {
+    signup,
+    loginWithGoogle,
+    loginWithFacebook,
+    fetchMongoProfile,
+    logout,
+  } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -88,12 +94,20 @@ const Register = () => {
 
   const handleSocialLogin = async (providerFunc) => {
     setAuthError('');
+    setLoading(true);
     try {
-      await providerFunc();
-      navigate('/profile');
+      const cred = await providerFunc();
+      const profile = await fetchMongoProfile(cred.user);
+      if (profile && !profile.username) {
+        navigate('/complete-profile');
+      } else {
+        navigate('/profile');
+      }
     } catch (err) {
       console.error('Social login error details:', err);
       setAuthError(formatFirebaseError(err?.message || err?.code || err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -725,6 +739,7 @@ const Register = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Button
             variant="outlined"
+            disabled={loading}
             startIcon={<GoogleIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithGoogle)}
             sx={{
@@ -743,6 +758,7 @@ const Register = () => {
           </Button>
           <Button
             variant="outlined"
+            disabled={loading}
             startIcon={<FacebookIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithFacebook)}
             sx={{

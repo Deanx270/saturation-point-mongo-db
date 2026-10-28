@@ -23,7 +23,13 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 const Login = () => {
-  const { login, loginWithGoogle, loginWithFacebook, logout } = useAuth();
+  const {
+    login,
+    loginWithGoogle,
+    loginWithFacebook,
+    fetchMongoProfile,
+    logout,
+  } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -92,7 +98,12 @@ const Login = () => {
           );
         }
 
-        navigate('/profile');
+        const profile = await fetchMongoProfile(cred.user);
+        if (profile && !profile.username) {
+          navigate('/complete-profile');
+        } else {
+          navigate('/profile');
+        }
       } catch (err) {
         setAuthError(formatFirebaseError(err?.message || err));
       }
@@ -120,12 +131,20 @@ const Login = () => {
 
   const handleSocialLogin = async (providerFunc) => {
     setAuthError('');
+    setLoading(true);
     try {
-      await providerFunc();
-      navigate('/profile');
+      const cred = await providerFunc();
+      const profile = await fetchMongoProfile(cred.user);
+      if (profile && !profile.username) {
+        navigate('/complete-profile');
+      } else {
+        navigate('/profile');
+      }
     } catch (err) {
       console.error('Social login error details:', err);
       setAuthError(formatFirebaseError(err?.message || err?.code || err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -340,6 +359,7 @@ const Login = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Button
             variant="outlined"
+            disabled={loading}
             startIcon={<GoogleIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithGoogle)}
             sx={{
@@ -358,6 +378,7 @@ const Login = () => {
           </Button>
           <Button
             variant="outlined"
+            disabled={loading}
             startIcon={<FacebookIcon sx={{ fontSize: '1.35rem' }} />}
             onClick={() => handleSocialLogin(loginWithFacebook)}
             sx={{
