@@ -15,6 +15,19 @@ import { API_BASE_URL } from '../config/api';
 
 const CompleteProfile = () => {
   const { currentUser, logout, mongoUser, setMongoUser } = useAuth();
+  const hasRealEmail = Boolean(
+    currentUser?.email ||
+      (mongoUser?.email &&
+        !mongoUser.email.endsWith('@users.thesaturationpoint.com')),
+  );
+  const [email, setEmail] = useState(
+    currentUser?.email ||
+      (mongoUser?.email &&
+      !mongoUser.email.endsWith('@users.thesaturationpoint.com')
+        ? mongoUser.email
+        : ''),
+  );
+  const [emailError, setEmailError] = useState('');
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [hasTouched, setHasTouched] = useState(false);
@@ -125,6 +138,16 @@ const CompleteProfile = () => {
       setUsernameError('Only letters, numbers, and underscores are allowed.');
       return;
     }
+    if (!hasRealEmail) {
+      if (!email.trim()) {
+        setEmailError('Email address is required.');
+        return;
+      }
+      if (!/\S+@\S+\.\S+/.test(email.trim())) {
+        setEmailError('Please enter a valid email address.');
+        return;
+      }
+    }
     if (usernameError || isCheckingUsername || !usernameAvailable) {
       return;
     }
@@ -134,6 +157,9 @@ const CompleteProfile = () => {
       const token = await currentUser.getIdToken();
       const formData = new FormData();
       formData.append('username', username);
+      if (!hasRealEmail && email.trim()) {
+        formData.append('email', email.trim());
+      }
       if (profilePicture) {
         formData.append('photo', profilePicture);
       }
@@ -297,6 +323,31 @@ const CompleteProfile = () => {
             }}
           />
 
+          {!hasRealEmail && (
+            <TextField
+              fullWidth
+              label="Email Address *"
+              variant="outlined"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (e.target.value && !/\S+@\S+\.\S+/.test(e.target.value)) {
+                  setEmailError('Please enter a valid email address.');
+                } else {
+                  setEmailError('');
+                }
+              }}
+              error={Boolean(emailError)}
+              helperText={emailError}
+              size="small"
+              sx={{ mb: 3 }}
+              slotProps={{
+                inputLabel: { sx: { fontSize: '0.85rem' } },
+                htmlInput: { sx: { fontSize: '0.9rem' } },
+              }}
+            />
+          )}
+
           <Button
             fullWidth
             type="submit"
@@ -306,7 +357,8 @@ const CompleteProfile = () => {
               isCheckingUsername ||
               Boolean(usernameError) ||
               !usernameAvailable ||
-              username.length < 3
+              username.length < 3 ||
+              (!hasRealEmail && (!email.trim() || Boolean(emailError)))
             }
             sx={{
               height: '40px',

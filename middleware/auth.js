@@ -16,8 +16,22 @@ const verifyToken = async (req, res, next) => {
 
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
 
-    if (!user && decodedToken.email) {
-      user = await User.findOne({ email: decodedToken.email });
+    const clientEmail =
+      req.headers['x-user-email'] &&
+      req.headers['x-user-email'].includes('@') &&
+      !req.headers['x-user-email'].endsWith('@users.thesaturationpoint.com')
+        ? req.headers['x-user-email'].toLowerCase().trim()
+        : null;
+
+    const resolvedEmail = decodedToken.email || clientEmail;
+
+    if (user && resolvedEmail && user.email.endsWith('@users.thesaturationpoint.com')) {
+      user.email = resolvedEmail;
+      await user.save();
+    }
+
+    if (!user && resolvedEmail) {
+      user = await User.findOne({ email: resolvedEmail });
       if (user) {
         user.firebaseUid = decodedToken.uid;
         if (!user.photoURL && decodedToken.picture) {
@@ -29,11 +43,11 @@ const verifyToken = async (req, res, next) => {
 
     if (!user) {
       const email =
-        decodedToken.email ||
+        resolvedEmail ||
         `${decodedToken.uid}@users.thesaturationpoint.com`;
       const displayName =
         decodedToken.name ||
-        (decodedToken.email ? decodedToken.email.split('@')[0] : 'User');
+        (resolvedEmail ? resolvedEmail.split('@')[0] : 'User');
 
       user = await User.create({
         firebaseUid: decodedToken.uid,

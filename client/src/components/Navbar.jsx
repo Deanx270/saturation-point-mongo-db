@@ -166,7 +166,7 @@ const Navbar = () => {
                   <MenuItem
                     onClick={handleMenuClose}
                     component={Link}
-                    to="/admin/products"
+                    to="/admin/dashboard"
                     sx={navLinksStyle}
                   >
                     Admin Panel
@@ -206,7 +206,7 @@ const Navbar = () => {
               {!needsProfileCompletion && mongoUser?.role === 'admin' && (
                 <Typography
                   component={Link}
-                  to="/admin/products"
+                  to="/admin/dashboard"
                   sx={navLinksStyle}
                 >
                   Admin Panel

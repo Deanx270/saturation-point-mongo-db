@@ -30,11 +30,16 @@ export const AuthProvider = ({ children }) => {
   const [mongoUser, setMongoUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchMongoProfile = async (firebaseUser) => {
+  const fetchMongoProfile = async (firebaseUser, explicitEmail) => {
     try {
       const token = await firebaseUser.getIdToken();
+      const email = explicitEmail || firebaseUser.email;
+      const headers = { Authorization: `Bearer ${token}` };
+      if (email) {
+        headers['X-User-Email'] = email;
+      }
       const res = await axios.get(`${API_BASE_URL}/api/users/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers,
       });
       setMongoUser(res.data);
       return res.data;
@@ -52,19 +57,65 @@ export const AuthProvider = ({ children }) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+  const trackPopup = (signInFn) => {
+    let popupRef = null;
+    const originalOpen = window.open;
+
+    window.open = function (...args) {
+      const win = originalOpen.apply(this, args);
+      popupRef = win;
+      return win;
+    };
+
+    return new Promise((resolve, reject) => {
+      let intervalId = null;
+      let finished = false;
+
+      signInFn()
+        .then((res) => {
+          finished = true;
+          if (intervalId) clearInterval(intervalId);
+          window.open = originalOpen;
+          resolve(res);
+        })
+        .catch((err) => {
+          finished = true;
+          if (intervalId) clearInterval(intervalId);
+          window.open = originalOpen;
+          reject(err);
+        });
+
+      intervalId = setInterval(() => {
+        if (popupRef && popupRef.closed) {
+          clearInterval(intervalId);
+          window.open = originalOpen;
+          setTimeout(() => {
+            if (!finished) {
+              const error = new Error('Firebase: auth/popup-closed-by-user');
+              error.code = 'auth/popup-closed-by-user';
+              reject(error);
+            }
+          }, 350);
+        }
+      }, 250);
+    });
+  };
+
   const loginWithGoogle = () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
+    provider.addScope('https://www.googleapis.com/auth/userinfo.email');
+    provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
     provider.setCustomParameters({ prompt: 'select_account' });
-    return signInWithPopup(auth, provider);
+    return trackPopup(() => signInWithPopup(auth, provider));
   };
 
   const loginWithFacebook = () => {
     const provider = new FacebookAuthProvider();
     provider.addScope('email');
     provider.addScope('public_profile');
-    return signInWithPopup(auth, provider);
+    return trackPopup(() => signInWithPopup(auth, provider));
   };
 
   const updateUserPassword = (newPassword) => {

@@ -101,6 +101,8 @@ const Login = () => {
         const profile = await fetchMongoProfile(cred.user);
         if (profile && !profile.username) {
           navigate('/complete-profile');
+        } else if (profile?.role === 'admin') {
+          navigate('/admin/dashboard');
         } else {
           navigate('/profile');
         }
@@ -137,6 +139,8 @@ const Login = () => {
       const profile = await fetchMongoProfile(cred.user);
       if (profile && !profile.username) {
         navigate('/complete-profile');
+      } else if (profile?.role === 'admin') {
+        navigate('/admin/dashboard');
       } else {
         navigate('/profile');
       }

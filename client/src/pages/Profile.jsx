@@ -95,12 +95,20 @@ const Profile = () => {
       firstName: mongoUser?.displayName?.split(' ')[0] || '',
       lastName: mongoUser?.displayName?.split(' ').slice(1).join(' ') || '',
       username: mongoUser?.username || '',
-      email: currentUser?.email || '',
+      email:
+        currentUser?.email ||
+        (mongoUser?.email?.endsWith('@users.thesaturationpoint.com')
+          ? ''
+          : mongoUser?.email) ||
+        '',
       password: '',
       confirmPassword: '',
       profilePicture: null,
     },
     validationSchema: Yup.object({
+      email: Yup.string()
+        .email('Please enter a valid email address.')
+        .required('Email is required.'),
       firstName: Yup.string()
         .matches(
           /^[a-zA-Z\s\-']+$/,
@@ -152,6 +160,9 @@ const Profile = () => {
           `${formattedFirstName} ${formattedLastName}`.trim(),
         );
         formData.append('username', values.username);
+        if (values.email && values.email !== mongoUser?.email) {
+          formData.append('email', values.email.trim());
+        }
         if (values.profilePicture) {
           formData.append('photo', values.profilePicture);
         }
@@ -454,7 +465,16 @@ const Profile = () => {
                 variant="outlined"
                 margin="normal"
                 value={formik.values.email}
-                disabled
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
+                disabled={Boolean(
+                  currentUser?.email &&
+                    !mongoUser?.email?.endsWith(
+                      '@users.thesaturationpoint.com',
+                    ),
+                )}
                 size="small"
                 InputLabelProps={{
                   style: { fontSize: '0.85rem' },
