@@ -100,11 +100,11 @@ const Login = () => {
 
         const profile = await fetchMongoProfile(cred.user);
         if (profile && !profile.username) {
-          navigate('/complete-profile');
+          navigate('/complete-profile', { replace: true });
         } else if (profile?.role === 'admin') {
-          navigate('/admin/dashboard');
+          navigate('/admin/dashboard', { replace: true });
         } else {
-          navigate('/profile');
+          navigate('/profile', { replace: true });
         }
       } catch (err) {
         setAuthError(formatFirebaseError(err?.message || err));
@@ -136,13 +136,16 @@ const Login = () => {
     setLoading(true);
     try {
       const cred = await providerFunc();
-      const profile = await fetchMongoProfile(cred.user);
+      const profile = await fetchMongoProfile(
+        cred.user,
+        cred.user?._socialEmail,
+      );
       if (profile && !profile.username) {
-        navigate('/complete-profile');
+        navigate('/complete-profile', { replace: true });
       } else if (profile?.role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/admin/dashboard', { replace: true });
       } else {
-        navigate('/profile');
+        navigate('/profile', { replace: true });
       }
     } catch (err) {
       console.error('Social login error details:', err);

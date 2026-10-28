@@ -8,6 +8,7 @@ import {
   FacebookAuthProvider,
   signInWithPopup,
   updatePassword,
+  getAdditionalUserInfo,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import axios from 'axios';
@@ -30,13 +31,44 @@ export const AuthProvider = ({ children }) => {
   const [mongoUser, setMongoUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const extractEmailFromCred = (cred) => {
+    let email = cred?.user?.email;
+    if (!email && cred?.user?.providerData) {
+      const p = cred.user.providerData.find((item) => item?.email);
+      if (p) email = p.email;
+    }
+    if (!email) {
+      try {
+        const additionalInfo = getAdditionalUserInfo(cred);
+        if (additionalInfo?.profile?.email) {
+          email = additionalInfo.profile.email;
+        }
+      } catch (err) {}
+    }
+    if (!email && cred?._tokenResponse?.email) {
+      email = cred._tokenResponse.email;
+    }
+    return email && email.includes('@') ? email.toLowerCase().trim() : null;
+  };
+
   const fetchMongoProfile = async (firebaseUser, explicitEmail) => {
     try {
       const token = await firebaseUser.getIdToken();
-      const email = explicitEmail || firebaseUser.email;
+      const email =
+        explicitEmail ||
+        firebaseUser?._socialEmail ||
+        firebaseUser?.email ||
+        firebaseUser?.providerData?.find((p) => p.email)?.email;
+
       const headers = { Authorization: `Bearer ${token}` };
-      if (email) {
-        headers['X-User-Email'] = email;
+      if (email && email.includes('@')) {
+        headers['X-User-Email'] = email.toLowerCase().trim();
+      }
+      if (firebaseUser.displayName) {
+        headers['X-User-Name'] = firebaseUser.displayName;
+      }
+      if (firebaseUser.photoURL) {
+        headers['X-User-Photo'] = firebaseUser.photoURL;
       }
       const res = await axios.get(`${API_BASE_URL}/api/users/profile`, {
         headers,
@@ -101,21 +133,31 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
     provider.addScope('https://www.googleapis.com/auth/userinfo.email');
     provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
     provider.setCustomParameters({ prompt: 'select_account' });
-    return trackPopup(() => signInWithPopup(auth, provider));
+    const cred = await trackPopup(() => signInWithPopup(auth, provider));
+    const email = extractEmailFromCred(cred);
+    if (email) {
+      cred.user._socialEmail = email;
+    }
+    return cred;
   };
 
-  const loginWithFacebook = () => {
+  const loginWithFacebook = async () => {
     const provider = new FacebookAuthProvider();
     provider.addScope('email');
     provider.addScope('public_profile');
-    return trackPopup(() => signInWithPopup(auth, provider));
+    const cred = await trackPopup(() => signInWithPopup(auth, provider));
+    const email = extractEmailFromCred(cred);
+    if (email) {
+      cred.user._socialEmail = email;
+    }
+    return cred;
   };
 
   const updateUserPassword = (newPassword) => {
@@ -129,10 +171,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
         await fetchMongoProfile(user);
+        setCurrentUser(user);
       } else {
+        setCurrentUser(null);
         setMongoUser(null);
       }
       setLoading(false);
