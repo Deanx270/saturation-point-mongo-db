@@ -17,11 +17,22 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const { displayName, username } = req.body;
+    const { displayName, username, email } = req.body;
     const updateData = {};
 
     if (displayName) updateData.displayName = displayName;
     if (username) updateData.username = username;
+    if (email && email.includes('@')) {
+      const normalizedEmail = email.toLowerCase().trim();
+      const existing = await User.findOne({
+        email: normalizedEmail,
+        _id: { $ne: req.mongoUser._id },
+      });
+      if (existing) {
+        return res.status(400).json({ message: 'Email is already in use.' });
+      }
+      updateData.email = normalizedEmail;
+    }
 
     if (req.file) {
       updateData.photoURL = req.file.path;
@@ -39,7 +50,10 @@ const updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'Username is already taken' });
+      const field = Object.keys(error.keyPattern || {})[0] || 'Field';
+      return res.status(400).json({
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} is already taken`,
+      });
     }
     res.status(500).json({
       message: 'Error updating profile',

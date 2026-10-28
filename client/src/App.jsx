@@ -74,11 +74,31 @@ function App() {
             />
             <Route
               path="/login"
-              element={verified ? <Navigate to="/profile" /> : <Login />}
+              element={
+                verified ? (
+                  mongoUser?.role === 'admin' ? (
+                    <Navigate to="/admin/dashboard" />
+                  ) : (
+                    <Navigate to="/profile" />
+                  )
+                ) : (
+                  <Login />
+                )
+              }
             />
             <Route
               path="/register"
-              element={verified ? <Navigate to="/profile" /> : <Register />}
+              element={
+                verified ? (
+                  mongoUser?.role === 'admin' ? (
+                    <Navigate to="/admin/dashboard" />
+                  ) : (
+                    <Navigate to="/profile" />
+                  )
+                ) : (
+                  <Register />
+                )
+              }
             />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
