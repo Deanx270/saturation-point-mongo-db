@@ -31,7 +31,7 @@
 | **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L303-L311) | [`controllers/productController.js`](controllers/productController.js#L31-L33) | `$gte` minimum rating |
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L62-L90) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 months |
 | **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L93-L132) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, date range filter |
-| **Quiz 3: Product Listing / Pagination** | 15 | [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L34-L46) | [`controllers/productController.js`](controllers/productController.js#L35-L50) | `page`, `limit`, `skip` pagination |
+| **Quiz 3: Infinite Scroll (Catalog)** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L48-L123)<br>Sentinel: [`Catalog.jsx:591-613`](client/src/pages/Catalog.jsx#L591-L613) | [`controllers/productController.js`](controllers/productController.js#L35-L50) | `IntersectionObserver`, `skip` & `limit` pagination, Map deduplication |
 | **Quiz 4: Facebook & Google Login** | 15 | [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L136-L161)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L365-L408) | [`middleware/auth.js`](middleware/auth.js#L19-L60) | Firebase OAuth popup, Mongo sync |
 
 ---
@@ -317,18 +317,75 @@
 
 ---
 
-### Quiz 3: Product Listing / Infinite Scroll (15 Points Total)
+### Quiz 3: Infinite Scroll on Products List in Catalog (15 Points Total)
 
-- **Status in RULES.md**: Marked as `[ ]` (unchecked/optional backlog requirement).
-- **Homepage Product Query**: [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L34-L46)
-  - Fetches featured products on the homepage using `limit=3`:
-    ```javascript
-    const res = await axios.get(`${API_BASE_URL}/api/products?limit=3`);
-    setFeatured(res.data.products);
-    ```
-- **Backend Pagination Readiness**: [`controllers/productController.js`](controllers/productController.js#L35-L50)
-  - The backend is already architected for pagination and infinite scroll via `page` and `limit` query parameters, returning `{ products, page, pages, total }`.
-- **Defense Explanation**: If the panel asks about infinite scroll on the homepage, explain that the homepage serves a curated featured products section (`limit=3`), while the full catalog supports dynamic query parameters.
+#### 1. Frontend Implementation (`IntersectionObserver` Architecture)
+- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx)
+  - **Lines 48-51**: Infinite scroll state definitions:
+    - `page`: tracks the current active page index (defaults to `1`).
+    - `totalPages`: populated from the backend response `res.data.pages` (defaults to `1`).
+    - `isFetchingMore`: boolean flag indicating whether the next page chunk is actively loading.
+    - `observerTarget = React.useRef(null)`: React ref pointing to the bottom sentinel element.
+  - **Lines 53-99 (`fetchProducts`)**:
+    - Asynchronously requests paginated products from `${API_BASE_URL}/api/products?limit=8&page=${pageParam}` along with active search and filter parameters.
+    - When `append === true`, appends newly fetched products using a JavaScript `Map` to guarantee strict deduplication by `_id`:
+      ```javascript
+      setProducts((prev) => {
+        const newMap = new Map();
+        prev.forEach((p) => newMap.set(p._id, p));
+        fetchedProducts.forEach((p) => newMap.set(p._id, p));
+        return Array.from(newMap.values());
+      });
+      ```
+    - Updates `totalPages` from backend response: `setTotalPages(res.data.pages || 1)`.
+  - **Lines 106-123 (`IntersectionObserver` Hook)**:
+    - Uses native browser `IntersectionObserver` observing `observerTarget.current`.
+    - When the sentinel scrolls into view (`entries[0].isIntersecting`), triggers the fetch if `page < totalPages` and not already fetching:
+      ```javascript
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !isFetchingMore && page < totalPages) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchProducts(nextPage, true);
+          }
+        },
+        { threshold: 1.0 },
+      );
+      if (observerTarget.current) {
+        observer.observe(observerTarget.current);
+      }
+      ```
+  - **Lines 591-613 (Sentinel UI & Loading State)**:
+    - Bottom sentinel container `<Box ref={observerTarget}>`.
+    - Renders `<CircularProgress sx={{ color: '#CA8A04' }} />` when `isFetchingMore` is true.
+    - Displays a clean `<Typography>End of catalog</Typography>` message once all pages are loaded (`page >= totalPages`).
+
+#### 2. Backend Pagination Engine
+- **Backend File**: [`controllers/productController.js`](controllers/productController.js)
+  - **Lines 35-50 (`getProducts`)**:
+    - Extracts `page` and `limit` from `req.query`:
+      ```javascript
+      const pageNum = Number(page) || 1;
+      const pageSize = Number(limit) || 12;
+      const skip = (pageNum - 1) * pageSize;
+      ```
+    - Calculates total matching records: `const total = await Product.countDocuments(query);`.
+    - Performs efficient database pagination:
+      ```javascript
+      const products = await Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize);
+      ```
+    - Returns JSON payload: `{ products, page: pageNum, pages: Math.ceil(total / pageSize), total }`.
+
+#### 3. Defense Demo Steps / What to Say to the Panel
+1. Open the **Catalog** page in the browser.
+2. Open Browser DevTools (F12 $\rightarrow$ **Network** tab, filter by `products`).
+3. Scroll down the Catalog page: show that when reaching the bottom, a smooth loading spinner appears, and a new network request `GET /api/products?limit=8&page=2` is fired.
+4. Show how products seamlessly append without resetting the scroll position or flashing duplicate items.
+5. Highlight that this was built using native browser **`IntersectionObserver`**, avoiding bloated external packages for maximum performance.
 
 ---
 
@@ -399,4 +456,11 @@
 > **Answer & File to Show:**  
 > Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L81-L90) and [`controllers/userController.js`](controllers/userController.js#L80-L92).  
 > Explain that if the user inputs a username (no `@` symbol), the frontend queries `GET /api/users/email-by-username/:username` to fetch their registered email address from MongoDB, which is then used seamlessly with Firebase Auth's `signInWithEmailAndPassword`.
+
+### Q6: "How did you implement Infinite Scroll, and where is it located?"
+> **Answer & File to Show:**  
+> Open [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L48-L123) and [`client/src/pages/Catalog.jsx:591-613`](client/src/pages/Catalog.jsx#L591-L613).  
+> Show lines 106–123: The catalog uses the native `IntersectionObserver` API attached to a sentinel ref `<Box ref={observerTarget}>` at the bottom of the product list. When the user scrolls to the bottom, the observer automatically triggers `fetchProducts(nextPage, true)`.  
+> Show lines 81–86: Newly received products are merged into a JavaScript `Map` to guarantee zero duplicate keys or duplicate renders.  
+> Show [`controllers/productController.js:35-50`](controllers/productController.js#L35-L50) for the backend Mongoose `skip()` and `limit()` implementation returning `{ products, page, pages, total }`.
 
