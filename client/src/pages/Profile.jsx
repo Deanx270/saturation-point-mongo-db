@@ -22,6 +22,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   Chip,
   Dialog,
   DialogTitle,
@@ -50,10 +51,18 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage] = useState(8);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(true);
   const [usernameCheckError, setUsernameCheckError] = useState('');
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (page > 0 && orders.length > 0 && page * rowsPerPage >= orders.length) {
+      setPage(0);
+    }
+  }, [orders.length, page, rowsPerPage]);
 
   useEffect(() => {
     const fetchMyOrders = async () => {
@@ -338,6 +347,7 @@ const Profile = () => {
         sx={{
           justifyContent: 'center',
           flexWrap: { xs: 'wrap', md: 'nowrap' },
+          alignItems: { xs: 'flex-start', md: 'stretch' },
         }}
       >
         <Grid
@@ -348,6 +358,8 @@ const Profile = () => {
             minWidth: { md: '320px' },
             maxWidth: { md: '320px' },
             width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <Paper
@@ -357,6 +369,9 @@ const Profile = () => {
               textAlign: 'center',
               border: '1px solid rgba(28, 25, 23, 0.08)',
               boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <Typography
@@ -374,7 +389,15 @@ const Profile = () => {
               Account Profile
             </Typography>
 
-            <form onSubmit={formik.handleSubmit} noValidate>
+            <form
+              onSubmit={formik.handleSubmit}
+              noValidate
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+              }}
+            >
               <Box sx={{ mb: 4, textAlign: 'center' }}>
                 <Box
                   onClick={() => fileInputRef.current.click()}
@@ -667,46 +690,58 @@ const Profile = () => {
                   )}
               </FormControl>
 
-              {message && (
-                <Alert
-                  severity={message.includes('Error') ? 'error' : 'success'}
-                  sx={{
-                    mb: 3,
-                    borderRadius: 0,
-                    textAlign: 'left',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  {message}
-                </Alert>
-              )}
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                disabled={
-                  loading ||
-                  isCheckingUsername ||
-                  Boolean(usernameCheckError) ||
-                  (formik.values.username !== mongoUser?.username &&
-                    !usernameAvailable) ||
-                  formik.values.username.length < 3
-                }
-                sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
-              >
-                {loading || isCheckingUsername ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  'Save Changes'
+              <Box sx={{ mt: 'auto', pt: 2 }}>
+                {message && (
+                  <Alert
+                    severity={message.includes('Error') ? 'error' : 'success'}
+                    sx={{
+                      mb: 3,
+                      borderRadius: 0,
+                      textAlign: 'left',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    {message}
+                  </Alert>
                 )}
-              </Button>
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  disabled={
+                    loading ||
+                    isCheckingUsername ||
+                    Boolean(usernameCheckError) ||
+                    (formik.values.username !== mongoUser?.username &&
+                      !usernameAvailable) ||
+                    formik.values.username.length < 3
+                  }
+                  sx={{ mb: 2, py: 1.2, fontSize: '0.85rem' }}
+                >
+                  {loading || isCheckingUsername ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </Box>
             </form>
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={9} sx={{ minWidth: 0, width: '100%' }}>
+        <Grid
+          item
+          xs={12}
+          md={9}
+          sx={{
+            minWidth: 0,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <ErrorBoundary>
             <Paper
               elevation={0}
@@ -715,6 +750,8 @@ const Profile = () => {
                 border: '1px solid rgba(28, 25, 23, 0.08)',
                 boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
                 height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
                 overflow: 'hidden',
               }}
             >
@@ -733,174 +770,226 @@ const Profile = () => {
                 Order History
               </Typography>
 
-              <TableContainer
+              <Box
                 sx={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
                   border: '1px solid rgba(28, 25, 23, 0.08)',
                   borderRadius: 1,
-                  overflowX: 'auto',
+                  overflow: 'hidden',
+                  minHeight: 0,
                 }}
               >
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Items</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Total</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loadingOrders ? (
+                <TableContainer
+                  sx={{
+                    flex: 1,
+                    overflowX: 'auto',
+                    overflowY: 'auto',
+                  }}
+                >
+                  <Table>
+                    <TableHead>
                       <TableRow>
-                        <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
-                          <CircularProgress
-                            sx={{
-                              color: '#CA8A04',
-                            }}
-                          />
+                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                          Order ID
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                          Items
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                          Date
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                          Total
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                          Status
                         </TableCell>
                       </TableRow>
-                    ) : orders.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          align="center"
-                          sx={{
-                            py: 5,
-                            color: '#78716C',
-                          }}
-                        >
-                          No orders found. Start shopping!
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      orders.map((order, index) => {
-                        if (!order) return null;
-                        return (
-                          <TableRow
-                            key={order._id || index}
-                            hover
-                            onClick={() => setSelectedOrder(order)}
+                    </TableHead>
+                    <TableBody>
+                      {loadingOrders ? (
+                        <TableRow>
+                          <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                            <CircularProgress
+                              sx={{
+                                color: '#CA8A04',
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ) : orders.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            align="center"
                             sx={{
-                              cursor: 'pointer',
-                              '&:last-child td, &:last-child th': { border: 0 },
+                              py: 8,
+                              color: '#78716C',
                             }}
                           >
-                            <TableCell
-                              sx={{
-                                color: '#78716C',
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <CopyableId id={order._id} />
-                            </TableCell>
-                            <TableCell>
-                              {order.orderItems &&
-                              order.orderItems.length > 0 ? (
-                                <Box
+                            No orders found. Start shopping!
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        orders
+                          .slice(
+                            page * rowsPerPage,
+                            page * rowsPerPage + rowsPerPage,
+                          )
+                          .map((order, index) => {
+                            if (!order) return null;
+                            return (
+                              <TableRow
+                                key={order._id || index}
+                                hover
+                                onClick={() => setSelectedOrder(order)}
+                                sx={{
+                                  cursor: 'pointer',
+                                  '&:last-child td, &:last-child th': {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell
                                   sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2,
+                                    py: 1.5,
+                                    color: '#78716C',
                                   }}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
-                                  <Box
-                                    component="img"
-                                    src={
-                                      order.orderItems[0].image ||
-                                      '/images/default-avatar.png'
-                                    }
-                                    alt={order.orderItems[0].name}
-                                    sx={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: 1,
-                                      objectFit: 'cover',
-                                      border: '1px solid #E7E5E4',
-                                    }}
-                                    onError={(e) => {
-                                      e.target.src =
-                                        '/images/default-avatar.png';
-                                    }}
-                                  />
-                                  <Box>
+                                  <CopyableId id={order._id} />
+                                </TableCell>
+                                <TableCell sx={{ py: 1.5 }}>
+                                  {order.orderItems &&
+                                  order.orderItems.length > 0 ? (
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                      }}
+                                    >
+                                      <Box
+                                        component="img"
+                                        src={
+                                          order.orderItems[0].image ||
+                                          '/images/default-avatar.png'
+                                        }
+                                        alt={order.orderItems[0].name}
+                                        sx={{
+                                          width: 40,
+                                          height: 40,
+                                          borderRadius: 1,
+                                          objectFit: 'cover',
+                                          border: '1px solid #E7E5E4',
+                                        }}
+                                        onError={(e) => {
+                                          e.target.src =
+                                            '/images/default-avatar.png';
+                                        }}
+                                      />
+                                      <Box>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontWeight: 500,
+                                            color: '#1C1917',
+                                            maxWidth: 150,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                          }}
+                                        >
+                                          {order.orderItems[0].name}
+                                        </Typography>
+                                        {order.orderItems.length > 1 && (
+                                          <Typography
+                                            variant="caption"
+                                            sx={{
+                                              color: '#78716C',
+                                            }}
+                                          >
+                                            +{order.orderItems.length - 1} more item
+                                            {order.orderItems.length > 2 ? 's' : ''}
+                                          </Typography>
+                                        )}
+                                      </Box>
+                                    </Box>
+                                  ) : (
                                     <Typography
                                       variant="body2"
                                       sx={{
-                                        fontWeight: 500,
-                                        color: '#1C1917',
-                                        maxWidth: 150,
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
+                                        color: '#78716C',
                                       }}
                                     >
-                                      {order.orderItems[0].name}
+                                      No items
                                     </Typography>
-                                    {order.orderItems.length > 1 && (
-                                      <Typography
-                                        variant="caption"
-                                        sx={{
-                                          color: '#78716C',
-                                        }}
-                                      >
-                                        +{order.orderItems.length - 1} more item
-                                        {order.orderItems.length > 2 ? 's' : ''}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                </Box>
-                              ) : (
-                                <Typography
-                                  variant="body2"
+                                  )}
+                                </TableCell>
+                                <TableCell
                                   sx={{
+                                    py: 1.5,
                                     color: '#78716C',
+                                    whiteSpace: 'nowrap',
                                   }}
                                 >
-                                  No items
-                                </Typography>
-                              )}
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                color: '#78716C',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {safeFormatDate(order.createdAt)}
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                fontWeight: 500,
-                                color: '#1C1917',
-                              }}
-                            >
-                              ₱{parseFloat(order.totalAmount || 0).toFixed(2)}
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={(
-                                  order.status || 'unknown'
-                                ).toUpperCase()}
-                                color={getStatusColor(
-                                  order.status || 'unknown',
-                                )}
-                                size="small"
-                                sx={{
-                                  fontSize: '0.7rem',
-                                  letterSpacing: 1,
-                                  height: 24,
-                                }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                                  {safeFormatDate(order.createdAt)}
+                                </TableCell>
+                                <TableCell
+                                  sx={{
+                                    py: 1.5,
+                                    fontWeight: 500,
+                                    color: '#1C1917',
+                                  }}
+                                >
+                                  ₱{parseFloat(order.totalAmount || 0).toFixed(2)}
+                                </TableCell>
+                                <TableCell sx={{ py: 1.5 }}>
+                                  <Chip
+                                    label={(
+                                      order.status || 'unknown'
+                                    ).toUpperCase()}
+                                    color={getStatusColor(
+                                      order.status || 'unknown',
+                                    )}
+                                    size="small"
+                                    sx={{
+                                      fontSize: '0.7rem',
+                                      letterSpacing: 1,
+                                      height: 24,
+                                    }}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <TablePagination
+                  rowsPerPageOptions={[8]}
+                  component="div"
+                  count={orders.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={(e, newPage) => setPage(newPage)}
+                  sx={{
+                    borderTop: '1px solid rgba(28, 25, 23, 0.08)',
+                    mt: 'auto',
+                    '.MuiTablePagination-toolbar': {
+                      minHeight: 48,
+                      px: 2,
+                    },
+                    '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                      fontSize: '0.85rem',
+                      color: '#78716C',
+                    },
+                  }}
+                />
+              </Box>
             </Paper>
           </ErrorBoundary>
         </Grid>
