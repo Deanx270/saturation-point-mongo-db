@@ -56,7 +56,7 @@ const Catalog = () => {
       else setIsFetchingMore(true);
 
       try {
-        let url = `${API_BASE_URL}/api/products?limit=8&page=${pageParam}`;
+        let url = `${API_BASE_URL}/api/products?limit=9&page=${pageParam}`;
         if (debouncedKeyword) url += `&keyword=${debouncedKeyword}`;
         if (selectedCategories.length > 0)
           url += `&category=${selectedCategories.join(',')}`;
