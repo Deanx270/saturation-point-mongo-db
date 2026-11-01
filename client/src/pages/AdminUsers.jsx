@@ -149,7 +149,12 @@ const AdminUsers = () => {
           }}
         >
           <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
-            <TableHead>
+            <TableHead
+              sx={{
+                bgcolor: '#FAF9F6',
+                '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+              }}
+            >
               <TableRow>
                 <TableCell sx={{ fontWeight: 600, width: '18%' }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '20%' }}>
