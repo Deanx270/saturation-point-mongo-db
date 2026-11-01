@@ -791,21 +791,7 @@ const Profile = () => {
                     flex: 1,
                     width: '100%',
                     overflowX: 'auto',
-                    overflowY: 'overlay',
-                    '&::-webkit-scrollbar': {
-                      width: 6,
-                      height: 6,
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      backgroundColor: 'transparent',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'rgba(28, 25, 23, 0.2)',
-                      borderRadius: 3,
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                      backgroundColor: 'rgba(28, 25, 23, 0.4)',
-                    },
+                    overflowY: 'auto',
                   }}
                 >
                   <Table sx={{ width: '100%', tableLayout: 'fixed' }}>

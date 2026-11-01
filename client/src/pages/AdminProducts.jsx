@@ -818,28 +818,12 @@ const AdminProducts = () => {
 
         <TableContainer
           sx={{
-            maxHeight: 680,
-            overflowY: 'overlay',
-            overflowX: 'auto',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
-            '&::-webkit-scrollbar': {
-              width: 6,
-              height: 6,
-            },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: 'transparent',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(28, 25, 23, 0.2)',
-              borderRadius: 3,
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              backgroundColor: 'rgba(28, 25, 23, 0.4)',
-            },
+            overflowX: 'auto',
           }}
         >
-          <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
+          <Table sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox" sx={{ width: 48 }}>
