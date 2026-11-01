@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Box,
@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  InputAdornment,
   CircularProgress,
   Tooltip,
   TablePagination,
@@ -24,6 +25,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -41,6 +43,24 @@ const AdminCategories = () => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCategories = useMemo(() => {
+    if (!searchTerm.trim()) return categories;
+    const term = searchTerm.toLowerCase();
+    return categories.filter(
+      (c) =>
+        c._id?.toLowerCase().includes(term) ||
+        c.name?.toLowerCase().includes(term) ||
+        c.description?.toLowerCase().includes(term),
+    );
+  }, [categories, searchTerm]);
+
+  useEffect(() => {
+    if (page > 0 && filteredCategories.length > 0 && page * rowsPerPage >= filteredCategories.length) {
+      setPage(0);
+    }
+  }, [filteredCategories.length, page, rowsPerPage]);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -160,9 +180,9 @@ const AdminCategories = () => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
+            alignItems: { xs: 'flex-start', md: 'center' },
             gap: 2,
             mb: 4,
           }}
@@ -178,19 +198,53 @@ const AdminCategories = () => {
           >
             Category Management
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
+          <Box
             sx={{
-              bgcolor: '#1C1917',
-              '&:hover': { bgcolor: '#292524' },
-              textTransform: 'none',
-              px: 3,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flexWrap: 'wrap',
+              width: { xs: '100%', md: 'auto' },
             }}
           >
-            Add Category
-          </Button>
+            <TextField
+              size="small"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: { xs: '100%', sm: 260 },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1,
+                  fontSize: '0.875rem',
+                  bgcolor: '#FFFFFF',
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAdd}
+              sx={{
+                bgcolor: '#1C1917',
+                '&:hover': { bgcolor: '#292524' },
+                textTransform: 'none',
+                px: 3,
+              }}
+            >
+              Add Category
+            </Button>
+          </Box>
         </Box>
 
         <TableContainer
@@ -225,7 +279,7 @@ const AdminCategories = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : categories.length === 0 ? (
+              ) : filteredCategories.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={4}
@@ -236,7 +290,7 @@ const AdminCategories = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                categories
+                filteredCategories
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((category) => (
                     <TableRow key={category._id} hover>
@@ -331,7 +385,7 @@ const AdminCategories = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={categories.length}
+          count={filteredCategories.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

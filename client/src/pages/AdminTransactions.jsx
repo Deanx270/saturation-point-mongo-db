@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Box,
@@ -20,10 +20,13 @@ import {
   Chip,
   Tooltip,
   Button,
+  TextField,
+  InputAdornment,
   TablePagination,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -38,6 +41,26 @@ const AdminTransactions = () => {
   const [updateFeedback, setUpdateFeedback] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredOrders = useMemo(() => {
+    if (!searchTerm.trim()) return orders;
+    const term = searchTerm.toLowerCase();
+    return orders.filter(
+      (o) =>
+        o._id?.toLowerCase().includes(term) ||
+        o.user?.displayName?.toLowerCase().includes(term) ||
+        o.user?.email?.toLowerCase().includes(term) ||
+        o.status?.toLowerCase().includes(term) ||
+        o.totalAmount?.toString().includes(term),
+    );
+  }, [orders, searchTerm]);
+
+  useEffect(() => {
+    if (page > 0 && filteredOrders.length > 0 && page * rowsPerPage >= filteredOrders.length) {
+      setPage(0);
+    }
+  }, [filteredOrders.length, page, rowsPerPage]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -191,6 +214,30 @@ const AdminTransactions = () => {
           >
             Transaction Management
           </Typography>
+          <TextField
+            size="small"
+            placeholder="Search transactions..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: { xs: '100%', sm: 260 },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 1,
+                fontSize: '0.875rem',
+                bgcolor: '#FFFFFF',
+              },
+            }}
+          />
         </Box>
 
         <TableContainer
@@ -231,7 +278,7 @@ const AdminTransactions = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -242,7 +289,7 @@ const AdminTransactions = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                orders
+                filteredOrders
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((order) => (
                     <TableRow
@@ -380,7 +427,7 @@ const AdminTransactions = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={orders.length}
+          count={filteredOrders.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

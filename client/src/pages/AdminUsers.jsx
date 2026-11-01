@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Box,
@@ -15,10 +15,13 @@ import {
   MenuItem,
   CircularProgress,
   Tooltip,
+  TextField,
+  InputAdornment,
   TablePagination,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -31,6 +34,26 @@ const AdminUsers = () => {
   const [updatingRoles, setUpdatingRoles] = useState({});
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm.trim()) return users;
+    const term = searchTerm.toLowerCase();
+    return users.filter(
+      (u) =>
+        u._id?.toLowerCase().includes(term) ||
+        u.displayName?.toLowerCase().includes(term) ||
+        u.username?.toLowerCase().includes(term) ||
+        u.email?.toLowerCase().includes(term) ||
+        u.role?.toLowerCase().includes(term),
+    );
+  }, [users, searchTerm]);
+
+  useEffect(() => {
+    if (page > 0 && filteredUsers.length > 0 && page * rowsPerPage >= filteredUsers.length) {
+      setPage(0);
+    }
+  }, [filteredUsers.length, page, rowsPerPage]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -139,6 +162,30 @@ const AdminUsers = () => {
           >
             User Management
           </Typography>
+          <TextField
+            size="small"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: { xs: '100%', sm: 260 },
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 1,
+                fontSize: '0.875rem',
+                bgcolor: '#FFFFFF',
+              },
+            }}
+          />
         </Box>
 
         <TableContainer
@@ -177,7 +224,7 @@ const AdminUsers = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : users.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -188,7 +235,7 @@ const AdminUsers = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                users
+                filteredUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((user) => (
                     <TableRow key={user._id} hover>
@@ -337,7 +384,7 @@ const AdminUsers = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={users.length}
+          count={filteredUsers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}
