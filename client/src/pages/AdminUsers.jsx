@@ -148,15 +148,19 @@ const AdminUsers = () => {
             borderRadius: 1,
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 700 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Display Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Username</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
+                <TableCell sx={{ fontWeight: 600, width: '20%' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '22%' }}>
+                  Display Name
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '18%' }}>
+                  Username
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '22%' }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '10%' }}>Role</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, width: '8%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -192,6 +196,7 @@ const AdminUsers = () => {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 2,
+                            minWidth: 0,
                           }}
                         >
                           <Box
@@ -203,14 +208,29 @@ const AdminUsers = () => {
                               height: 32,
                               borderRadius: '50%',
                               objectFit: 'cover',
+                              flexShrink: 0,
                             }}
                           />
-                          <Typography variant="body2">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {user.displayName}
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ color: '#44403C' }}>
+                      <TableCell
+                        sx={{
+                          color: '#44403C',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
                         {user.username || (
                           <Typography
                             variant="caption"
@@ -223,7 +243,15 @@ const AdminUsers = () => {
                           </Typography>
                         )}
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {user.email}
+                      </TableCell>
                       <TableCell>
                         <Box
                           sx={{

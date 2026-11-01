@@ -200,13 +200,15 @@ const AdminCategories = () => {
             borderRadius: 1,
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 600 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
+                <TableCell sx={{ fontWeight: 600, width: '22%' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '28%' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '38%' }}>
+                  Description
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -240,11 +242,21 @@ const AdminCategories = () => {
                         sx={{
                           fontWeight: 500,
                           color: '#1C1917',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {category.name}
                       </TableCell>
-                      <TableCell sx={{ color: '#78716C' }}>
+                      <TableCell
+                        sx={{
+                          color: '#78716C',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
                         {category.description || '-'}
                       </TableCell>
                       <TableCell align="right">

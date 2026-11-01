@@ -626,20 +626,17 @@ const AdminProducts = () => {
   const [brands, setBrands] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalProducts, setTotalProducts] = useState(0);
 
   const fetchProducts = async () => {
     setFetchLoading(true);
     try {
-      const res = await axios.get(
-        `${API_BASE_URL}/api/products?page=${page + 1}&limit=${rowsPerPage}`,
-      );
+      const res = await axios.get(`${API_BASE_URL}/api/products?limit=all`);
       setProducts(res.data.products || []);
-      setTotalProducts(res.data.total || res.data.products?.length || 0);
     } catch (error) {
       console.error('Error fetching products', error);
+    } finally {
+      setFetchLoading(false);
     }
-    setFetchLoading(false);
   };
 
   const fetchOptions = async () => {
@@ -655,11 +652,14 @@ const AdminProducts = () => {
 
   useEffect(() => {
     fetchOptions();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [page, rowsPerPage]);
+    if (page > 0 && products.length > 0 && page * rowsPerPage >= products.length) {
+      setPage(0);
+    }
+  }, [products.length, page, rowsPerPage]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
@@ -823,10 +823,10 @@ const AdminProducts = () => {
             borderRadius: 1,
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 850 }}>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">
+                <TableCell padding="checkbox" sx={{ width: 50 }}>
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
@@ -839,13 +839,17 @@ const AdminProducts = () => {
                     onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Image</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Brand</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Price</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Stock</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: 70 }}>Image</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '25%' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '15%' }}>Brand</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '15%' }}>
+                  Category
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }}>Price</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '10%' }}>Stock</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '13%' }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -866,48 +870,74 @@ const AdminProducts = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product) => (
-                  <TableRow
-                    key={product._id}
-                    hover
-                    selected={selectedIds.includes(product._id)}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedIds.includes(product._id)}
-                        onChange={() => handleSelectOne(product._id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {product.images && product.images.length > 0 ? (
-                        <Box
-                          component="img"
-                          src={product.images[0]}
-                          alt="prod"
-                          sx={{
-                            height: 40,
-                            width: 40,
-                            objectFit: 'cover',
-                            borderRadius: 1,
-                          }}
+                products
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((product) => (
+                    <TableRow
+                      key={product._id}
+                      hover
+                      selected={selectedIds.includes(product._id)}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedIds.includes(product._id)}
+                          onChange={() => handleSelectOne(product._id)}
                         />
-                      ) : (
-                        <Box
-                          component="img"
-                          src="/images/default-avatar.png"
-                          alt="default"
-                          sx={{
-                            height: 40,
-                            width: 40,
-                            objectFit: 'cover',
-                            borderRadius: 1,
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>{product.brand}</TableCell>
-                    <TableCell>{product.category}</TableCell>
+                      </TableCell>
+                      <TableCell>
+                        {product.images && product.images.length > 0 ? (
+                          <Box
+                            component="img"
+                            src={product.images[0]}
+                            alt="prod"
+                            sx={{
+                              height: 40,
+                              width: 40,
+                              objectFit: 'cover',
+                              borderRadius: 1,
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            component="img"
+                            src="/images/default-avatar.png"
+                            alt="default"
+                            sx={{
+                              height: 40,
+                              width: 40,
+                              objectFit: 'cover',
+                              borderRadius: 1,
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {product.name}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {product.brand}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {product.category}
+                      </TableCell>
                     <TableCell>
                       ₱{parseFloat(product.price).toFixed(2)}
                     </TableCell>
@@ -981,7 +1011,7 @@ const AdminProducts = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={totalProducts}
+          count={products.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

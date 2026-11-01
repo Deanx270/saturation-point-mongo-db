@@ -32,20 +32,22 @@ exports.getProducts = async (req, res) => {
       query.rating = { $gte: Number(minRating) };
     }
 
+    const isAll = limit === 'all' || limit === '0';
     const pageNum = Number(page) || 1;
-    const pageSize = Number(limit) || 12;
-    const skip = (pageNum - 1) * pageSize;
+    const pageSize = isAll ? 0 : Number(limit) || 12;
+    const skip = isAll ? 0 : (pageNum - 1) * pageSize;
 
     const total = await Product.countDocuments(query);
-    const products = await Product.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(pageSize);
+    let queryBuilder = Product.find(query).sort({ createdAt: -1 });
+    if (!isAll) {
+      queryBuilder = queryBuilder.skip(skip).limit(pageSize);
+    }
+    const products = await queryBuilder;
 
     res.status(200).json({
       products,
-      page: pageNum,
-      pages: Math.ceil(total / pageSize),
+      page: isAll ? 1 : pageNum,
+      pages: isAll ? 1 : Math.ceil(total / pageSize),
       total,
     });
   } catch (error) {

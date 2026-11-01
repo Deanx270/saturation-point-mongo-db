@@ -200,15 +200,21 @@ const AdminTransactions = () => {
             borderRadius: 1,
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 700 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Order ID</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Total Amount</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600 }}>
+                <TableCell sx={{ fontWeight: 600, width: '20%' }}>
+                  Order ID
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '24%' }}>
+                  Customer
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '15%' }}>
+                  Total Amount
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '13%' }}>Status</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -246,17 +252,29 @@ const AdminTransactions = () => {
                       <TableCell sx={{ color: '#78716C' }}>
                         <CopyableId id={order._id} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ overflow: 'hidden' }}>
                         <Typography
                           variant="body2"
                           sx={{
                             fontWeight: 500,
                             color: '#1C1917',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           {order.user?.displayName || 'Unknown'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#78716C' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: '#78716C',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block',
+                          }}
+                        >
                           {order.user?.email || 'N/A'}
                         </Typography>
                       </TableCell>
