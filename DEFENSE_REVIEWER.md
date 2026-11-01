@@ -347,6 +347,7 @@
 | **Stock Concurrency & Integrity** | Controller: [`orderController.js:41-43`](controllers/orderController.js#L41-L43) | Uses atomic MongoDB update operators `$inc: { stock: -quantity }` to prevent race conditions during checkout. |
 | **Cloudinary File Storage & Cleanup** | Storage: [`utils/cloudinary.js:12-34`](utils/cloudinary.js#L12-L34)<br>Cleanup: [`controllers/productController.js:131-147`](controllers/productController.js#L131-L147), [`controllers/userController.js:173-182`](controllers/userController.js#L173-L182) | Direct upload to Cloudinary CDN with MIME-type filtering; automatically destroys obsolete public assets when products or users are deleted. |
 | **In-Memory PDF Generation** | Utility: [`utils/emailService.js:4-179`](utils/emailService.js#L4-L179) | Uses streaming PDFKit buffers in memory, avoiding disk I/O vulnerabilities and temporary file storage issues. |
+| **Rate Limiting & DDoS Defense** | Middleware: [`server.js:13-28`](server.js#L13-L28) | Uses `express-rate-limit` with `trust proxy` enabled to cap requests at 500 per 15 minutes per IP, returning HTTP 429 to mitigate Layer 7 brute force and automated flooding attacks. |
 
 ---
 
@@ -383,4 +384,11 @@
 > Show lines 106–123: The catalog uses the native `IntersectionObserver` API attached to a sentinel ref `<Box ref={observerTarget}>` at the bottom of the product list. When the user scrolls to the bottom, the observer automatically triggers `fetchProducts(nextPage, true)`.  
 > Show lines 81–86: Newly received products are merged into a JavaScript `Map` to guarantee zero duplicate keys or duplicate renders.  
 > Show [`controllers/productController.js:35-50`](controllers/productController.js#L35-L50) for the backend Mongoose `skip()` and `limit()` implementation returning `{ products, page, pages, total }`.
+
+### Q7: "How is the system protected against DDoS and API spamming?"
+> **Answer & File to Show:**  
+> Open [`server.js:13-28`](server.js#L13-L28).  
+> Explain that the application uses a multi-layered defense strategy:  
+> 1. At the infrastructure level (Layers 3 & 4), Render and Firebase sit behind Cloudflare/Google Anycast edge networks that mitigate volumetric floods.  
+> 2. At the application level (Layer 7), [`server.js:13-28`](server.js#L13-L28) enforces `express-rate-limit` with `trust proxy` set to `1` (for Render's reverse proxy), capping requests at 500 per 15 minutes per IP address and returning HTTP 429 Too Many Requests if exceeded.
 
