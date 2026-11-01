@@ -819,14 +819,30 @@ const AdminProducts = () => {
         <TableContainer
           sx={{
             maxHeight: 600,
+            overflowY: 'scroll',
+            scrollbarGutter: 'stable',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
+            '&::-webkit-scrollbar': {
+              width: 8,
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(28, 25, 23, 0.15)',
+              borderRadius: 4,
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(28, 25, 23, 0.3)',
+            },
           }}
         >
-          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 850 }}>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox" sx={{ width: 50 }}>
+                <TableCell padding="checkbox" sx={{ width: 48 }}>
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
@@ -839,15 +855,15 @@ const AdminProducts = () => {
                     onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: 70 }}>Image</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '25%' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '15%' }}>Brand</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '15%' }}>
+                <TableCell sx={{ fontWeight: 600, width: 64 }}>Image</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '24%' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '14%' }}>Brand</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '14%' }}>
                   Category
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '12%' }}>Price</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '10%' }}>Stock</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '13%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '8%' }}>Stock</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -942,12 +958,13 @@ const AdminProducts = () => {
                       ₱{parseFloat(product.price).toFixed(2)}
                     </TableCell>
                     <TableCell>{product.stock}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       <Box
                         sx={{
                           display: 'flex',
                           gap: 2,
                           alignItems: 'center',
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         <Button

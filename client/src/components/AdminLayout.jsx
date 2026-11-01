@@ -16,7 +16,7 @@ const AdminLayout = ({ children }) => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
+    <Container maxWidth="xl" sx={{ mt: { xs: 4, sm: 8 }, mb: 8 }}>
       <Typography
         variant="h3"
         sx={{
