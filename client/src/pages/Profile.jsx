@@ -736,6 +736,9 @@ const Profile = () => {
           xs={12}
           md={9}
           sx={{
+            flex: { md: 1 },
+            flexGrow: { md: 1 },
+            flexBasis: { md: 0 },
             minWidth: 0,
             width: '100%',
             display: 'flex',
@@ -750,6 +753,7 @@ const Profile = () => {
                 border: '1px solid rgba(28, 25, 23, 0.08)',
                 boxShadow: '0 8px 32px rgba(28, 25, 23, 0.04)',
                 height: '100%',
+                width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
@@ -773,6 +777,7 @@ const Profile = () => {
               <Box
                 sx={{
                   flex: 1,
+                  width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   border: '1px solid rgba(28, 25, 23, 0.08)',
@@ -784,26 +789,37 @@ const Profile = () => {
                 <TableContainer
                   sx={{
                     flex: 1,
+                    width: '100%',
                     overflowX: 'auto',
                     overflowY: 'auto',
                   }}
                 >
-                  <Table>
+                  <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        <TableCell
+                          sx={{ fontWeight: 600, py: 1.5, width: '22%' }}
+                        >
                           Order ID
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        <TableCell
+                          sx={{ fontWeight: 600, py: 1.5, width: '33%' }}
+                        >
                           Items
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        <TableCell
+                          sx={{ fontWeight: 600, py: 1.5, width: '18%' }}
+                        >
                           Date
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        <TableCell
+                          sx={{ fontWeight: 600, py: 1.5, width: '14%' }}
+                        >
                           Total
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600, py: 1.5 }}>
+                        <TableCell
+                          sx={{ fontWeight: 600, py: 1.5, width: '13%' }}
+                        >
                           Status
                         </TableCell>
                       </TableRow>
@@ -890,13 +906,13 @@ const Profile = () => {
                                             '/images/default-avatar.png';
                                         }}
                                       />
-                                      <Box>
+                                      <Box sx={{ minWidth: 0, flex: 1 }}>
                                         <Typography
                                           variant="body2"
                                           sx={{
                                             fontWeight: 500,
                                             color: '#1C1917',
-                                            maxWidth: 150,
+                                            maxWidth: '100%',
                                             whiteSpace: 'nowrap',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
@@ -909,6 +925,10 @@ const Profile = () => {
                                             variant="caption"
                                             sx={{
                                               color: '#78716C',
+                                              display: 'block',
+                                              whiteSpace: 'nowrap',
+                                              overflow: 'hidden',
+                                              textOverflow: 'ellipsis',
                                             }}
                                           >
                                             +{order.orderItems.length - 1} more item
