@@ -196,19 +196,35 @@ const AdminCategories = () => {
         <TableContainer
           sx={{
             maxHeight: 600,
+            overflowY: 'scroll',
+            scrollbarGutter: 'stable',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
+            '&::-webkit-scrollbar': {
+              width: 8,
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(28, 25, 23, 0.15)',
+              borderRadius: 4,
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(28, 25, 23, 0.3)',
+            },
           }}
         >
-          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 600 }}>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '22%' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '28%' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '20%' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '26%' }}>Name</TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '38%' }}>
                   Description
                 </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600, width: '12%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -259,13 +275,12 @@ const AdminCategories = () => {
                       >
                         {category.description || '-'}
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell sx={{ width: '16%', whiteSpace: 'nowrap' }}>
                         <Box
                           sx={{
                             display: 'flex',
                             gap: 2,
                             alignItems: 'center',
-                            justifyContent: 'flex-end',
                           }}
                         >
                           <Button

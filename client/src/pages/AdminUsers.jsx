@@ -144,23 +144,39 @@ const AdminUsers = () => {
         <TableContainer
           sx={{
             maxHeight: 600,
+            overflowY: 'scroll',
+            scrollbarGutter: 'stable',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
+            '&::-webkit-scrollbar': {
+              width: 8,
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(28, 25, 23, 0.15)',
+              borderRadius: 4,
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(28, 25, 23, 0.3)',
+            },
           }}
         >
-          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 700 }}>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '20%' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '22%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '18%' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '20%' }}>
                   Display Name
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '18%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }}>
                   Username
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '22%' }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '10%' }}>Role</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600, width: '8%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }}>Role</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -296,7 +312,7 @@ const AdminUsers = () => {
                           )}
                         </Box>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
                         <Button
                           size="small"
                           disabled={currentUser.email === user.email}

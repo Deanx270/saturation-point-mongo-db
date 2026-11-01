@@ -196,11 +196,27 @@ const AdminTransactions = () => {
         <TableContainer
           sx={{
             maxHeight: 600,
+            overflowY: 'scroll',
+            scrollbarGutter: 'stable',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
+            '&::-webkit-scrollbar': {
+              width: 8,
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(28, 25, 23, 0.15)',
+              borderRadius: 4,
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: 'rgba(28, 25, 23, 0.3)',
+            },
           }}
         >
-          <Table stickyHeader sx={{ tableLayout: 'fixed', minWidth: 700 }}>
+          <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600, width: '20%' }}>
@@ -214,7 +230,7 @@ const AdminTransactions = () => {
                   Total Amount
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '13%' }}>Status</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 600, width: '12%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -340,7 +356,7 @@ const AdminTransactions = () => {
                           </MenuItem>
                         </Select>
                       </TableCell>
-                      <TableCell align="right">
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
                         <Button
                           size="small"
                           onClick={() => setSelectedOrder(order)}
