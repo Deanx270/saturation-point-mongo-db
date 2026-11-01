@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Container,
@@ -32,6 +32,7 @@ import {
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import SearchIcon from '@mui/icons-material/Search';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -53,16 +54,31 @@ const Profile = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(8);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(true);
   const [usernameCheckError, setUsernameCheckError] = useState('');
   const fileInputRef = useRef(null);
 
+  const filteredOrders = useMemo(() => {
+    if (!searchTerm.trim()) return orders;
+    const term = searchTerm.toLowerCase();
+    return orders.filter((o) => {
+      const idMatch = o._id?.toLowerCase().includes(term);
+      const statusMatch = o.status?.toLowerCase().includes(term);
+      const totalMatch = o.totalAmount?.toString().includes(term);
+      const itemMatch = o.orderItems?.some((item) =>
+        item.name?.toLowerCase().includes(term),
+      );
+      return idMatch || statusMatch || totalMatch || itemMatch;
+    });
+  }, [orders, searchTerm]);
+
   useEffect(() => {
-    if (page > 0 && orders.length > 0 && page * rowsPerPage >= orders.length) {
+    if (page > 0 && filteredOrders.length > 0 && page * rowsPerPage >= filteredOrders.length) {
       setPage(0);
     }
-  }, [orders.length, page, rowsPerPage]);
+  }, [filteredOrders.length, page, rowsPerPage]);
 
   useEffect(() => {
     const fetchMyOrders = async () => {
@@ -759,20 +775,53 @@ const Profile = () => {
                 overflow: 'hidden',
               }}
             >
-              <Typography
-                variant="h6"
-                color="primary"
-                gutterBottom
+              <Box
                 sx={{
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.18em',
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  justifyContent: 'space-between',
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  gap: 2,
                   mb: 4,
-                  fontWeight: 600,
-                  fontSize: '1.25rem',
                 }}
               >
-                Order History
-              </Typography>
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  sx={{
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.18em',
+                    fontWeight: 600,
+                    fontSize: '1.25rem',
+                  }}
+                >
+                  Order History
+                </Typography>
+                <TextField
+                  size="small"
+                  placeholder="Search orders..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(0);
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    width: { xs: '100%', sm: 260 },
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1,
+                      fontSize: '0.875rem',
+                      bgcolor: '#FFFFFF',
+                    },
+                  }}
+                />
+              </Box>
 
               <Box
                 sx={{
@@ -840,7 +889,7 @@ const Profile = () => {
                             />
                           </TableCell>
                         </TableRow>
-                      ) : orders.length === 0 ? (
+                      ) : filteredOrders.length === 0 ? (
                         <TableRow>
                           <TableCell
                             colSpan={5}
@@ -850,11 +899,11 @@ const Profile = () => {
                               color: '#78716C',
                             }}
                           >
-                            No orders found. Start shopping!
+                            No orders found.
                           </TableCell>
                         </TableRow>
                       ) : (
-                        orders
+                        filteredOrders
                           .slice(
                             page * rowsPerPage,
                             page * rowsPerPage + rowsPerPage,
@@ -997,7 +1046,7 @@ const Profile = () => {
                 <TablePagination
                   rowsPerPageOptions={[8]}
                   component="div"
-                  count={orders.length}
+                  count={filteredOrders.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={(e, newPage) => setPage(newPage)}

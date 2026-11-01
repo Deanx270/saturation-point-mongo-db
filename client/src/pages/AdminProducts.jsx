@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Container,
@@ -7,6 +7,7 @@ import {
   Paper,
   Box,
   TextField,
+  InputAdornment,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -30,6 +31,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import StarIcon from '@mui/icons-material/Star';
+import SearchIcon from '@mui/icons-material/Search';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -626,6 +628,19 @@ const AdminProducts = () => {
   const [brands, setBrands] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) return products;
+    const term = searchTerm.toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.brand?.toLowerCase().includes(term) ||
+        p.category?.toLowerCase().includes(term) ||
+        p.price?.toString().includes(term),
+    );
+  }, [products, searchTerm]);
 
   const fetchProducts = async () => {
     setFetchLoading(true);
@@ -656,10 +671,10 @@ const AdminProducts = () => {
   }, []);
 
   useEffect(() => {
-    if (page > 0 && products.length > 0 && page * rowsPerPage >= products.length) {
+    if (page > 0 && filteredProducts.length > 0 && page * rowsPerPage >= filteredProducts.length) {
       setPage(0);
     }
-  }, [products.length, page, rowsPerPage]);
+  }, [filteredProducts.length, page, rowsPerPage]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
@@ -744,7 +759,7 @@ const AdminProducts = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(products.map((p) => p._id));
+      setSelectedIds(filteredProducts.map((p) => p._id));
     } else {
       setSelectedIds([]);
     }
@@ -770,9 +785,9 @@ const AdminProducts = () => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
+            alignItems: { xs: 'flex-start', md: 'center' },
             gap: 2,
             mb: 4,
           }}
@@ -788,7 +803,39 @@ const AdminProducts = () => {
           >
             Product Management
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flexWrap: 'wrap',
+              width: { xs: '100%', md: 'auto' },
+            }}
+          >
+            <TextField
+              size="small"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: { xs: '100%', sm: 260 },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1,
+                  fontSize: '0.875rem',
+                  bgcolor: '#FFFFFF',
+                },
+              }}
+            />
             <Button
               variant="outlined"
               color="error"
@@ -796,7 +843,7 @@ const AdminProducts = () => {
               disabled={
                 selectedIds.length === 0 || deleteLoading || fetchLoading
               }
-              sx={{ textTransform: 'none', px: 3, mr: 2 }}
+              sx={{ textTransform: 'none', px: 3 }}
             >
               Bulk Delete ({selectedIds.length})
             </Button>
@@ -835,11 +882,11 @@ const AdminProducts = () => {
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
-                      selectedIds.length < products.length
+                      selectedIds.length < filteredProducts.length
                     }
                     checked={
-                      products.length > 0 &&
-                      selectedIds.length === products.length
+                      filteredProducts.length > 0 &&
+                      selectedIds.length === filteredProducts.length
                     }
                     onChange={handleSelectAll}
                   />
@@ -864,7 +911,7 @@ const AdminProducts = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -875,7 +922,7 @@ const AdminProducts = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                products
+                filteredProducts
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((product) => (
                     <TableRow
@@ -1017,7 +1064,7 @@ const AdminProducts = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={products.length}
+          count={filteredProducts.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

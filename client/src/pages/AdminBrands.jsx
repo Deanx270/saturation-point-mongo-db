@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Box,
@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  InputAdornment,
   CircularProgress,
   Tooltip,
   TablePagination,
@@ -24,6 +25,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -41,6 +43,24 @@ const AdminBrands = () => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredBrands = useMemo(() => {
+    if (!searchTerm.trim()) return brands;
+    const term = searchTerm.toLowerCase();
+    return brands.filter(
+      (b) =>
+        b._id?.toLowerCase().includes(term) ||
+        b.name?.toLowerCase().includes(term) ||
+        b.description?.toLowerCase().includes(term),
+    );
+  }, [brands, searchTerm]);
+
+  useEffect(() => {
+    if (page > 0 && filteredBrands.length > 0 && page * rowsPerPage >= filteredBrands.length) {
+      setPage(0);
+    }
+  }, [filteredBrands.length, page, rowsPerPage]);
 
   const fetchBrands = async () => {
     setLoading(true);
@@ -160,9 +180,9 @@ const AdminBrands = () => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: { xs: 'column', md: 'row' },
             justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', sm: 'center' },
+            alignItems: { xs: 'flex-start', md: 'center' },
             gap: 2,
             mb: 4,
           }}
@@ -178,19 +198,53 @@ const AdminBrands = () => {
           >
             Brand Management
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
+          <Box
             sx={{
-              bgcolor: '#1C1917',
-              '&:hover': { bgcolor: '#292524' },
-              textTransform: 'none',
-              px: 3,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flexWrap: 'wrap',
+              width: { xs: '100%', md: 'auto' },
             }}
           >
-            Add Brand
-          </Button>
+            <TextField
+              size="small"
+              placeholder="Search brands..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#78716C', fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: { xs: '100%', sm: 260 },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1,
+                  fontSize: '0.875rem',
+                  bgcolor: '#FFFFFF',
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAdd}
+              sx={{
+                bgcolor: '#1C1917',
+                '&:hover': { bgcolor: '#292524' },
+                textTransform: 'none',
+                px: 3,
+              }}
+            >
+              Add Brand
+            </Button>
+          </Box>
         </Box>
 
         <TableContainer
@@ -225,7 +279,7 @@ const AdminBrands = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : brands.length === 0 ? (
+              ) : filteredBrands.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={4}
@@ -236,7 +290,7 @@ const AdminBrands = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                brands
+                filteredBrands
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((brand) => (
                     <TableRow key={brand._id} hover>
@@ -331,7 +385,7 @@ const AdminBrands = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={brands.length}
+          count={filteredBrands.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}
