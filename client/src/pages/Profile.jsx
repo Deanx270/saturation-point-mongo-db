@@ -795,7 +795,12 @@ const Profile = () => {
                   }}
                 >
                   <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
-                    <TableHead>
+                    <TableHead
+                      sx={{
+                        bgcolor: '#FAF9F6',
+                        '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                      }}
+                    >
                       <TableRow>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '22%' }}
