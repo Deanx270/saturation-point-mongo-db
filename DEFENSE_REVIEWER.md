@@ -295,7 +295,7 @@
 #### 1. Frontend Implementation (`IntersectionObserver` Architecture)
 - **Frontend File**: [`client/src/pages/Catalog.jsx#L48-L123`](client/src/pages/Catalog.jsx#L48-L123)
   - [**Lines 48-51**](client/src/pages/Catalog.jsx#L48-L51): Infinite scroll state definitions (`page`, `totalPages`, `isFetchingMore`, `observerTarget` ref).
-  - [**Lines 53-99 (`fetchProducts`)**](client/src/pages/Catalog.jsx#L53-L99): Asynchronously requests paginated products (`limit=8&page=${pageParam}`) and deduplicates items using a JavaScript `Map`.
+  - [**Lines 53-99 (`fetchProducts`)**](client/src/pages/Catalog.jsx#L53-L99): Asynchronously requests paginated products (`limit=9&page=${pageParam}`) and deduplicates items using a JavaScript `Map`.
   - [**Lines 106-123 (`IntersectionObserver` Hook)**](client/src/pages/Catalog.jsx#L106-L123): Automatically triggers the next page fetch when the bottom sentinel enters viewport (`entries[0].isIntersecting`).
   - [**Lines 591-613 (Sentinel UI & Loading State)**](client/src/pages/Catalog.jsx#L591-L613): Bottom sentinel container `<Box ref={observerTarget}>` rendering `<CircularProgress>` while loading and "End of catalog" once complete.
 
@@ -306,7 +306,7 @@
 #### 3. Defense Demo Steps / What to Say to the Panel
 1. Open the **Catalog** page in the browser.
 2. Open Browser DevTools (F12 $\rightarrow$ **Network** tab, filter by `products`).
-3. Scroll down the Catalog page: show that when reaching the bottom, a smooth loading spinner appears, and a new network request `GET /api/products?limit=8&page=2` is fired.
+3. Scroll down the Catalog page: show that when reaching the bottom, a smooth loading spinner appears, and a new network request `GET /api/products?limit=9&page=2` is fired.
 4. Show how products seamlessly append without resetting the scroll position or flashing duplicate items.
 5. Highlight that this was built using native browser **`IntersectionObserver`**, avoiding bloated external packages for maximum performance.
 
