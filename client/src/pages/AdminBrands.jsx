@@ -195,24 +195,24 @@ const AdminBrands = () => {
 
         <TableContainer
           sx={{
-            maxHeight: 600,
-            overflowY: 'scroll',
-            scrollbarGutter: 'stable',
+            maxHeight: 680,
+            overflowY: 'overlay',
+            overflowX: 'auto',
             border: '1px solid rgba(28, 25, 23, 0.08)',
             borderRadius: 1,
             '&::-webkit-scrollbar': {
-              width: 8,
-              height: 8,
+              width: 6,
+              height: 6,
             },
             '&::-webkit-scrollbar-track': {
               backgroundColor: 'transparent',
             },
             '&::-webkit-scrollbar-thumb': {
-              backgroundColor: 'rgba(28, 25, 23, 0.15)',
-              borderRadius: 4,
+              backgroundColor: 'rgba(28, 25, 23, 0.2)',
+              borderRadius: 3,
             },
             '&::-webkit-scrollbar-thumb:hover': {
-              backgroundColor: 'rgba(28, 25, 23, 0.3)',
+              backgroundColor: 'rgba(28, 25, 23, 0.4)',
             },
           }}
         >

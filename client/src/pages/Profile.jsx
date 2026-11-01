@@ -791,21 +791,20 @@ const Profile = () => {
                     flex: 1,
                     width: '100%',
                     overflowX: 'auto',
-                    overflowY: 'auto',
-                    scrollbarGutter: 'stable',
+                    overflowY: 'overlay',
                     '&::-webkit-scrollbar': {
-                      width: 8,
-                      height: 8,
+                      width: 6,
+                      height: 6,
                     },
                     '&::-webkit-scrollbar-track': {
                       backgroundColor: 'transparent',
                     },
                     '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'rgba(28, 25, 23, 0.15)',
-                      borderRadius: 4,
+                      backgroundColor: 'rgba(28, 25, 23, 0.2)',
+                      borderRadius: 3,
                     },
                     '&::-webkit-scrollbar-thumb:hover': {
-                      backgroundColor: 'rgba(28, 25, 23, 0.3)',
+                      backgroundColor: 'rgba(28, 25, 23, 0.4)',
                     },
                   }}
                 >
