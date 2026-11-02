@@ -21,6 +21,7 @@ import {
   CircularProgress,
   Tooltip,
   TablePagination,
+  TableSortLabel,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -44,6 +45,15 @@ const AdminBrands = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('name');
+  const [order, setOrder] = useState('asc');
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    setPage(0);
+  };
 
   const filteredBrands = useMemo(() => {
     if (!searchTerm.trim()) return brands;
@@ -56,11 +66,24 @@ const AdminBrands = () => {
     );
   }, [brands, searchTerm]);
 
+  const sortedBrands = useMemo(() => {
+    const list = [...filteredBrands];
+    if (!orderBy) return list;
+    return list.sort((a, b) => {
+      const aVal = (a[orderBy] || '').toString().toLowerCase();
+      const bVal = (b[orderBy] || '').toString().toLowerCase();
+      if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+      }
+      return bVal.localeCompare(aVal);
+    });
+  }, [filteredBrands, orderBy, order]);
+
   useEffect(() => {
-    if (page > 0 && filteredBrands.length > 0 && page * rowsPerPage >= filteredBrands.length) {
+    if (page > 0 && sortedBrands.length > 0 && page * rowsPerPage >= sortedBrands.length) {
       setPage(0);
     }
-  }, [filteredBrands.length, page, rowsPerPage]);
+  }, [sortedBrands.length, page, rowsPerPage]);
 
   const fetchBrands = async () => {
     setLoading(true);
@@ -208,7 +231,6 @@ const AdminBrands = () => {
             }}
           >
             <TextField
-              size="small"
               placeholder="Search brands..."
               value={searchTerm}
               onChange={(e) => {
@@ -225,6 +247,7 @@ const AdminBrands = () => {
               sx={{
                 width: { xs: '100%', sm: 260 },
                 '& .MuiOutlinedInput-root': {
+                  height: 48,
                   borderRadius: 1,
                   fontSize: '0.875rem',
                   bgcolor: '#FFFFFF',
@@ -240,6 +263,7 @@ const AdminBrands = () => {
                 '&:hover': { bgcolor: '#292524' },
                 textTransform: 'none',
                 px: 3,
+                height: 48,
               }}
             >
               Add Brand
@@ -259,13 +283,38 @@ const AdminBrands = () => {
               sx={{
                 bgcolor: '#FAF9F6',
                 '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                '& .MuiTableSortLabel-root': { color: '#1C1917' },
+                '& .MuiTableSortLabel-root.Mui-active': { color: '#1C1917' },
+                '& .MuiTableSortLabel-icon': { color: '#1C1917 !important' },
               }}
             >
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '20%' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '26%' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '38%' }}>
-                  Description
+                <TableCell sx={{ fontWeight: 600, width: '20%' }} sortDirection={orderBy === '_id' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === '_id'}
+                    direction={orderBy === '_id' ? order : 'asc'}
+                    onClick={() => handleRequestSort('_id')}
+                  >
+                    ID
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '26%' }} sortDirection={orderBy === 'name' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'name'}
+                    direction={orderBy === 'name' ? order : 'asc'}
+                    onClick={() => handleRequestSort('name')}
+                  >
+                    Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '38%' }} sortDirection={orderBy === 'description' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'description'}
+                    direction={orderBy === 'description' ? order : 'asc'}
+                    onClick={() => handleRequestSort('description')}
+                  >
+                    Description
+                  </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '16%' }}>
                   Actions
@@ -279,7 +328,7 @@ const AdminBrands = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : filteredBrands.length === 0 ? (
+              ) : sortedBrands.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={4}
@@ -290,7 +339,7 @@ const AdminBrands = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredBrands
+                sortedBrands
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((brand) => (
                     <TableRow key={brand._id} hover>
@@ -385,7 +434,7 @@ const AdminBrands = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={filteredBrands.length}
+          count={sortedBrands.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

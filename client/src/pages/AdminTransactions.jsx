@@ -23,6 +23,7 @@ import {
   TextField,
   InputAdornment,
   TablePagination,
+  TableSortLabel,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -42,6 +43,15 @@ const AdminTransactions = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('createdAt');
+  const [order, setOrder] = useState('desc');
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    setPage(0);
+  };
 
   const filteredOrders = useMemo(() => {
     if (!searchTerm.trim()) return orders;
@@ -56,11 +66,38 @@ const AdminTransactions = () => {
     );
   }, [orders, searchTerm]);
 
+  const sortedOrders = useMemo(() => {
+    const list = [...filteredOrders];
+    if (!orderBy) return list;
+    return list.sort((a, b) => {
+      let aVal, bVal;
+      if (orderBy === 'customer') {
+        aVal = (a.user?.displayName || a.user?.email || '').toLowerCase();
+        bVal = (b.user?.displayName || b.user?.email || '').toLowerCase();
+      } else if (orderBy === 'createdAt') {
+        aVal = new Date(a.createdAt || 0).getTime();
+        bVal = new Date(b.createdAt || 0).getTime();
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (orderBy === 'totalAmount') {
+        aVal = Number(a.totalAmount) || 0;
+        bVal = Number(b.totalAmount) || 0;
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      } else {
+        aVal = (a[orderBy] || '').toString().toLowerCase();
+        bVal = (b[orderBy] || '').toString().toLowerCase();
+      }
+      if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+      }
+      return bVal.localeCompare(aVal);
+    });
+  }, [filteredOrders, orderBy, order]);
+
   useEffect(() => {
-    if (page > 0 && filteredOrders.length > 0 && page * rowsPerPage >= filteredOrders.length) {
+    if (page > 0 && sortedOrders.length > 0 && page * rowsPerPage >= sortedOrders.length) {
       setPage(0);
     }
-  }, [filteredOrders.length, page, rowsPerPage]);
+  }, [sortedOrders.length, page, rowsPerPage]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -215,7 +252,6 @@ const AdminTransactions = () => {
             Transaction Management
           </Typography>
           <TextField
-            size="small"
             placeholder="Search transactions..."
             value={searchTerm}
             onChange={(e) => {
@@ -232,6 +268,7 @@ const AdminTransactions = () => {
             sx={{
               width: { xs: '100%', sm: 260 },
               '& .MuiOutlinedInput-root': {
+                height: 48,
                 borderRadius: 1,
                 fontSize: '0.875rem',
                 bgcolor: '#FFFFFF',
@@ -252,20 +289,57 @@ const AdminTransactions = () => {
               sx={{
                 bgcolor: '#FAF9F6',
                 '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                '& .MuiTableSortLabel-root': { color: '#1C1917' },
+                '& .MuiTableSortLabel-root.Mui-active': { color: '#1C1917' },
+                '& .MuiTableSortLabel-icon': { color: '#1C1917 !important' },
               }}
             >
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '20%' }}>
-                  Order ID
+                <TableCell sx={{ fontWeight: 600, width: '20%' }} sortDirection={orderBy === '_id' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === '_id'}
+                    direction={orderBy === '_id' ? order : 'asc'}
+                    onClick={() => handleRequestSort('_id')}
+                  >
+                    Order ID
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '24%' }}>
-                  Customer
+                <TableCell sx={{ fontWeight: 600, width: '24%' }} sortDirection={orderBy === 'customer' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'customer'}
+                    direction={orderBy === 'customer' ? order : 'asc'}
+                    onClick={() => handleRequestSort('customer')}
+                  >
+                    Customer
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '16%' }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '15%' }}>
-                  Total Amount
+                <TableCell sx={{ fontWeight: 600, width: '16%' }} sortDirection={orderBy === 'createdAt' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'createdAt'}
+                    direction={orderBy === 'createdAt' ? order : 'asc'}
+                    onClick={() => handleRequestSort('createdAt')}
+                  >
+                    Date
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '13%' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '15%' }} sortDirection={orderBy === 'totalAmount' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'totalAmount'}
+                    direction={orderBy === 'totalAmount' ? order : 'asc'}
+                    onClick={() => handleRequestSort('totalAmount')}
+                  >
+                    Total Amount
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '13%' }} sortDirection={orderBy === 'status' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'status'}
+                    direction={orderBy === 'status' ? order : 'asc'}
+                    onClick={() => handleRequestSort('status')}
+                  >
+                    Status
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
@@ -278,7 +352,7 @@ const AdminTransactions = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : filteredOrders.length === 0 ? (
+              ) : sortedOrders.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -289,7 +363,7 @@ const AdminTransactions = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredOrders
+                sortedOrders
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((order) => (
                     <TableRow
@@ -427,7 +501,7 @@ const AdminTransactions = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={filteredOrders.length}
+          count={sortedOrders.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}
