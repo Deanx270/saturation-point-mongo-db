@@ -211,7 +211,7 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
       return false;
     }
 
-    const shouldAttachReceipt = order.status === 'delivered';
+    const shouldAttachReceipt = true;
 
     let attachments = [];
     if (shouldAttachReceipt) {
