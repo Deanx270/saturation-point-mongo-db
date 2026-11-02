@@ -23,6 +23,7 @@ import {
   TableHead,
   TableRow,
   TablePagination,
+  TableSortLabel,
   Chip,
   Dialog,
   DialogTitle,
@@ -55,10 +56,19 @@ const Profile = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(8);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('createdAt');
+  const [order, setOrder] = useState('desc');
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(true);
   const [usernameCheckError, setUsernameCheckError] = useState('');
   const fileInputRef = useRef(null);
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    setPage(0);
+  };
 
   const filteredOrders = useMemo(() => {
     if (!searchTerm.trim()) return orders;
@@ -74,11 +84,38 @@ const Profile = () => {
     });
   }, [orders, searchTerm]);
 
+  const sortedOrders = useMemo(() => {
+    const list = [...filteredOrders];
+    if (!orderBy) return list;
+    return list.sort((a, b) => {
+      let aVal, bVal;
+      if (orderBy === 'items') {
+        aVal = (a.orderItems?.[0]?.name || '').toLowerCase();
+        bVal = (b.orderItems?.[0]?.name || '').toLowerCase();
+      } else if (orderBy === 'createdAt') {
+        aVal = new Date(a.createdAt || 0).getTime();
+        bVal = new Date(b.createdAt || 0).getTime();
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      } else if (orderBy === 'totalAmount') {
+        aVal = Number(a.totalAmount) || 0;
+        bVal = Number(b.totalAmount) || 0;
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      } else {
+        aVal = (a[orderBy] || '').toString().toLowerCase();
+        bVal = (b[orderBy] || '').toString().toLowerCase();
+      }
+      if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+      }
+      return bVal.localeCompare(aVal);
+    });
+  }, [filteredOrders, orderBy, order]);
+
   useEffect(() => {
-    if (page > 0 && filteredOrders.length > 0 && page * rowsPerPage >= filteredOrders.length) {
+    if (page > 0 && sortedOrders.length > 0 && page * rowsPerPage >= sortedOrders.length) {
       setPage(0);
     }
-  }, [filteredOrders.length, page, rowsPerPage]);
+  }, [sortedOrders.length, page, rowsPerPage]);
 
   useEffect(() => {
     const fetchMyOrders = async () => {
@@ -798,7 +835,6 @@ const Profile = () => {
                   Order History
                 </Typography>
                 <TextField
-                  size="small"
                   placeholder="Search orders..."
                   value={searchTerm}
                   onChange={(e) => {
@@ -815,6 +851,7 @@ const Profile = () => {
                   sx={{
                     width: { xs: '100%', sm: 260 },
                     '& .MuiOutlinedInput-root': {
+                      height: 48,
                       borderRadius: 1,
                       fontSize: '0.875rem',
                       bgcolor: '#FFFFFF',
@@ -848,33 +885,71 @@ const Profile = () => {
                       sx={{
                         bgcolor: '#FAF9F6',
                         '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                        '& .MuiTableSortLabel-root': { color: '#1C1917' },
+                        '& .MuiTableSortLabel-root.Mui-active': { color: '#1C1917' },
+                        '& .MuiTableSortLabel-icon': { color: '#1C1917 !important' },
                       }}
                     >
                       <TableRow>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '22%' }}
+                          sortDirection={orderBy === '_id' ? order : false}
                         >
-                          Order ID
+                          <TableSortLabel
+                            active={orderBy === '_id'}
+                            direction={orderBy === '_id' ? order : 'asc'}
+                            onClick={() => handleRequestSort('_id')}
+                          >
+                            Order ID
+                          </TableSortLabel>
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '33%' }}
+                          sortDirection={orderBy === 'items' ? order : false}
                         >
-                          Items
+                          <TableSortLabel
+                            active={orderBy === 'items'}
+                            direction={orderBy === 'items' ? order : 'asc'}
+                            onClick={() => handleRequestSort('items')}
+                          >
+                            Items
+                          </TableSortLabel>
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '18%' }}
+                          sortDirection={orderBy === 'createdAt' ? order : false}
                         >
-                          Date
+                          <TableSortLabel
+                            active={orderBy === 'createdAt'}
+                            direction={orderBy === 'createdAt' ? order : 'asc'}
+                            onClick={() => handleRequestSort('createdAt')}
+                          >
+                            Date
+                          </TableSortLabel>
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '14%' }}
+                          sortDirection={orderBy === 'totalAmount' ? order : false}
                         >
-                          Total
+                          <TableSortLabel
+                            active={orderBy === 'totalAmount'}
+                            direction={orderBy === 'totalAmount' ? order : 'asc'}
+                            onClick={() => handleRequestSort('totalAmount')}
+                          >
+                            Total
+                          </TableSortLabel>
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, py: 1.5, width: '13%' }}
+                          sortDirection={orderBy === 'status' ? order : false}
                         >
-                          Status
+                          <TableSortLabel
+                            active={orderBy === 'status'}
+                            direction={orderBy === 'status' ? order : 'asc'}
+                            onClick={() => handleRequestSort('status')}
+                          >
+                            Status
+                          </TableSortLabel>
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -889,7 +964,7 @@ const Profile = () => {
                             />
                           </TableCell>
                         </TableRow>
-                      ) : filteredOrders.length === 0 ? (
+                      ) : sortedOrders.length === 0 ? (
                         <TableRow>
                           <TableCell
                             colSpan={5}
@@ -903,7 +978,7 @@ const Profile = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredOrders
+                        sortedOrders
                           .slice(
                             page * rowsPerPage,
                             page * rowsPerPage + rowsPerPage,
@@ -1046,7 +1121,7 @@ const Profile = () => {
                 <TablePagination
                   rowsPerPageOptions={[8]}
                   component="div"
-                  count={filteredOrders.length}
+                  count={sortedOrders.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={(e, newPage) => setPage(newPage)}

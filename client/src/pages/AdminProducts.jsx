@@ -25,6 +25,7 @@ import {
   TableRow,
   Checkbox,
   TablePagination,
+  TableSortLabel,
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import EditIcon from '@mui/icons-material/Edit';
@@ -629,6 +630,15 @@ const AdminProducts = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('name');
+  const [order, setOrder] = useState('asc');
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    setPage(0);
+  };
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm.trim()) return products;
@@ -641,6 +651,26 @@ const AdminProducts = () => {
         p.price?.toString().includes(term),
     );
   }, [products, searchTerm]);
+
+  const sortedProducts = useMemo(() => {
+    const list = [...filteredProducts];
+    if (!orderBy) return list;
+    return list.sort((a, b) => {
+      let aVal = a[orderBy];
+      let bVal = b[orderBy];
+      if (orderBy === 'price' || orderBy === 'stock') {
+        aVal = Number(aVal) || 0;
+        bVal = Number(bVal) || 0;
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      aVal = (aVal || '').toString().toLowerCase();
+      bVal = (bVal || '').toString().toLowerCase();
+      if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+      }
+      return bVal.localeCompare(aVal);
+    });
+  }, [filteredProducts, orderBy, order]);
 
   const fetchProducts = async () => {
     setFetchLoading(true);
@@ -671,10 +701,10 @@ const AdminProducts = () => {
   }, []);
 
   useEffect(() => {
-    if (page > 0 && filteredProducts.length > 0 && page * rowsPerPage >= filteredProducts.length) {
+    if (page > 0 && sortedProducts.length > 0 && page * rowsPerPage >= sortedProducts.length) {
       setPage(0);
     }
-  }, [filteredProducts.length, page, rowsPerPage]);
+  }, [sortedProducts.length, page, rowsPerPage]);
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
@@ -759,7 +789,7 @@ const AdminProducts = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(filteredProducts.map((p) => p._id));
+      setSelectedIds(sortedProducts.map((p) => p._id));
     } else {
       setSelectedIds([]);
     }
@@ -813,7 +843,6 @@ const AdminProducts = () => {
             }}
           >
             <TextField
-              size="small"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => {
@@ -830,6 +859,7 @@ const AdminProducts = () => {
               sx={{
                 width: { xs: '100%', sm: 260 },
                 '& .MuiOutlinedInput-root': {
+                  height: 48,
                   borderRadius: 1,
                   fontSize: '0.875rem',
                   bgcolor: '#FFFFFF',
@@ -843,7 +873,7 @@ const AdminProducts = () => {
               disabled={
                 selectedIds.length === 0 || deleteLoading || fetchLoading
               }
-              sx={{ textTransform: 'none', px: 3 }}
+              sx={{ textTransform: 'none', px: 3, height: 48 }}
             >
               Bulk Delete ({selectedIds.length})
             </Button>
@@ -856,6 +886,7 @@ const AdminProducts = () => {
                 '&:hover': { bgcolor: '#292524' },
                 textTransform: 'none',
                 px: 3,
+                height: 48,
               }}
             >
               Add Product
@@ -875,6 +906,9 @@ const AdminProducts = () => {
               sx={{
                 bgcolor: '#FAF9F6',
                 '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                '& .MuiTableSortLabel-root': { color: '#1C1917' },
+                '& .MuiTableSortLabel-root.Mui-active': { color: '#1C1917' },
+                '& .MuiTableSortLabel-icon': { color: '#1C1917 !important' },
               }}
             >
               <TableRow>
@@ -882,23 +916,61 @@ const AdminProducts = () => {
                   <Checkbox
                     indeterminate={
                       selectedIds.length > 0 &&
-                      selectedIds.length < filteredProducts.length
+                      selectedIds.length < sortedProducts.length
                     }
                     checked={
-                      filteredProducts.length > 0 &&
-                      selectedIds.length === filteredProducts.length
+                      sortedProducts.length > 0 &&
+                      selectedIds.length === sortedProducts.length
                     }
                     onChange={handleSelectAll}
                   />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: 64 }}>Image</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '24%' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '14%' }}>Brand</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '14%' }}>
-                  Category
+                <TableCell sx={{ fontWeight: 600, width: '24%' }} sortDirection={orderBy === 'name' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'name'}
+                    direction={orderBy === 'name' ? order : 'asc'}
+                    onClick={() => handleRequestSort('name')}
+                  >
+                    Name
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '12%' }}>Price</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '8%' }}>Stock</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '14%' }} sortDirection={orderBy === 'brand' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'brand'}
+                    direction={orderBy === 'brand' ? order : 'asc'}
+                    onClick={() => handleRequestSort('brand')}
+                  >
+                    Brand
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '14%' }} sortDirection={orderBy === 'category' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'category'}
+                    direction={orderBy === 'category' ? order : 'asc'}
+                    onClick={() => handleRequestSort('category')}
+                  >
+                    Category
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }} sortDirection={orderBy === 'price' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'price'}
+                    direction={orderBy === 'price' ? order : 'asc'}
+                    onClick={() => handleRequestSort('price')}
+                  >
+                    Price
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '8%' }} sortDirection={orderBy === 'stock' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'stock'}
+                    direction={orderBy === 'stock' ? order : 'asc'}
+                    onClick={() => handleRequestSort('stock')}
+                  >
+                    Stock
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '16%' }}>
                   Actions
                 </TableCell>
@@ -911,7 +983,7 @@ const AdminProducts = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : filteredProducts.length === 0 ? (
+              ) : sortedProducts.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={8}
@@ -922,7 +994,7 @@ const AdminProducts = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredProducts
+                sortedProducts
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((product) => (
                     <TableRow
@@ -1064,7 +1136,7 @@ const AdminProducts = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={filteredProducts.length}
+          count={sortedProducts.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}

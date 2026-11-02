@@ -18,6 +18,7 @@ import {
   TextField,
   InputAdornment,
   TablePagination,
+  TableSortLabel,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -35,6 +36,15 @@ const AdminUsers = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState('displayName');
+  const [order, setOrder] = useState('asc');
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+    setPage(0);
+  };
 
   const filteredUsers = useMemo(() => {
     if (!searchTerm.trim()) return users;
@@ -49,11 +59,24 @@ const AdminUsers = () => {
     );
   }, [users, searchTerm]);
 
+  const sortedUsers = useMemo(() => {
+    const list = [...filteredUsers];
+    if (!orderBy) return list;
+    return list.sort((a, b) => {
+      const aVal = (a[orderBy] || '').toString().toLowerCase();
+      const bVal = (b[orderBy] || '').toString().toLowerCase();
+      if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+      }
+      return bVal.localeCompare(aVal);
+    });
+  }, [filteredUsers, orderBy, order]);
+
   useEffect(() => {
-    if (page > 0 && filteredUsers.length > 0 && page * rowsPerPage >= filteredUsers.length) {
+    if (page > 0 && sortedUsers.length > 0 && page * rowsPerPage >= sortedUsers.length) {
       setPage(0);
     }
-  }, [filteredUsers.length, page, rowsPerPage]);
+  }, [sortedUsers.length, page, rowsPerPage]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -163,7 +186,6 @@ const AdminUsers = () => {
             User Management
           </Typography>
           <TextField
-            size="small"
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => {
@@ -180,6 +202,7 @@ const AdminUsers = () => {
             sx={{
               width: { xs: '100%', sm: 260 },
               '& .MuiOutlinedInput-root': {
+                height: 48,
                 borderRadius: 1,
                 fontSize: '0.875rem',
                 bgcolor: '#FFFFFF',
@@ -200,18 +223,57 @@ const AdminUsers = () => {
               sx={{
                 bgcolor: '#FAF9F6',
                 '& .MuiTableCell-head': { bgcolor: '#FAF9F6' },
+                '& .MuiTableSortLabel-root': { color: '#1C1917' },
+                '& .MuiTableSortLabel-root.Mui-active': { color: '#1C1917' },
+                '& .MuiTableSortLabel-icon': { color: '#1C1917 !important' },
               }}
             >
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '18%' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '20%' }}>
-                  Display Name
+                <TableCell sx={{ fontWeight: 600, width: '18%' }} sortDirection={orderBy === '_id' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === '_id'}
+                    direction={orderBy === '_id' ? order : 'asc'}
+                    onClick={() => handleRequestSort('_id')}
+                  >
+                    ID
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '16%' }}>
-                  Username
+                <TableCell sx={{ fontWeight: 600, width: '20%' }} sortDirection={orderBy === 'displayName' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'displayName'}
+                    direction={orderBy === 'displayName' ? order : 'asc'}
+                    onClick={() => handleRequestSort('displayName')}
+                  >
+                    Display Name
+                  </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '22%' }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '12%' }}>Role</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }} sortDirection={orderBy === 'username' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'username'}
+                    direction={orderBy === 'username' ? order : 'asc'}
+                    onClick={() => handleRequestSort('username')}
+                  >
+                    Username
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '22%' }} sortDirection={orderBy === 'email' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'email'}
+                    direction={orderBy === 'email' ? order : 'asc'}
+                    onClick={() => handleRequestSort('email')}
+                  >
+                    Email
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '12%' }} sortDirection={orderBy === 'role' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'role'}
+                    direction={orderBy === 'role' ? order : 'asc'}
+                    onClick={() => handleRequestSort('role')}
+                  >
+                    Role
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '12%' }}>
                   Actions
                 </TableCell>
@@ -224,7 +286,7 @@ const AdminUsers = () => {
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
-              ) : filteredUsers.length === 0 ? (
+              ) : sortedUsers.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -235,7 +297,7 @@ const AdminUsers = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredUsers
+                sortedUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((user) => (
                     <TableRow key={user._id} hover>
@@ -384,7 +446,7 @@ const AdminUsers = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={filteredUsers.length}
+          count={sortedUsers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(e, newPage) => setPage(newPage)}
