@@ -13,11 +13,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useAuth, isUserVerified } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
+import { useSelector } from 'react-redux';
+import { selectCartItemCount } from '../redux/slices/cartSlice';
 
 const Navbar = () => {
   const { currentUser, mongoUser, logout } = useAuth();
-  const { cartItemCount } = useCart();
+  const cartItemCount = useSelector(selectCartItemCount);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
