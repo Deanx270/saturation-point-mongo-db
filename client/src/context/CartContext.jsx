@@ -1,34 +1,46 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
+import { createContext, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from './AuthContext';
+import {
+  setCart,
+  updateQuantity as updateQuantityAction,
+  removeFromCart as removeFromCartAction,
+  clearCart as clearCartAction,
+  addToCartWithStockCheck,
+  verifyCartStockThunk,
+  selectCartItems,
+  selectCartTotal,
+  selectCartItemCount,
+} from '../redux/slices/cartSlice';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
+  const dispatch = useDispatch();
   const { currentUser } = useAuth();
-
-  const [cart, setCart] = useState([]);
+  const cart = useSelector(selectCartItems);
+  const cartTotal = useSelector(selectCartTotal);
+  const cartItemCount = useSelector(selectCartItemCount);
 
   useEffect(() => {
     if (currentUser) {
       const savedCart = localStorage.getItem(`cart_${currentUser.uid}`);
       if (savedCart) {
         try {
-          setCart(JSON.parse(savedCart));
+          dispatch(setCart(JSON.parse(savedCart)));
         } catch (err) {
           console.error('Failed to parse cart from localStorage', err);
-          setCart([]);
+          dispatch(setCart([]));
         }
       } else {
-        setCart([]);
+        dispatch(setCart([]));
       }
     } else {
-      setCart([]);
+      dispatch(setCart([]));
     }
-  }, [currentUser]);
+  }, [currentUser, dispatch]);
 
   useEffect(() => {
     if (currentUser) {
@@ -37,125 +49,35 @@ export const CartProvider = ({ children }) => {
   }, [cart, currentUser]);
 
   const addToCart = async (product, quantity = 1) => {
-    let latestStock = product.stock || 0;
     try {
-      const res = await axios.get(
-        `${API_BASE_URL}/api/products/${product._id}`,
+      const resultAction = await dispatch(
+        addToCartWithStockCheck({ product, quantity }),
       );
-      if (res.data) {
-        latestStock = res.data.stock;
+      if (addToCartWithStockCheck.fulfilled.match(resultAction)) {
+        return true;
       }
+      return false;
     } catch (err) {
-      console.error('Failed to fetch latest stock', err);
+      console.error('Failed to add to cart', err);
+      return false;
     }
-
-    let wasAdded = false;
-    const existingItem = cart.find((item) => item._id === product._id);
-
-    if (existingItem) {
-      if (existingItem.quantity < latestStock) {
-        wasAdded = true;
-      }
-    } else {
-      if (quantity > 0 && latestStock > 0) {
-        wasAdded = true;
-      }
-    }
-
-    if (wasAdded) {
-      setCart((prevCart) => {
-        const prevExisting = prevCart.find((item) => item._id === product._id);
-        if (prevExisting) {
-          return prevCart.map((item) =>
-            item._id === product._id
-              ? {
-                  ...item,
-                  stock: latestStock,
-                  quantity: Math.min(latestStock, item.quantity + quantity),
-                }
-              : item,
-          );
-        } else {
-          return [
-            ...prevCart,
-            {
-              ...product,
-              stock: latestStock,
-              quantity: Math.min(latestStock, quantity),
-            },
-          ];
-        }
-      });
-    }
-    return wasAdded;
   };
 
   const updateQuantity = (productId, quantity) => {
-    setCart((prevCart) => {
-      if (quantity === 0) {
-        return prevCart.filter((item) => item._id !== productId);
-      }
-      return prevCart.map((item) => {
-        if (item._id === productId) {
-          const newQty =
-            quantity === '' ? '' : Math.min(item.stock || Infinity, quantity);
-          return { ...item, quantity: newQty };
-        }
-        return item;
-      });
-    });
-  };
-
-  const verifyCartStock = async () => {
-    if (cart.length === 0) return;
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/products`);
-      const products = res.data.products || res.data;
-
-      setCart((prevCart) => {
-        let updated = false;
-        const newCart = prevCart
-          .map((item) => {
-            const latestProduct = products.find((p) => p._id === item._id);
-            if (latestProduct) {
-              if (
-                item.quantity > latestProduct.stock ||
-                item.stock !== latestProduct.stock
-              ) {
-                updated = true;
-                return {
-                  ...item,
-                  stock: latestProduct.stock,
-                  quantity: Math.min(latestProduct.stock, item.quantity),
-                };
-              }
-            }
-            return item;
-          })
-          .filter((item) => item.quantity > 0);
-
-        return updated || newCart.length !== prevCart.length
-          ? newCart
-          : prevCart;
-      });
-    } catch (error) {
-      console.error('Failed to verify cart stock', error);
-    }
+    dispatch(updateQuantityAction({ productId, quantity }));
   };
 
   const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
+    dispatch(removeFromCartAction(productId));
   };
 
   const clearCart = () => {
-    setCart([]);
+    dispatch(clearCartAction());
   };
 
-  const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
-  );
-  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const verifyCartStock = () => {
+    dispatch(verifyCartStockThunk());
+  };
 
   const value = {
     cart,

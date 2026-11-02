@@ -8,7 +8,15 @@ import {
   Divider,
   Paper,
 } from '@mui/material';
-import { useCart } from '../context/CartContext';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectCartItems,
+  selectCartTotal,
+  updateQuantity as updateQuantityAction,
+  removeFromCart as removeFromCartAction,
+  clearCart as clearCartAction,
+  verifyCartStockThunk,
+} from '../redux/slices/cartSlice';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
@@ -19,14 +27,15 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 const Cart = () => {
-  const {
-    cart,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-    cartTotal,
-    verifyCartStock,
-  } = useCart();
+  const dispatch = useDispatch();
+  const cart = useSelector(selectCartItems);
+  const cartTotal = useSelector(selectCartTotal);
+  const updateQuantity = (productId, quantity) =>
+    dispatch(updateQuantityAction({ productId, quantity }));
+  const removeFromCart = (productId) =>
+    dispatch(removeFromCartAction(productId));
+  const clearCart = () => dispatch(clearCartAction());
+  const verifyCartStock = () => dispatch(verifyCartStockThunk());
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
