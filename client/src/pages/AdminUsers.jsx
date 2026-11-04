@@ -11,8 +11,6 @@ import {
   TableHead,
   TableRow,
   Button,
-  Select,
-  MenuItem,
   CircularProgress,
   TextField,
   InputAdornment,
@@ -20,7 +18,6 @@ import {
   TableSortLabel,
   Chip,
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import BlockIcon from '@mui/icons-material/Block';
@@ -34,7 +31,6 @@ const AdminUsers = () => {
   const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [updatingRoles, setUpdatingRoles] = useState({});
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,33 +98,6 @@ const AdminUsers = () => {
       fetchUsers();
     }
   }, [currentUser]);
-
-  const handleRoleChange = async (userId, newRole) => {
-    setUsers(
-      users.map((u) => (u._id === userId ? { ...u, role: newRole } : u)),
-    );
-    setUpdatingRoles((prev) => ({ ...prev, [userId]: 'loading' }));
-
-    try {
-      const token = await currentUser.getIdToken();
-      await axios.put(
-        `${API_BASE_URL}/api/users/${userId}/role`,
-        { role: newRole },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      setUpdatingRoles((prev) => ({ ...prev, [userId]: 'success' }));
-      setTimeout(() => {
-        setUpdatingRoles((prev) => ({ ...prev, [userId]: null }));
-      }, 1500);
-    } catch (error) {
-      console.error('Error updating role', error);
-      fetchUsers();
-      Swal.fire('Error', 'Failed to update user role', 'error');
-      setUpdatingRoles((prev) => ({ ...prev, [userId]: null }));
-    }
-  };
 
   const handleToggleStatus = async (user) => {
     if (user.role === 'admin') {
@@ -440,48 +409,29 @@ const AdminUsers = () => {
                         {user.email}
                       </TableCell>
                       <TableCell>
-                        <Box
+                        <Chip
+                          label={user.role === 'admin' ? 'Admin' : 'Customer'}
+                          size="small"
                           sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            bgcolor:
+                              user.role === 'admin'
+                                ? '#1C1917'
+                                : '#F5F5F4',
+                            color:
+                              user.role === 'admin'
+                                ? '#FACC15'
+                                : '#57534E',
+                            border: `1px solid ${
+                              user.role === 'admin'
+                                ? '#1C1917'
+                                : '#E7E5E4'
+                            }`,
                           }}
-                        >
-                          <Select
-                            size="small"
-                            value={user.role}
-                            onChange={(e) =>
-                              handleRoleChange(user._id, e.target.value)
-                            }
-                            sx={{
-                              minWidth: 120,
-                              fontSize: '0.875rem',
-                            }}
-                            disabled={
-                              currentUser.email === user.email ||
-                              updatingRoles[user._id] === 'loading'
-                            }
-                          >
-                            <MenuItem value="user">User</MenuItem>
-                            <MenuItem value="admin">Admin</MenuItem>
-                          </Select>
-                          {updatingRoles[user._id] === 'loading' && (
-                            <CircularProgress
-                              size={16}
-                              sx={{
-                                color: '#CA8A04',
-                              }}
-                            />
-                          )}
-                          {updatingRoles[user._id] === 'success' && (
-                            <CheckCircleIcon
-                              sx={{
-                                fontSize: 18,
-                                color: '#16a34a',
-                              }}
-                            />
-                          )}
-                        </Box>
+                        />
                       </TableCell>
                       <TableCell>
                         <Chip
