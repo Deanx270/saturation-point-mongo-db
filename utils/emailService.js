@@ -244,7 +244,8 @@ const sendOrderStatusEmail = async (order, isCheckout = false) => {
       ? `Thank you for your purchase. Your order is now <strong style="color: #1B263B; font-size: 18px; letter-spacing: 0.5px; text-transform: uppercase;">PENDING</strong>.`
       : getStatusMessage(order.status);
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl =
+      process.env.CLIENT_URL || 'https://saturation-point-web.onrender.com';
 
     const htmlContent = `
       <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
