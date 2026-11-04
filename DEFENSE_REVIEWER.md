@@ -8,11 +8,11 @@
 
 | Category / Requirement | Pts | Frontend File & Line Range | Backend File & Line Range | Key Technologies |
 | :--- | :---: | :--- | :--- | :--- |
-| **MP1: Product Datatable** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L910-L1140) | [`controllers/productController.js`](controllers/productController.js#L4-L58) | MUI Table, Pagination, Search & `TableSortLabel` |
-| **MP1: Multiple Photo Upload** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`controllers/productController.js`](controllers/productController.js#L104-L189) | FormData, Multer (`array`), `imageOrder` |
-| **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L150-L175) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
-| **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L200-L214) | MUI Checkbox, `$in` delete, instant local state |
-| **MP1: Live Hero Search Autocomplete** | + | [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) | [`controllers/productController.js`](controllers/productController.js#L60-L80)<br>[`routes/productRoutes.js`](routes/productRoutes.js#L19) | 250ms Debounced live search, dropdown routing |
+| **MP1: Product Datatable** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L910-L1140) | [`controllers/productController.js`](controllers/productController.js#L8-L63) | MUI Table, Pagination, Search & `TableSortLabel` |
+| **MP1: Multiple Photo Upload** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`controllers/productController.js`](controllers/productController.js#L109-L194) | FormData, Multer (`array`), `imageOrder` |
+| **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L155-L180) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
+| **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L205-L219) | MUI Checkbox, `$in` delete, instant local state |
+| **MP1: Live Hero Search Autocomplete** | + | [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) | [`controllers/productController.js`](controllers/productController.js#L65-L85)<br>[`routes/productRoutes.js`](routes/productRoutes.js#L19) | 250ms Debounced live search, `escapeRegex` sanitize |
 | **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L31)<br>[`controllers/userController.js`](controllers/userController.js#L66-L124) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
 | **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L171) | [`controllers/userController.js`](controllers/userController.js#L81-L93) | Login via username or email lookup, username enumeration defense |
 | **MP2: Password Reset via Mailtrap** | + | Modal: [`Login.jsx`](client/src/pages/Login.jsx#L52-L74)<br>Page: [`ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L25-L100) | [`controllers/userController.js`](controllers/userController.js#L126-L196)<br>[`utils/emailService.js`](utils/emailService.js#L381-L441) | Firebase Admin action links, Mailtrap, timing defense |
@@ -21,22 +21,22 @@
 | **MP2: User Account Enable / Disable** | + | [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L102-L155) | [`controllers/userController.js`](controllers/userController.js#L244-L283)<br>[`middleware/auth.js`](middleware/auth.js#L92-L98) | Token revocation, instant 403 logout, status badges |
 | **MP2: User Role Security (RBAC)** | + | [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L412-L434) | [`controllers/userController.js`](controllers/userController.js#L210-L242) | Read-only luxury badges, HTTP 403 escalation lock |
 | **MP3: Availed Purchase Check** | 10 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L77-L89) | [`controllers/orderController.js`](controllers/orderController.js#L135-L144) | Order history validation (`status === 'delivered'`) |
-| **MP3: Write / Update Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L106-L154) | [`controllers/productController.js`](controllers/productController.js#L216-L287) | Subdocument schema, average recalculation |
-| **MP3: Admin Delete Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L156-L184) | [`controllers/productController.js`](controllers/productController.js#L289-L317) | Admin delete + rating recalculation |
+| **MP3: Write / Update Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L106-L154) | [`controllers/productController.js`](controllers/productController.js#L221-L292) | Subdocument schema, average recalculation |
+| **MP3: Admin Delete Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L156-L184) | [`controllers/productController.js`](controllers/productController.js#L294-L322) | Admin delete + rating recalculation |
 | **Term Test: Completed Transaction** | 10 | [`client/src/pages/Cart.jsx`](client/src/pages/Cart.jsx#L49-L125) | [`controllers/orderController.js`](controllers/orderController.js#L5-L71) | Stock check, `$inc: -qty`, order creation |
 | **Term Test: Admin Order Status** | 5 | [`client/src/pages/AdminTransactions.jsx`](client/src/pages/AdminTransactions.jsx#L84-L133) | [`controllers/orderController.js`](controllers/orderController.js#L84-L133) | Status transition constraints, cancel restock |
 | **Term Test: Customer Email Update** | 5 | *Triggered automatically on status update* | [`utils/emailService.js`](utils/emailService.js#L196-L318) | Nodemailer, Mailtrap, HTML itemized table |
 | **Term Test: PDF Receipt Attachment** | 10 | *Attached on all order and status emails* | [`utils/emailService.js`](utils/emailService.js#L4-L179)<br>[`utils/emailService.js#L218-L228`](utils/emailService.js#L218-L228) | PDFKit in-memory buffer (`Receipt-${order._id}.pdf`) |
-| **Unit 1: Bad-Words Filter** | 10 | *Backend review sanitation* | [`controllers/productController.js`](controllers/productController.js#L227-L252) | `bad-words` + Tagalog profanity dictionary |
+| **Unit 1: Bad-Words Filter** | 10 | *Backend review sanitation* | [`controllers/productController.js`](controllers/productController.js#L232-L257) | `bad-words` + Tagalog profanity dictionary |
 | **Unit 1: Yup / Formik Validation** | 10 | Products: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L68-L76)<br>Login: [`Login.jsx`](client/src/pages/Login.jsx#L113-L122)<br>Register: [`Register.jsx`](client/src/pages/Register.jsx#L130-L170)<br>Profile: [`Profile.jsx`](client/src/pages/Profile.jsx#L100-L150) | Handled on frontend with inline error messages | Yup schema + Formik state management |
 | **Unit 2: Material UI & CSS** | 20 | [`client/src/theme.js`](client/src/theme.js#L1-L80) | N/A | Custom MUI Theme, Lora/Montserrat, `#FAF9F6` |
-| **Quiz 1: Price Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L297-L312) | [`controllers/productController.js`](controllers/productController.js#L25-L29) | `$gte`, `$lte` MongoDB queries |
-| **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L270-L295) | [`controllers/productController.js`](controllers/productController.js#L18-L23) | `$in` categories query |
-| **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L314-L325) | [`controllers/productController.js`](controllers/productController.js#L31-L33) | `$gte` minimum rating filter |
+| **Quiz 1: Price Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L297-L312) | [`controllers/productController.js`](controllers/productController.js#L30-L34) | `$gte`, `$lte` MongoDB queries |
+| **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L270-L295) | [`controllers/productController.js`](controllers/productController.js#L23-L28) | `$in` categories query |
+| **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L314-L325) | [`controllers/productController.js`](controllers/productController.js#L36-L38) | `$gte` minimum rating filter |
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L62-L95)<br>Chart: [`AdminDashboard.jsx#L177-L218`](client/src/pages/AdminDashboard.jsx#L177-L218) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
 | **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L96-L140)<br>Chart: [`AdminDashboard.jsx#L339-L370`](client/src/pages/AdminDashboard.jsx#L339-L370) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, dynamic date range aggregation |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L180)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L430-L480) | [`middleware/auth.js`](middleware/auth.js#L14-L60) | Firebase OAuth popups, Google & Facebook providers |
-| **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L108-L135)<br>Target: [`Catalog.jsx#L606`](client/src/pages/Catalog.jsx#L606) | [`controllers/productController.js`](controllers/productController.js#L35-L50) | Native `IntersectionObserver`, `skip` & `limit` |
+| **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L108-L135)<br>Target: [`Catalog.jsx#L606`](client/src/pages/Catalog.jsx#L606) | [`controllers/productController.js`](controllers/productController.js#L40-L55) | Native `IntersectionObserver`, `skip` & `limit` |
 | **Quiz 4: Redux State Management** | 15 | Store: [`redux/store.js`](client/src/redux/store.js#L1-L11)<br>Slice: [`redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L135)<br>Root: [`main.jsx`](client/src/main.jsx#L14-L26) | N/A (Client State Architecture) | Redux Toolkit (`configureStore`, `createSlice`, `createAsyncThunk`) |
 | **Database Seeder & Cleanup** | + | Terminal: `npm run seed`<br>Cleanup: `npm run unseed` | [`seed-additional.js`](seed-additional.js#L1-L372)<br>[`unseed.js`](unseed.js#L1-L103) | Idempotent insertion, partial deletion detection |
 
@@ -55,8 +55,9 @@
   - **Material UI `<TablePagination>`**: Supports dynamic page changes and rows per page (`5, 10, 25, 50`).
   - **Optimistic State Updates**: Deletions immediately remove records from local React state (`setProducts(prev => prev.filter(...))`), preventing table reloading or screen flashing.
   - **SweetAlert2 Async Feedback**: Uses `showLoaderOnConfirm: true` and `preConfirm` to render an inline loading spinner while awaiting the delete request.
-- **Backend File**: [`controllers/productController.js`](controllers/productController.js#L4-L58)
+- **Backend File**: [`controllers/productController.js`](controllers/productController.js#L8-L63)
   - `getProducts`: Query builder fetching products with search keyword, category/price/rating filters, and pagination (`skip` and `limit`).
+  - **Regex Injection & ReDoS Defense**: User search input (`kw`) is sanitized via `escapeRegex` (`replace(/[.*+?^${}()|[\]\\]/g, '\\$&')`) before compiling into MongoDB `$regex` queries, neutralizing regex metacharacters, syntax crash vectors (e.g., unclosed parentheses), and wildcard manipulation.
 - **Database Model**: [`models/Product.js`](models/Product.js#L1-L64)
 
 #### 2. Upload Multiple Photos
@@ -66,7 +67,7 @@
   - Image thumbnail preview grid with move up, move down, and remove buttons.
 - **Backend Route**: [`routes/productRoutes.js`](routes/productRoutes.js#L26-L39)
   - `upload.array('images', 5)` middleware processing multiple multipart file uploads.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L104-L189)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L109-L194)
   - `createProduct`: Maps uploaded files to an array of URLs: `req.files.map(file => file.path)`.
   - `updateProduct`: Processes newly uploaded files alongside existing image URLs based on the user-selected image order.
 
@@ -75,7 +76,7 @@
   - Configures `cloudinary.v2` using environment variables (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`).
   - Sets up `CloudinaryStorage` with target folder `'saturation_point_new'` and formats `['jpg', 'png', 'jpeg', 'webp']`.
   - Configures Multer storage, enforcing 5MB limit and disallowing GIFs.
-- **Cloudinary Asset Deletion**: [`controllers/productController.js`](controllers/productController.js#L150-L175)
+- **Cloudinary Asset Deletion**: [`controllers/productController.js`](controllers/productController.js#L155-L180)
   - Automatically invokes `cloudinary.uploader.destroy(publicId)` when an admin replaces or removes an image during product update or deletion.
 
 #### 4. Bulk Delete Using Checkboxes
@@ -89,7 +90,7 @@
   - Instant local state removal prevents entire datatable re-fetching.
 - **Backend Route**: [`routes/productRoutes.js`](routes/productRoutes.js#L41)
   - `router.post('/bulk-delete', verifyToken, verifyAdmin, bulkDeleteProducts);`
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L200-L214)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L205-L219)
   - Uses Mongoose prepared delete: `Product.deleteMany({ _id: { $in: ids } })`.
 
 #### 5. Live Hero Search Autocomplete
@@ -100,8 +101,9 @@
   - Clicking any search result navigates directly to [`/product/:id`](client/src/pages/ProductDetails.jsx).
   - Pressing Enter or clicking search submits to [`/catalog?search=...`](client/src/pages/Catalog.jsx), syncing the query parameter into the catalog filter state.
   - Hero image optimization: image preloaded via [`client/index.html:7`](client/index.html#L7) with dark background `#1B263B` to eliminate flashing placeholders.
-- **Backend Route & Controller**: [`routes/productRoutes.js:19`](routes/productRoutes.js#L19) & [`controllers/productController.js:60-80`](controllers/productController.js#L60-L80)
-  - `searchProducts`: Performs case-insensitive regex search across `name`, `brand`, and `category`, returning up to 6 quick results for autocomplete speed.
+- **Backend Route & Controller**: [`routes/productRoutes.js:19`](routes/productRoutes.js#L19) & [`controllers/productController.js:65-85`](controllers/productController.js#L65-L85)
+  - `searchProducts`: Performs case-insensitive regex search across `name`, `brand`, and `category`, returning up to 5 quick results for autocomplete speed.
+  - **Regex Sanitization**: Query parameter `q` is sanitized through `escapeRegex` to prevent ReDoS and wildcard exploitation in real-time search queries.
 
 ---
 
@@ -207,7 +209,7 @@
 - **Frontend File**: [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L106-L154)
   - Pre-populates existing review if the user has already reviewed the product (`isEditingReview` mode).
   - Formik form submitting rating (1-5 stars) and comment to `POST /api/products/:id/reviews`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L216-L287)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L221-L292)
   - `createProductReview`: Updates existing review in-place or pushes a new review.
   - Automatically recalculates product average `rating` and `numReviews`.
 - **Database Model**: [`models/Product.js`](models/Product.js#L35-L60)
@@ -218,7 +220,7 @@
   - Delete button conditionally rendered for administrators: `mongoUser?.role === 'admin'`.
 - **Backend Route**: [`routes/productRoutes.js`](routes/productRoutes.js#L24)
   - `router.delete('/:id/reviews/:reviewId', verifyToken, verifyAdmin, deleteReview);`
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L289-L317)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L294-L322)
   - `deleteReview`: Removes review, recalculates rating, and saves.
 
 ---
@@ -273,7 +275,7 @@
 
 #### 1. Filter / Mask Bad Words from Reviews (`bad-words` Package) (10 Points)
 - **Backend Package**: [`package.json`](package.json#L27) (`"bad-words": "^4.1.5"`)
-- **Backend File**: [`controllers/productController.js`](controllers/productController.js#L227-L252)
+- **Backend File**: [`controllers/productController.js`](controllers/productController.js#L232-L257)
   - `const Filter = require('bad-words');`
   - Instantiates filter, registers custom Filipino/Tagalog profanities via `filter.addWords(...)`, and masks profane words with asterisks (`****`).
 
@@ -313,19 +315,19 @@
 #### 1. Price Filter (5 Points)
 - **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L297-L312)
   - `minPrice` and `maxPrice` state inputs querying `&minPrice=${minPrice}&maxPrice=${maxPrice}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L25-L29)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L30-L34)
   - Builds MongoDB query with `$gte` and `$lte`.
 
 #### 2. Category Filter (5 Points)
 - **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L270-L295)
   - `selectedCategories` array querying `&category=${selectedCategories.join(',')}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L18-L23)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L23-L28)
   - Builds MongoDB query with `$in: categories`.
 
 #### 3. Ratings Filter (5 Points)
 - **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L314-L325)
   - Interactive Material UI `<Rating>` component querying `&minRating=${minRating}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L31-L33)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L36-L38)
   - Builds MongoDB query with `rating: { $gte: Number(minRating) }`.
 
 ---
@@ -427,7 +429,8 @@
 
 | Security / Design Area | Implementation Location | Defense Talking Points |
 | :--- | :--- | :--- |
-| **NoSQL Injection Prevention** | Controllers: [`productController.js`](controllers/productController.js#L4-L214), [`orderController.js`](controllers/orderController.js#L5-L71), [`userController.js`](controllers/userController.js#L19-L64) | All queries use Mongoose prepared methods (`findById`, `findOne`, `create`, `deleteMany`) with strict schema typing, preventing arbitrary operator injection. |
+| **NoSQL Injection Prevention** | Controllers: [`productController.js`](controllers/productController.js#L8-L219), [`orderController.js`](controllers/orderController.js#L5-L71), [`userController.js`](controllers/userController.js#L19-L64) | All queries use Mongoose prepared methods (`findById`, `findOne`, `create`, `deleteMany`) with strict schema typing, preventing arbitrary operator injection. |
+| **Regex Injection & ReDoS Mitigation** | Controller: [`productController.js:4-6, 17, 70`](controllers/productController.js#L4-L6) | Sanitizes search queries using `escapeRegex` to neutralize regex metacharacters (`. * + ? ^ $ { } ( ) [ ] \`), eliminating wildcard manipulation, syntax compilation crashes, and catastrophic backtracking DoS. |
 | **JWT & Token Authentication** | Middleware: [`middleware/auth.js:14-16`](middleware/auth.js#L14-L16) | Uses Firebase Admin SDK `verifyIdToken(token)` to cryptographically verify RS256 JWT tokens on every protected API call. |
 | **Role-Based Access Control (RBAC)** | Middleware: [`middleware/auth.js:116-122`](middleware/auth.js#L116-L122)<br>Frontend: [`client/src/App.jsx:32-39`](client/src/App.jsx#L32-L39) | Protected routes check `mongoUser.role === 'admin'`. Unauthorized requests return HTTP 403 Forbidden on both backend and frontend. |
 | **Privilege Escalation Lock** | Controller: [`userController.js:220-224`](controllers/userController.js#L220-L224)<br>Frontend: [`AdminUsers.jsx:412-434`](client/src/pages/AdminUsers.jsx#L412-L434) | Replaced interactive role dropdowns with read-only badges. Backend enforces strict HTTP 403 blocking modification of customer roles. |
@@ -464,13 +467,13 @@
 
 ### Q4: "Where are the bad words filtered in reviews?"
 > **Answer & File to Show:**  
-> Open [`controllers/productController.js`](controllers/productController.js#L227-L252).  
+> Open [`controllers/productController.js`](controllers/productController.js#L232-L257).  
 > Show how `new Filter()` from the `bad-words` npm package is initialized, customized with Filipino profanities via `filter.addWords(...)`, and executed on the incoming comment with `filter.clean(sanitizedComment)`.
 
 ### Q5: "Where is the bulk delete implemented?"
 > **Answer & File to Show:**  
 > 1. Frontend: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) & [`client/src/pages/AdminProducts.jsx:910-950`](client/src/pages/AdminProducts.jsx#L910-L950). Show the select-all checkbox, individual checkboxes, and the bulk delete handler sending an array of IDs.  
-> 2. Backend: [`controllers/productController.js`](controllers/productController.js#L200-L214). Show `Product.deleteMany({ _id: { $in: ids } })`.
+> 2. Backend: [`controllers/productController.js`](controllers/productController.js#L205-L219). Show `Product.deleteMany({ _id: { $in: ids } })`.
 
 ### Q6: "How does login with username work when Firebase only supports email/password, and how is username enumeration prevented?"
 > **Answer & File to Show:**  
@@ -515,10 +518,10 @@
 > Open [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L740-L780) and [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L134-L175).  
 > Explain that instead of calling `fetchData()` which reloads the table and causes visual flickering, the system performs an in-place state removal: `setProducts((prev) => prev.filter((p) => p._id !== id))`. Furthermore, SweetAlert2's `showLoaderOnConfirm: true` and `preConfirm` hook are configured so that the modal itself presents an animated spinner while awaiting the backend API response, eliminating any perceived lag.
 
-### Q13: "How does the hero search bar work with live autocomplete?"
+### Q13: "How does the hero search bar work with live autocomplete, and how is regex injection prevented?"
 > **Answer & File to Show:**  
-> Open [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) and [`controllers/productController.js`](controllers/productController.js#L60-L80).  
-> Explain that the hero input uses a 250ms debounced `useEffect` that calls `GET /api/products/search?q=...` when 2 or more characters are entered. The backend performs a multi-field regex match across `name`, `brand`, and `category`, returning top results with prices and thumbnails. Clicking a result navigates immediately to [`/product/:id`](client/src/pages/ProductDetails.jsx), while submitting navigates to [`/catalog?search=...`](client/src/pages/Catalog.jsx).
+> Open [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) and [`controllers/productController.js`](controllers/productController.js#L65-L85).  
+> Explain that the hero input uses a 250ms debounced `useEffect` that calls `GET /api/products/search?q=...` when 2 or more characters are entered. Show lines 4–6 in [`controllers/productController.js`](controllers/productController.js#L4-L6) for the `escapeRegex` helper (`string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')`), which sanitizes user input so that metacharacters (e.g. `.` or `*` or `(`) cannot manipulate regex logic, crash the database with syntax errors, or trigger ReDoS attacks. Clicking a result navigates immediately to [`/product/:id`](client/src/pages/ProductDetails.jsx), while submitting navigates to [`/catalog?search=...`](client/src/pages/Catalog.jsx).
 
 ### Q14: "How do you run the database seeder and undo/unseed seeded data?"
 > **Answer & File to Show:**  
