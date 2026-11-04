@@ -17,7 +17,7 @@ import {
   ListItemText,
   Tooltip,
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -33,6 +33,7 @@ const Catalog = () => {
   const { addToCart } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
 
   const [keyword, setKeyword] = useState('');
@@ -138,6 +139,17 @@ const Catalog = () => {
     const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
     return () => clearTimeout(timer);
   }, [keyword]);
+
+  useEffect(() => {
+    const urlQuery =
+      searchParams.get('keyword') ||
+      searchParams.get('search') ||
+      searchParams.get('q');
+    if (urlQuery && urlQuery !== keyword) {
+      setKeyword(urlQuery);
+      setDebouncedKeyword(urlQuery);
+    }
+  }, [searchParams]);
 
   const handleFilterClick = (event) => {
     setAnchorEl(event.currentTarget);

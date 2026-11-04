@@ -29,6 +29,10 @@ const Home = () => {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchContainerRef = React.useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,10 +49,52 @@ const Home = () => {
     fetchFeatured();
   }, []);
 
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      setDropdownOpen(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/products/search?q=${encodeURIComponent(q)}`,
+        );
+        setSearchResults(res.data);
+        setDropdownOpen(true);
+      } catch (err) {
+        console.error('Live search error:', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    setDropdownOpen(false);
     if (searchQuery.trim()) {
-      navigate(`/catalog?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/catalog');
     }
   };
 
@@ -120,6 +166,7 @@ const Home = () => {
           </Typography>
 
           <Box
+            ref={searchContainerRef}
             component="form"
             onSubmit={handleSearchSubmit}
             sx={{
@@ -127,6 +174,7 @@ const Home = () => {
               mx: 'auto',
               mb: 5,
               position: 'relative',
+              textAlign: 'left',
             }}
           >
             <SearchIcon
@@ -144,6 +192,11 @@ const Home = () => {
               placeholder="Search the collection..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim().length >= 2 && searchResults.length > 0) {
+                  setDropdownOpen(true);
+                }
+              }}
               style={{
                 width: '100%',
                 padding: '18px 24px 18px 52px',
@@ -156,8 +209,162 @@ const Home = () => {
                 color: '#1B263B',
                 outline: 'none',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                boxSizing: 'border-box',
               }}
             />
+            {isSearching && (
+              <CircularProgress
+                size={20}
+                sx={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '50%',
+                  marginTop: '-10px',
+                  color: '#CA8A04',
+                  zIndex: 3,
+                }}
+              />
+            )}
+            {dropdownOpen && (
+              <Paper
+                elevation={6}
+                sx={{
+                  position: 'absolute',
+                  top: 'calc(100% + 8px)',
+                  left: 0,
+                  right: 0,
+                  bgcolor: '#FFFFFF',
+                  borderRadius: '10px',
+                  boxShadow: '0 12px 36px rgba(0,0,0,0.2)',
+                  border: '1px solid #E7E5E4',
+                  overflow: 'hidden',
+                  zIndex: 1000,
+                  maxHeight: '380px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <Box sx={{ overflowY: 'auto', p: 1 }}>
+                  {searchResults.length > 0 ? (
+                    searchResults.map((product) => (
+                      <Box
+                        key={product._id}
+                        component={Link}
+                        to={`/product/${product._id}`}
+                        onClick={() => setDropdownOpen(false)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                          p: 1.5,
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          transition: 'background-color 0.15s ease',
+                          '&:hover': {
+                            bgcolor: '#F5F5F4',
+                          },
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={
+                            product.images && product.images[0]
+                              ? product.images[0]
+                              : '/placeholder.png'
+                          }
+                          alt={product.name}
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            objectFit: 'contain',
+                            borderRadius: '6px',
+                            bgcolor: '#FAFAF9',
+                            border: '1px solid #E7E5E4',
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                          <Typography
+                            noWrap
+                            sx={{
+                              fontFamily: '"Montserrat", sans-serif',
+                              fontWeight: 600,
+                              fontSize: '0.9rem',
+                              color: '#1C1917',
+                            }}
+                          >
+                            {product.name}
+                          </Typography>
+                          <Typography
+                            noWrap
+                            sx={{
+                              fontFamily: '"Montserrat", sans-serif',
+                              fontSize: '0.75rem',
+                              color: '#78716C',
+                            }}
+                          >
+                            {[product.brand, product.category]
+                              .filter(Boolean)
+                              .join(' • ')}
+                          </Typography>
+                        </Box>
+                        <Typography
+                          sx={{
+                            fontFamily: '"Montserrat", sans-serif',
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            color: '#B45309',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          ₱{product.price ? product.price.toLocaleString() : '0'}
+                        </Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <Box sx={{ py: 3, textAlign: 'center' }}>
+                      <Typography
+                        sx={{
+                          fontFamily: '"Montserrat", sans-serif',
+                          fontSize: '0.85rem',
+                          color: '#78716C',
+                        }}
+                      >
+                        No masterpieces found.
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+                {searchResults.length > 0 && (
+                  <Box
+                    onClick={handleSearchSubmit}
+                    sx={{
+                      p: 1.5,
+                      bgcolor: '#FAFAF9',
+                      borderTop: '1px solid #E7E5E4',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'background-color 0.15s ease',
+                      '&:hover': {
+                        bgcolor: '#F5F5F4',
+                      },
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: '"Montserrat", sans-serif',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        color: '#CA8A04',
+                      }}
+                    >
+                      View all results for "{searchQuery}" →
+                    </Typography>
+                  </Box>
+                )}
+              </Paper>
+            )}
           </Box>
 
           <Button

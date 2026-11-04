@@ -8,10 +8,12 @@ exports.getProducts = async (req, res) => {
 
     let query = {};
 
-    if (keyword) {
+    const kw = keyword || req.query.search || req.query.q;
+    if (kw) {
       query.$or = [
-        { name: { $regex: keyword, $options: 'i' } },
-        { description: { $regex: keyword, $options: 'i' } },
+        { name: { $regex: kw.trim(), $options: 'i' } },
+        { description: { $regex: kw.trim(), $options: 'i' } },
+        { brand: { $regex: kw.trim(), $options: 'i' } },
       ];
     }
 
@@ -50,6 +52,28 @@ exports.getProducts = async (req, res) => {
       pages: isAll ? 1 : Math.ceil(total / pageSize),
       total,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || !q.trim()) return res.json([]);
+
+    const trimmed = q.trim();
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: trimmed, $options: 'i' } },
+        { brand: { $regex: trimmed, $options: 'i' } },
+        { category: { $regex: trimmed, $options: 'i' } },
+      ],
+    })
+      .limit(5)
+      .sort({ createdAt: -1 });
+
+    res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
