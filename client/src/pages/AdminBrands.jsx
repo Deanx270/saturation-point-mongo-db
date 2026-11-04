@@ -179,8 +179,8 @@ const AdminBrands = () => {
           await axios.delete(`${API_BASE_URL}/api/brands/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          setBrands((prev) => prev.filter((b) => b._id !== id));
           Swal.fire('Deleted!', 'Brand has been deleted.', 'success');
-          fetchBrands();
         } catch (error) {
           console.error('Error deleting brand', error);
           Swal.fire('Error!', 'Failed to delete brand.', 'error');
