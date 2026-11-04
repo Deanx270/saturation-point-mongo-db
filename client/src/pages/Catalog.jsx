@@ -16,6 +16,7 @@ import {
   Checkbox,
   ListItemText,
   Tooltip,
+  FormControlLabel,
 } from '@mui/material';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -41,6 +42,7 @@ const Catalog = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minRating, setMinRating] = useState(0);
+  const [minReviews, setMinReviews] = useState('');
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -64,6 +66,8 @@ const Catalog = () => {
         if (minPrice) url += `&minPrice=${minPrice}`;
         if (maxPrice) url += `&maxPrice=${maxPrice}`;
         if (minRating > 0) url += `&minRating=${minRating}`;
+        if (minReviews && Number(minReviews) > 0)
+          url += `&minReviews=${minReviews}`;
 
         const res = await axios.get(url);
 
@@ -96,7 +100,14 @@ const Catalog = () => {
         setIsFetchingMore(false);
       }
     },
-    [debouncedKeyword, selectedCategories, minPrice, maxPrice, minRating],
+    [
+      debouncedKeyword,
+      selectedCategories,
+      minPrice,
+      maxPrice,
+      minRating,
+      minReviews,
+    ],
   );
 
   useEffect(() => {
@@ -148,6 +159,10 @@ const Catalog = () => {
     if (urlQuery && urlQuery !== keyword) {
       setKeyword(urlQuery);
       setDebouncedKeyword(urlQuery);
+    }
+    const urlReviews = searchParams.get('minReviews');
+    if (urlReviews && urlReviews !== minReviews) {
+      setMinReviews(urlReviews);
     }
   }, [searchParams]);
 
@@ -311,6 +326,38 @@ const Catalog = () => {
           </Box>
 
           <Box>
+            <TextField
+              fullWidth
+              size="small"
+              label="Min Reviews"
+              type="number"
+              inputProps={{ min: 0 }}
+              value={minReviews}
+              onChange={(e) => setMinReviews(e.target.value)}
+              placeholder="e.g. 1 for items with reviews"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={minReviews === '1'}
+                  onChange={(e) => setMinReviews(e.target.checked ? '1' : '')}
+                  size="small"
+                  sx={{
+                    color: '#78716C',
+                    '&.Mui-checked': { color: '#CA8A04' },
+                  }}
+                />
+              }
+              label={
+                <Typography variant="caption" sx={{ color: '#57534E' }}>
+                  Has customer reviews only (1+)
+                </Typography>
+              }
+              sx={{ mt: 0.5 }}
+            />
+          </Box>
+
+          <Box>
             <Typography variant="body2" sx={{ color: '#78716C', mb: 1 }}>
               Minimum Rating
             </Typography>
@@ -329,6 +376,7 @@ const Catalog = () => {
               setMinPrice('');
               setMaxPrice('');
               setMinRating(0);
+              setMinReviews('');
             }}
             sx={{
               bgcolor: '#1C1917',
