@@ -157,6 +157,45 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+const updateUserStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['active', 'disabled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (user.role === 'admin') {
+      return res.status(400).json({ message: 'Admin accounts cannot be disabled.' });
+    }
+    user.status = status;
+    await user.save();
+
+    if (user.firebaseUid) {
+      try {
+        if (status === 'disabled') {
+          await auth.updateUser(user.firebaseUid, { disabled: true });
+          await auth.revokeRefreshTokens(user.firebaseUid);
+        } else {
+          await auth.updateUser(user.firebaseUid, { disabled: false });
+        }
+      } catch (fbErr) {
+        console.error('Firebase status update error:', fbErr);
+      }
+    }
+
+    res.status(200).json({
+      message: `User account has been ${status === 'disabled' ? 'disabled' : 'enabled'}.`,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error updating user status',
+      error: error.message,
+    });
+  }
+};
+
 const { auth } = require('../utils/firebaseAdmin');
 const { cloudinary } = require('../utils/cloudinary');
 const deleteUser = async (req, res) => {
@@ -196,6 +235,7 @@ module.exports = {
   updateUserProfile,
   getAllUsers,
   updateUserRole,
+  updateUserStatus,
   deleteUser,
   checkUsername,
   getEmailByUsername,

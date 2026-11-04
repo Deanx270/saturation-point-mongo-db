@@ -59,6 +59,9 @@ const Login = () => {
     if (msg.includes('auth/operation-not-allowed')) {
       return 'Facebook login is not enabled in Firebase Console. Please verify under Authentication > Sign-in method.';
     }
+    if (msg.includes('auth/user-disabled')) {
+      return 'Your account has been disabled by an administrator. Please contact support.';
+    }
     return raw.replace('Firebase: ', '');
   };
 
@@ -99,6 +102,12 @@ const Login = () => {
         }
 
         const profile = await fetchMongoProfile(cred.user);
+        if (!profile || profile.status === 'disabled') {
+          await logout();
+          throw new Error(
+            'Your account has been disabled by an administrator. Please contact support.',
+          );
+        }
         if (profile && !profile.username) {
           navigate('/complete-profile', { replace: true });
         } else if (profile?.role === 'admin') {
@@ -140,6 +149,12 @@ const Login = () => {
         cred.user,
         cred.user?._socialEmail,
       );
+      if (!profile || profile.status === 'disabled') {
+        await logout();
+        throw new Error(
+          'Your account has been disabled by an administrator. Please contact support.',
+        );
+      }
       if (profile && !profile.username) {
         navigate('/complete-profile', { replace: true });
       } else if (profile?.role === 'admin') {

@@ -128,6 +128,19 @@
 - **Backend Token Verification Middleware**: [`middleware/auth.js`](middleware/auth.js#L4-L78)
   - Verifies bearer token using `auth.verifyIdToken(token)` and binds MongoDB user to `req.mongoUser`.
 
+#### 5. User Account Enable / Disable Action
+- **Frontend File**: [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L134-L186)
+  - Interactive **Enable / Disable** button with SweetAlert2 confirmation dialog.
+  - Protected: Not applicable to admin accounts (`user.role !== 'admin'`).
+  - Real-time `Status` column with visual status chip: `Active` (green) or `Disabled` (rose).
+  - Searchable by status in the table search bar.
+- **Backend Route & Controller**: [`routes/userRoutes.js`](routes/userRoutes.js#L26) & [`controllers/userController.js`](controllers/userController.js#L160-L200)
+  - `PUT /api/users/:id/status`: Updates `user.status` to `active` or `disabled`.
+  - Firebase synchronization: Calls `auth.updateUser(uid, { disabled: true })` and `auth.revokeRefreshTokens(uid)` to immediately invalidate refresh tokens and prevent logins.
+- **Middleware & Session Expiry**: [`middleware/auth.js`](middleware/auth.js#L92-L98) & [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L77-L95)
+  - `verifyToken` middleware instantly rejects disabled users with `403` and `isAccountDisabled: true`.
+  - Frontend auto-signs out disabled users immediately, expiring their session.
+
 ---
 
 ### MP3: Review & Ratings (20 Points Total)
@@ -408,3 +421,14 @@
 > Explain that the application uses a multi-layered defense strategy:  
 > 1. At the infrastructure level (Layers 3 & 4), Render and Firebase sit behind edge networks that mitigate volumetric floods.  
 > 2. At the application level (Layer 7), [`server.js:13-28`](server.js#L13-L28) enforces `express-rate-limit` with `trust proxy` set to `1` (for reverse proxy environments), capping requests at 500 per 15 minutes per IP address and returning HTTP 429 Too Many Requests if exceeded.
+
+### Q9: "How does the admin enable or disable normal users, and how does session expiry work?"
+> **Answer & File to Show:**  
+> 1. Frontend: [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx). Show the `Status` column with `Active`/`Disabled` chips and the **Enable/Disable** button (restricted from operating on admins).  
+> 2. Backend Route: `PUT /api/users/:id/status` in [`routes/userRoutes.js`](routes/userRoutes.js) and [`controllers/userController.js`](controllers/userController.js). Show how disabling a user sets `status: 'disabled'` in MongoDB, calls Firebase Admin `auth.updateUser(uid, { disabled: true })`, and calls `auth.revokeRefreshTokens(uid)` to invalidate all active tokens.  
+> 3. Middleware & Expiry: In [`middleware/auth.js`](middleware/auth.js), `verifyToken` rejects disabled users with HTTP 403 `isAccountDisabled: true`. In [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx) and [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx), detecting disabled status immediately triggers `signOut(auth)` to purge the session and blocks any new login attempt.
+
+### Q10: "How do you run the database seeder to add more products and data?"
+> **Answer & File to Show:**  
+> 1. Show [`START_GUIDE.txt`](START_GUIDE.txt) and [`package.json`](package.json): Command is `npm run seed` (or `node seed-additional.js`).  
+> 2. Show [`seed-additional.js`](seed-additional.js): Explain that it is an idempotent MongoDB seeder that adds 12 brand-new products (across existing categories: Fountain Pens, Inks, Paper), 3 new brands (Platinum, Ferris Wheel Press, Clairefontaine), 3 new users, and 6 sample transactions. Point out how it checks for existing records before inserting to ensure no duplicate data is created, and leaves existing categories untouched.

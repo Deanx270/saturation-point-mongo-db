@@ -14,15 +14,17 @@ import {
   Select,
   MenuItem,
   CircularProgress,
-  Tooltip,
   TextField,
   InputAdornment,
   TablePagination,
   TableSortLabel,
+  Chip,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
+import BlockIcon from '@mui/icons-material/Block';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
@@ -55,7 +57,8 @@ const AdminUsers = () => {
         u.displayName?.toLowerCase().includes(term) ||
         u.username?.toLowerCase().includes(term) ||
         u.email?.toLowerCase().includes(term) ||
-        u.role?.toLowerCase().includes(term),
+        u.role?.toLowerCase().includes(term) ||
+        (u.status || 'active').toLowerCase().includes(term),
     );
   }, [users, searchTerm]);
 
@@ -125,6 +128,59 @@ const AdminUsers = () => {
       Swal.fire('Error', 'Failed to update user role', 'error');
       setUpdatingRoles((prev) => ({ ...prev, [userId]: null }));
     }
+  };
+
+  const handleToggleStatus = async (user) => {
+    if (user.role === 'admin') {
+      Swal.fire('Prohibited', 'Admin accounts cannot be disabled.', 'warning');
+      return;
+    }
+
+    const isDisabling = user.status !== 'disabled';
+    const actionText = isDisabling ? 'disable' : 'enable';
+    const newStatus = isDisabling ? 'disabled' : 'active';
+
+    Swal.fire({
+      title: `${isDisabling ? 'Disable' : 'Enable'} User Account?`,
+      text: isDisabling
+        ? 'This user will immediately be logged out and prevented from accessing the store.'
+        : 'This user will be permitted to log in and use the store again.',
+      icon: isDisabling ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonColor: isDisabling ? '#d97706' : '#16a34a',
+      cancelButtonColor: '#78716C',
+      confirmButtonText: `Yes, ${actionText} user!`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const token = await currentUser.getIdToken();
+          await axios.put(
+            `${API_BASE_URL}/api/users/${user._id}/status`,
+            { status: newStatus },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+          setUsers((prev) =>
+            prev.map((u) =>
+              u._id === user._id ? { ...u, status: newStatus } : u,
+            ),
+          );
+          Swal.fire(
+            'Success',
+            `User account has been ${isDisabling ? 'disabled' : 'enabled'}.`,
+            'success',
+          );
+        } catch (error) {
+          console.error('Error updating user status', error);
+          Swal.fire(
+            'Error',
+            error.response?.data?.message || 'Failed to update user status.',
+            'error',
+          );
+        }
+      }
+    });
   };
 
   const handleDelete = async (id) => {
@@ -229,7 +285,7 @@ const AdminUsers = () => {
               }}
             >
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '18%' }} sortDirection={orderBy === '_id' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '16%' }} sortDirection={orderBy === '_id' ? order : false}>
                   <TableSortLabel
                     active={orderBy === '_id'}
                     direction={orderBy === '_id' ? order : 'asc'}
@@ -238,7 +294,7 @@ const AdminUsers = () => {
                     ID
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '20%' }} sortDirection={orderBy === 'displayName' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '18%' }} sortDirection={orderBy === 'displayName' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'displayName'}
                     direction={orderBy === 'displayName' ? order : 'asc'}
@@ -247,7 +303,7 @@ const AdminUsers = () => {
                     Display Name
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '16%' }} sortDirection={orderBy === 'username' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '14%' }} sortDirection={orderBy === 'username' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'username'}
                     direction={orderBy === 'username' ? order : 'asc'}
@@ -256,7 +312,7 @@ const AdminUsers = () => {
                     Username
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '22%' }} sortDirection={orderBy === 'email' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '18%' }} sortDirection={orderBy === 'email' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'email'}
                     direction={orderBy === 'email' ? order : 'asc'}
@@ -265,13 +321,22 @@ const AdminUsers = () => {
                     Email
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '12%' }} sortDirection={orderBy === 'role' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '11%' }} sortDirection={orderBy === 'role' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'role'}
                     direction={orderBy === 'role' ? order : 'asc'}
                     onClick={() => handleRequestSort('role')}
                   >
                     Role
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, width: '11%' }} sortDirection={orderBy === 'status' ? order : false}>
+                  <TableSortLabel
+                    active={orderBy === 'status'}
+                    direction={orderBy === 'status' ? order : 'asc'}
+                    onClick={() => handleRequestSort('status')}
+                  >
+                    Status
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, width: '12%' }}>
@@ -282,14 +347,14 @@ const AdminUsers = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 5 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 5 }}>
                     <CircularProgress sx={{ color: '#CA8A04' }} />
                   </TableCell>
                 </TableRow>
               ) : sortedUsers.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     align="center"
                     sx={{ py: 5, color: '#78716C' }}
                   >
@@ -410,32 +475,90 @@ const AdminUsers = () => {
                           )}
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        <Button
+                      <TableCell>
+                        <Chip
+                          label={user.status === 'disabled' ? 'Disabled' : 'Active'}
                           size="small"
-                          disabled={currentUser.email === user.email}
-                          onClick={() => handleDelete(user._id)}
-                          startIcon={
-                            <DeleteIcon
-                              sx={{
-                                width: 16,
-                                height: 16,
-                              }}
-                            />
-                          }
                           sx={{
-                            color: '#991b1b',
-                            textTransform: 'none',
-                            p: 0,
-                            minWidth: 'auto',
-                            '&:hover': {
-                              bgcolor: 'transparent',
-                              color: '#7f1d1d',
-                            },
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            bgcolor:
+                              user.status === 'disabled'
+                                ? 'rgba(225, 29, 72, 0.1)'
+                                : 'rgba(22, 163, 74, 0.1)',
+                            color:
+                              user.status === 'disabled'
+                                ? '#e11d48'
+                                : '#16a34a',
+                            border: `1px solid ${
+                              user.status === 'disabled'
+                                ? 'rgba(225, 29, 72, 0.25)'
+                                : 'rgba(22, 163, 74, 0.25)'
+                            }`,
                           }}
-                        >
-                          Delete
-                        </Button>
+                        />
+                      </TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          {user.role !== 'admin' && (
+                            <Button
+                              size="small"
+                              onClick={() => handleToggleStatus(user)}
+                              startIcon={
+                                user.status === 'disabled' ? (
+                                  <LockOpenIcon sx={{ width: 16, height: 16 }} />
+                                ) : (
+                                  <BlockIcon sx={{ width: 16, height: 16 }} />
+                                )
+                              }
+                              sx={{
+                                color:
+                                  user.status === 'disabled'
+                                    ? '#16a34a'
+                                    : '#d97706',
+                                textTransform: 'none',
+                                p: 0,
+                                minWidth: 'auto',
+                                '&:hover': {
+                                  bgcolor: 'transparent',
+                                  color:
+                                    user.status === 'disabled'
+                                      ? '#15803d'
+                                      : '#b45309',
+                                },
+                              }}
+                            >
+                              {user.status === 'disabled' ? 'Enable' : 'Disable'}
+                            </Button>
+                          )}
+                          <Button
+                            size="small"
+                            disabled={currentUser.email === user.email}
+                            onClick={() => handleDelete(user._id)}
+                            startIcon={
+                              <DeleteIcon
+                                sx={{
+                                  width: 16,
+                                  height: 16,
+                                }}
+                              />
+                            }
+                            sx={{
+                              color: '#991b1b',
+                              textTransform: 'none',
+                              p: 0,
+                              minWidth: 'auto',
+                              '&:hover': {
+                                bgcolor: 'transparent',
+                                color: '#7f1d1d',
+                              },
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))

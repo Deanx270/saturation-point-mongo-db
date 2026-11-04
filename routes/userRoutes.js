@@ -5,6 +5,7 @@ const {
   updateUserProfile,
   getAllUsers,
   updateUserRole,
+  updateUserStatus,
   deleteUser,
   checkUsername,
   getEmailByUsername,
@@ -22,6 +23,7 @@ router.put('/profile', verifyToken, upload.single('photo'), updateUserProfile);
 
 router.get('/', verifyToken, verifyAdmin, getAllUsers);
 router.put('/:id/role', verifyToken, verifyAdmin, updateUserRole);
+router.put('/:id/status', verifyToken, verifyAdmin, updateUserStatus);
 router.delete('/:id', verifyToken, verifyAdmin, deleteUser);
 
 module.exports = router;

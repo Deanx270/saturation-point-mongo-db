@@ -73,9 +73,23 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.get(`${API_BASE_URL}/api/users/profile`, {
         headers,
       });
+      if (res.data?.status === 'disabled') {
+        await signOut(auth);
+        setCurrentUser(null);
+        setMongoUser(null);
+        return null;
+      }
       setMongoUser(res.data);
       return res.data;
     } catch (error) {
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.isAccountDisabled
+      ) {
+        await signOut(auth);
+        setCurrentUser(null);
+        setMongoUser(null);
+      }
       console.error('Error fetching MongoDB profile', error);
       return null;
     }
@@ -172,8 +186,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        await fetchMongoProfile(user);
-        setCurrentUser(user);
+        const profile = await fetchMongoProfile(user);
+        if (profile?.status === 'disabled') {
+          await signOut(auth);
+          setCurrentUser(null);
+          setMongoUser(null);
+        } else {
+          setCurrentUser(user);
+        }
       } else {
         setCurrentUser(null);
         setMongoUser(null);
