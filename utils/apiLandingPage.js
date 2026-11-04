@@ -1,7 +1,7 @@
 const renderLandingPage = () => {
   const currentYear = new Date().getFullYear();
   const currentTimestamp = new Date().toUTCString();
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const clientUrl = process.env.CLIENT_URL || 'https://saturation-point-web.onrender.com';
 
   return `<!doctype html>
 <html lang="en">
@@ -9,7 +9,7 @@ const renderLandingPage = () => {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Saturation Point &bull; API Gateway</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231C1917'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='42' fill='%23CA8A04' font-weight='600'%3ESP%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='gold' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FDE047'/%3E%3Cstop offset='50%25' stop-color='%23EAB308'/%3E%3Cstop offset='100%25' stop-color='%23CA8A04'/%3E%3C/linearGradient%3E%3ClinearGradient id='darkBg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23292524'/%3E%3Cstop offset='100%25' stop-color='%231C1917'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23darkBg)'/%3E%3Cpath d='M32 9 L46 29 C46 36 43 45 40 53 L24 53 C21 45 18 36 18 29 Z' fill='url(%23gold)'/%3E%3Cline x1='32' y1='9' x2='32' y2='30' stroke='%231C1917' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='31' r='2.75' fill='%231C1917'/%3E%3Cpath d='M26 40 C28 37 30 36 32 36 C34 36 36 37 38 40' fill='none' stroke='%231C1917' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -44,24 +44,17 @@ const renderLandingPage = () => {
         padding: 32px 20px;
       }
     }
-    .monogram-badge {
-      width: 54px;
-      height: 54px;
-      margin: 0 auto 20px;
-      background-color: #1C1917;
-      border: 1px solid #CA8A04;
+    .brand-logo-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(28, 25, 23, 0.12);
+      margin: 0 auto 20px;
     }
-    .monogram-text {
-      font-family: 'Cormorant Garamond', 'Lora', serif;
-      font-size: 24px;
-      font-weight: 600;
-      color: #CA8A04;
-      letter-spacing: 0.05em;
-      line-height: 1;
+    .brand-logo-svg {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(28, 25, 23, 0.15);
     }
     .brand-name {
       font-family: 'Cormorant Garamond', 'Lora', serif;
@@ -275,8 +268,25 @@ const renderLandingPage = () => {
 </head>
 <body>
   <div class="shell">
-    <div class="monogram-badge">
-      <span class="monogram-text">SP</span>
+    <div class="brand-logo-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="60" height="60" class="brand-logo-svg">
+        <defs>
+          <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FDE047" />
+            <stop offset="50%" stop-color="#EAB308" />
+            <stop offset="100%" stop-color="#CA8A04" />
+          </linearGradient>
+          <linearGradient id="darkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#292524" />
+            <stop offset="100%" stop-color="#1C1917" />
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="14" fill="url(#darkBg)" />
+        <path d="M32 9 L46 29 C46 36 43 45 40 53 L24 53 C21 45 18 36 18 29 Z" fill="url(#gold)" />
+        <line x1="32" y1="9" x2="32" y2="30" stroke="#1C1917" stroke-width="2" stroke-linecap="round" />
+        <circle cx="32" cy="31" r="2.75" fill="#1C1917" />
+        <path d="M26 40 C28 37 30 36 32 36 C34 36 36 37 38 40" fill="none" stroke="#1C1917" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
     </div>
     <h1 class="brand-name">The Saturation Point</h1>
     <div class="brand-subtitle">Haute Horlogerie &bull; REST API Gateway</div>
