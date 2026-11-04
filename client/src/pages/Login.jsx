@@ -90,7 +90,7 @@ const Login = () => {
       msg.includes('auth/wrong-password') ||
       msg.includes('auth/user-not-found')
     ) {
-      return 'Invalid email or password. Please try again.';
+      return 'Invalid email, username, or password. Please try again.';
     }
     if (msg.includes('auth/email-already-in-use')) {
       return 'This email is already registered. Please sign in instead.';
@@ -133,7 +133,8 @@ const Login = () => {
             );
             loginEmail = res.data.email;
           } catch (err) {
-            throw new Error('Firebase: User not found with that username.');
+            await new Promise((resolve) => setTimeout(resolve, 350));
+            throw new Error('Firebase: auth/invalid-credential');
           }
         }
 
