@@ -732,7 +732,7 @@ const AdminProducts = () => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      fetchProducts();
+      setProducts((prev) => prev.filter((p) => !selectedIds.includes(p._id)));
       setSelectedIds([]);
       Swal.fire('Deleted!', 'Products have been deleted.', 'success');
     } catch (error) {
@@ -766,7 +766,8 @@ const AdminProducts = () => {
       await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchProducts();
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
       Swal.fire('Deleted!', 'Product has been deleted.', 'success');
     } catch (error) {
       console.error('Error deleting product', error);

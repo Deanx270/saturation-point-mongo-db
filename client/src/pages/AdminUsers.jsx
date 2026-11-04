@@ -199,8 +199,8 @@ const AdminUsers = () => {
           await axios.delete(`${API_BASE_URL}/api/users/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          Swal.fire('Deleted!', 'User has been deleted.', 'success');
           setUsers((prevUsers) => prevUsers.filter((u) => u._id !== id));
+          Swal.fire('Deleted!', 'User has been deleted.', 'success');
         } catch (error) {
           console.error('Error deleting user', error);
           Swal.fire('Error!', 'Failed to delete user.', 'error');
@@ -285,7 +285,7 @@ const AdminUsers = () => {
               }}
             >
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, width: '16%' }} sortDirection={orderBy === '_id' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '9%' }} sortDirection={orderBy === '_id' ? order : false}>
                   <TableSortLabel
                     active={orderBy === '_id'}
                     direction={orderBy === '_id' ? order : 'asc'}
@@ -303,7 +303,7 @@ const AdminUsers = () => {
                     Display Name
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '14%' }} sortDirection={orderBy === 'username' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '13%' }} sortDirection={orderBy === 'username' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'username'}
                     direction={orderBy === 'username' ? order : 'asc'}
@@ -312,7 +312,7 @@ const AdminUsers = () => {
                     Username
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '18%' }} sortDirection={orderBy === 'email' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '20%' }} sortDirection={orderBy === 'email' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'email'}
                     direction={orderBy === 'email' ? order : 'asc'}
@@ -330,7 +330,7 @@ const AdminUsers = () => {
                     Role
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '11%' }} sortDirection={orderBy === 'status' ? order : false}>
+                <TableCell sx={{ fontWeight: 600, width: '10%' }} sortDirection={orderBy === 'status' ? order : false}>
                   <TableSortLabel
                     active={orderBy === 'status'}
                     direction={orderBy === 'status' ? order : 'asc'}
@@ -339,7 +339,7 @@ const AdminUsers = () => {
                     Status
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, width: '12%' }}>
+                <TableCell sx={{ fontWeight: 600, width: '19%', minWidth: 170 }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -500,8 +500,8 @@ const AdminUsers = () => {
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap', width: '19%', minWidth: 170 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                           {user.role !== 'admin' && (
                             <Button
                               size="small"

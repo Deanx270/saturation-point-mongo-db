@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "seed": "node seed-additional.js",
-    "seed:additional": "node seed-additional.js"
+    "seed:additional": "node seed-additional.js",
+    "unseed": "node unseed.js",
+    "seed:undo": "node unseed.js"
   },
   "repository": {
     "type": "git",

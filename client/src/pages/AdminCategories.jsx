@@ -179,8 +179,8 @@ const AdminCategories = () => {
           await axios.delete(`${API_BASE_URL}/api/categories/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          setCategories((prev) => prev.filter((c) => c._id !== id));
           Swal.fire('Deleted!', 'Category has been deleted.', 'success');
-          fetchCategories();
         } catch (error) {
           console.error('Error deleting category', error);
           Swal.fire('Error!', 'Failed to delete category.', 'error');
