@@ -89,6 +89,13 @@ const verifyToken = async (req, res, next) => {
 
     req.mongoUser = user;
 
+    if (user.status === 'disabled') {
+      return res.status(403).json({
+        message: 'Your account has been disabled by an administrator.',
+        isAccountDisabled: true,
+      });
+    }
+
     const exemptUrls = ['/api/users/profile', '/api/users/check-username'];
     const isExempt = exemptUrls.some((url) => req.originalUrl.startsWith(url));
 
