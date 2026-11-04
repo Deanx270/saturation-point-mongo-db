@@ -30,9 +30,10 @@
 | **Unit 1: Bad-Words Filter** | 10 | *Backend review sanitation* | [`controllers/productController.js`](controllers/productController.js#L232-L257) | `bad-words` + Tagalog profanity dictionary |
 | **Unit 1: Yup / Formik Validation** | 10 | Products: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L68-L76)<br>Login: [`Login.jsx`](client/src/pages/Login.jsx#L113-L122)<br>Register: [`Register.jsx`](client/src/pages/Register.jsx#L130-L170)<br>Profile: [`Profile.jsx`](client/src/pages/Profile.jsx#L100-L150) | Handled on frontend with inline error messages | Yup schema + Formik state management |
 | **Unit 2: Material UI & CSS** | 20 | [`client/src/theme.js`](client/src/theme.js#L1-L80) | N/A | Custom MUI Theme, Lora/Montserrat, `#FAF9F6` |
-| **Quiz 1: Price Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L297-L312) | [`controllers/productController.js`](controllers/productController.js#L30-L34) | `$gte`, `$lte` MongoDB queries |
-| **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L270-L295) | [`controllers/productController.js`](controllers/productController.js#L23-L28) | `$in` categories query |
-| **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L314-L325) | [`controllers/productController.js`](controllers/productController.js#L36-L38) | `$gte` minimum rating filter |
+| **Quiz 1: Price Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L310-L327) | [`controllers/productController.js`](controllers/productController.js#L41-L45) | `$gte`, `$lte` MongoDB queries |
+| **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L293-L308) | [`controllers/productController.js`](controllers/productController.js#L34-L39) | `$in` categories query |
+| **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L359-L370) | [`controllers/productController.js`](controllers/productController.js#L47-L49) | `$gte` minimum rating filter |
+| **Quiz 1: Reviews Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L329-L357) | [`controllers/productController.js`](controllers/productController.js#L51-L53) | `$gte` minimum review count filter, quick 1+ toggle |
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L62-L95)<br>Chart: [`AdminDashboard.jsx#L177-L218`](client/src/pages/AdminDashboard.jsx#L177-L218) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
 | **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L96-L140)<br>Chart: [`AdminDashboard.jsx#L339-L370`](client/src/pages/AdminDashboard.jsx#L339-L370) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, dynamic date range aggregation |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L180)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L430-L480) | [`middleware/auth.js`](middleware/auth.js#L14-L60) | Firebase OAuth popups, Google & Facebook providers |
@@ -310,25 +311,32 @@
 
 ---
 
-### Quiz 1: Catalog Filters (15 Points Total)
+### Quiz 1: Catalog Filters (20 Points Total)
 
 #### 1. Price Filter (5 Points)
-- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L297-L312)
+- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L310-L327)
   - `minPrice` and `maxPrice` state inputs querying `&minPrice=${minPrice}&maxPrice=${maxPrice}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L30-L34)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L41-L45)
   - Builds MongoDB query with `$gte` and `$lte`.
 
 #### 2. Category Filter (5 Points)
-- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L270-L295)
+- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L293-L308)
   - `selectedCategories` array querying `&category=${selectedCategories.join(',')}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L23-L28)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L34-L39)
   - Builds MongoDB query with `$in: categories`.
 
 #### 3. Ratings Filter (5 Points)
-- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L314-L325)
+- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L359-L370)
   - Interactive Material UI `<Rating>` component querying `&minRating=${minRating}`.
-- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L36-L38)
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L47-L49)
   - Builds MongoDB query with `rating: { $gte: Number(minRating) }`.
+
+#### 4. Reviews Filter (5 Points)
+- **Frontend File**: [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L329-L357)
+  - `minReviews` number input querying `&minReviews=${minReviews}` to filter products by minimum number of reviews.
+  - Interactive quick-toggle checkbox `Has customer reviews only (1+)` setting `minReviews = '1'` for instant filtering of products with customer feedback.
+- **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L51-L53)
+  - Builds MongoDB query with `numReviews: { $gte: Number(minReviews) }`.
 
 ---
 

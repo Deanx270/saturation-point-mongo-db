@@ -7,8 +7,16 @@ const escapeRegex = (string) => {
 
 exports.getProducts = async (req, res) => {
   try {
-    const { keyword, category, minPrice, maxPrice, minRating, page, limit } =
-      req.query;
+    const {
+      keyword,
+      category,
+      minPrice,
+      maxPrice,
+      minRating,
+      minReviews,
+      page,
+      limit,
+    } = req.query;
 
     let query = {};
 
@@ -37,6 +45,10 @@ exports.getProducts = async (req, res) => {
 
     if (minRating) {
       query.rating = { $gte: Number(minRating) };
+    }
+
+    if (minReviews && Number(minReviews) > 0) {
+      query.numReviews = { $gte: Number(minReviews) };
     }
 
     const isAll = limit === 'all' || limit === '0';
