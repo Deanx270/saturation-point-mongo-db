@@ -378,7 +378,70 @@ const sendVerificationEmail = async (
   }
 };
 
+const sendPasswordResetEmail = async (
+  toEmail,
+  resetUrl,
+  displayName = '',
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'sandbox.smtp.mailtrap.io',
+      port: process.env.EMAIL_PORT || 2525,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log(
+        'WARNING: EMAIL_USER or EMAIL_PASS is missing in .env. Email will not be sent.',
+      );
+      return false;
+    }
+
+    const mailOptions = {
+      from: '"The Saturation Point" <no-reply@thesaturationpoint.com>',
+      to: toEmail,
+      subject: 'Reset Your Password - The Saturation Point',
+      html: `
+      <div style="background-color: #FAF9F6; padding: 40px; font-family: 'Inter', Helvetica, sans-serif; color: #2D3436;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-top: 4px solid #D4AF37; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); padding: 40px;">
+          <h2 style="font-family: 'Times New Roman', serif; color: #1B263B; font-size: 28px; font-weight: normal; margin-top: 0; text-align: center; letter-spacing: 1px;">THE SATURATION POINT</h2>
+          
+          <hr style="border: none; border-bottom: 1px solid #E2E8F0; margin: 30px 0;">
+          
+          <p style="font-size: 16px; margin-bottom: 20px;">Dear ${displayName || 'Valued Client'},</p>
+          <p style="font-size: 16px; line-height: 1.6;">We received a request to reset the password for your Saturation Point account. If you initiated this request, please click the secure button below to set a new password:</p>
+          
+          <div style="margin: 40px 0; text-align: center;">
+            <a href="${resetUrl}" style="display: inline-block; background-color: #1C1917; color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 2px; font-size: 14px; font-weight: 500; letter-spacing: 1px;">RESET PASSWORD</a>
+          </div>
+          
+          <p style="font-size: 14px; line-height: 1.6; color: #636E72;">For security, this password reset link is valid for a limited time and can only be used once.</p>
+          
+          <hr style="border: none; border-bottom: 1px solid #E2E8F0; margin: 30px 0;">
+          
+          <p style="font-size: 13px; color: #636E72; text-align: center; margin-bottom: 5px;">If you did not request a password reset, you may safely ignore this email. Your account remains secure.</p>
+          <p style="font-size: 12px; color: #a8a29e; text-align: center; margin-top: 0;">This is an automated security notification, please do not reply.</p>
+        </div>
+      </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Password reset email sent to ${toEmail} (Message ID: ${info.messageId})`,
+    );
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return false;
+  }
+};
+
 module.exports = {
   sendOrderStatusEmail,
   sendVerificationEmail,
+  sendPasswordResetEmail,
 };

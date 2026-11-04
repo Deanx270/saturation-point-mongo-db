@@ -12,11 +12,18 @@ import {
   Alert,
   IconButton,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -34,7 +41,45 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [forgotSentTo, setForgotSentTo] = useState('');
   const hasTyped = useRef({ identifier: false, password: false });
+
+  const handleForgotPasswordSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!forgotIdentifier.trim()) {
+      setForgotError('Please enter your email or username.');
+      return;
+    }
+    setForgotLoading(true);
+    setForgotError('');
+    try {
+      await axios.post(`${API_BASE_URL}/api/users/forgot-password`, {
+        identifier: forgotIdentifier.trim(),
+      });
+      setForgotSentTo(forgotIdentifier.trim());
+      setForgotSuccess(true);
+    } catch (err) {
+      setForgotError(
+        err?.response?.data?.message ||
+          'Failed to send password reset email. Please verify your email or username.',
+      );
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleCloseForgot = () => {
+    setForgotOpen(false);
+    setForgotIdentifier('');
+    setForgotError('');
+    setForgotSuccess(false);
+    setForgotSentTo('');
+  };
 
   const formatFirebaseError = (errorMsg) => {
     if (!errorMsg) return 'An unexpected error occurred. Please try again.';
@@ -298,6 +343,35 @@ const Login = () => {
             }}
           />
 
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1, mb: 0.5 }}>
+            <Button
+              variant="text"
+              onClick={() => {
+                setForgotOpen(true);
+                setForgotSuccess(false);
+                setForgotError('');
+                setForgotIdentifier('');
+              }}
+              sx={{
+                p: 0,
+                minWidth: 'auto',
+                fontSize: '0.85rem',
+                fontFamily: '"Montserrat", sans-serif',
+                fontWeight: 500,
+                color: '#78716C',
+                textTransform: 'none',
+                '&:hover': {
+                  color: '#CA8A04',
+                  backgroundColor: 'transparent',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
+                },
+              }}
+            >
+              Forgot password?
+            </Button>
+          </Box>
+
           {authError && (
             <Alert
               severity="error"
@@ -419,6 +493,162 @@ const Login = () => {
           </Button>
         </Box>
       </Paper>
+
+      <Dialog
+        open={forgotOpen}
+        onClose={handleCloseForgot}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            p: 1.5,
+            border: '1px solid rgba(28, 25, 23, 0.08)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            pb: 1,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <MailOutlinedIcon sx={{ color: '#CA8A04', fontSize: '1.4rem' }} />
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: '"Lora", serif',
+                fontWeight: 600,
+                fontSize: '1.15rem',
+                color: '#1C1917',
+              }}
+            >
+              Reset Password
+            </Typography>
+          </Box>
+          <IconButton onClick={handleCloseForgot} size="small" sx={{ color: '#78716C' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 1 }}>
+          {forgotSuccess ? (
+            <Box sx={{ py: 2, textAlign: 'center' }}>
+              <Alert severity="success" sx={{ mb: 2, textAlign: 'left', fontSize: '0.9rem' }}>
+                Password reset link sent! Check your Mailtrap inbox for <strong>{forgotSentTo}</strong>.
+              </Alert>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#78716C',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.6,
+                }}
+              >
+                Click the secure link in the email to define your new password. You may close this window.
+              </Typography>
+            </Box>
+          ) : (
+            <Box component="form" onSubmit={handleForgotPasswordSubmit} sx={{ mt: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#78716C',
+                  fontSize: '0.875rem',
+                  mb: 2.5,
+                  lineHeight: 1.5,
+                }}
+              >
+                Enter the email address or username associated with your account. We will send a secure password reset link to your email via Mailtrap.
+              </Typography>
+
+              <TextField
+                fullWidth
+                size="small"
+                label="Email or Username"
+                variant="outlined"
+                value={forgotIdentifier}
+                onChange={(e) => setForgotIdentifier(e.target.value)}
+                autoFocus
+                disabled={forgotLoading}
+                sx={{
+                  mb: forgotError ? 2 : 0,
+                  '& .MuiOutlinedInput-root': {
+                    height: '44px',
+                  },
+                }}
+              />
+
+              {forgotError && (
+                <Alert severity="error" sx={{ mt: 1.5, textAlign: 'left', fontSize: '0.85rem' }}>
+                  {forgotError}
+                </Alert>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2, pt: 1 }}>
+          {forgotSuccess ? (
+            <Button
+              onClick={handleCloseForgot}
+              fullWidth
+              variant="contained"
+              sx={{
+                height: '40px',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+              }}
+            >
+              Done
+            </Button>
+          ) : (
+            <Box sx={{ display: 'flex', width: '100%', gap: 1.5 }}>
+              <Button
+                onClick={handleCloseForgot}
+                variant="outlined"
+                fullWidth
+                disabled={forgotLoading}
+                sx={{
+                  height: '40px',
+                  textTransform: 'none',
+                  fontSize: '0.9rem',
+                  borderColor: '#D6D3D1',
+                  color: '#57534E',
+                  '&:hover': {
+                    borderColor: '#A8A29E',
+                    backgroundColor: '#F5F5F4',
+                  },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleForgotPasswordSubmit}
+                variant="contained"
+                fullWidth
+                disabled={forgotLoading}
+                sx={{
+                  height: '40px',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  textTransform: 'none',
+                }}
+              >
+                {forgotLoading ? (
+                  <CircularProgress size={20} sx={{ color: '#FFFFFF' }} />
+                ) : (
+                  'Send Reset Link'
+                )}
+              </Button>
+            </Box>
+          )}
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

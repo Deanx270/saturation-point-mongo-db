@@ -20,6 +20,7 @@ import Cart from './pages/Cart';
 import ErrorPage from './pages/ErrorPage';
 import CompleteProfile from './pages/CompleteProfile';
 import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
 import { Box, CircularProgress } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
@@ -118,6 +119,7 @@ function App() {
               }
             />
             <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/profile"
               element={

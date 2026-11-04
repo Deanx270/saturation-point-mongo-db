@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const {
   sendVerificationEmail: sendEmailVerification,
+  sendPasswordResetEmail,
 } = require('../utils/emailService');
 
 const getUserProfile = async (req, res) => {
@@ -117,6 +118,61 @@ const sendVerificationEmail = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: 'Error generating verification email',
+      error: error.message,
+    });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { identifier } = req.body;
+    if (!identifier || !identifier.trim()) {
+      return res
+        .status(400)
+        .json({ message: 'Email or username is required.' });
+    }
+
+    const cleanInput = identifier.trim();
+    const query = cleanInput.includes('@')
+      ? { email: cleanInput.toLowerCase() }
+      : { username: cleanInput };
+
+    const user = await User.findOne(query);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: 'No account found with that email or username.' });
+    }
+
+    if (user.status === 'disabled') {
+      return res.status(403).json({
+        message: 'Your account has been disabled. Please contact support.',
+      });
+    }
+
+    const { auth } = require('../utils/firebaseAdmin');
+    const rawResetUrl = await auth.generatePasswordResetLink(user.email);
+    const urlObj = new URL(rawResetUrl);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const resetUrl = `${clientUrl}/reset-password${urlObj.search}`;
+
+    const sent = await sendPasswordResetEmail(
+      user.email,
+      resetUrl,
+      user.displayName,
+    );
+    if (sent) {
+      res
+        .status(200)
+        .json({ message: 'Password reset link sent to your email.' });
+    } else {
+      res
+        .status(500)
+        .json({ message: 'Failed to send password reset email via Mailtrap.' });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error generating password reset link',
       error: error.message,
     });
   }
@@ -240,4 +296,5 @@ module.exports = {
   checkUsername,
   getEmailByUsername,
   sendVerificationEmail,
+  forgotPassword,
 };

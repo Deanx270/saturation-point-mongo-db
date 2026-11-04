@@ -10,11 +10,13 @@ const {
   deleteReview,
   getProductById,
   getCategories,
+  searchProducts,
 } = require('../controllers/productController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { upload } = require('../utils/cloudinary');
 
 router.get('/', getProducts);
+router.get('/search', searchProducts);
 router.get('/categories', getCategories);
 router.get('/:id', getProductById);
 

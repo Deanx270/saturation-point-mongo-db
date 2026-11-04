@@ -10,6 +10,7 @@ const {
   checkUsername,
   getEmailByUsername,
   sendVerificationEmail,
+  forgotPassword,
 } = require('../controllers/userController');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { upload } = require('../utils/cloudinary');
@@ -17,6 +18,7 @@ const { upload } = require('../utils/cloudinary');
 router.get('/check-username', checkUsername);
 router.get('/email-by-username/:username', getEmailByUsername);
 router.post('/send-verification', sendVerificationEmail);
+router.post('/forgot-password', forgotPassword);
 
 router.get('/profile', verifyToken, getUserProfile);
 router.put('/profile', verifyToken, upload.single('photo'), updateUserProfile);
