@@ -172,19 +172,25 @@ const AdminBrands = () => {
       confirmButtonColor: '#9f1239',
       cancelButtonColor: '#78716C',
       confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
         try {
           const token = await currentUser.getIdToken();
           await axios.delete(`${API_BASE_URL}/api/brands/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setBrands((prev) => prev.filter((b) => b._id !== id));
-          Swal.fire('Deleted!', 'Brand has been deleted.', 'success');
+          return true;
         } catch (error) {
-          console.error('Error deleting brand', error);
-          Swal.fire('Error!', 'Failed to delete brand.', 'error');
+          Swal.showValidationMessage(
+            error.response?.data?.message || 'Failed to delete brand.',
+          );
         }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'Brand has been deleted.', 'success');
       }
     });
   };

@@ -535,18 +535,19 @@ const Login = () => {
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={{ pt: 1, pb: forgotSuccess ? 0.5 : 2 }}>
           {forgotSuccess ? (
-            <Box sx={{ py: 2, textAlign: 'center' }}>
-              <Alert severity="success" sx={{ mb: 2, textAlign: 'left', fontSize: '0.9rem' }}>
-                Password reset link sent! Check your inbox for <strong>{forgotSentTo}</strong>.
+            <Box sx={{ pt: 0.5, pb: 0, textAlign: 'center' }}>
+              <Alert severity="success" sx={{ mb: 1.5, textAlign: 'left', fontSize: '0.9rem' }}>
+                If an account matches <strong>{forgotSentTo}</strong>, a password reset link has been sent to your inbox.
               </Alert>
               <Typography
                 variant="body2"
                 sx={{
                   color: '#78716C',
                   fontSize: '0.875rem',
-                  lineHeight: 1.6,
+                  lineHeight: 1.5,
+                  mb: 1,
                 }}
               >
                 Follow the link in the email to define your new password. You may safely close this window.
@@ -592,7 +593,7 @@ const Login = () => {
           )}
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2, pt: 1 }}>
+        <DialogActions sx={{ px: 3, pb: 2, pt: 0.5 }}>
           {forgotSuccess ? (
             <Button
               onClick={handleCloseForgot}

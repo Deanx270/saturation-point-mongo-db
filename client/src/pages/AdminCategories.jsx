@@ -172,19 +172,25 @@ const AdminCategories = () => {
       confirmButtonColor: '#9f1239',
       cancelButtonColor: '#78716C',
       confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
         try {
           const token = await currentUser.getIdToken();
           await axios.delete(`${API_BASE_URL}/api/categories/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setCategories((prev) => prev.filter((c) => c._id !== id));
-          Swal.fire('Deleted!', 'Category has been deleted.', 'success');
+          return true;
         } catch (error) {
-          console.error('Error deleting category', error);
-          Swal.fire('Error!', 'Failed to delete category.', 'error');
+          Swal.showValidationMessage(
+            error.response?.data?.message || 'Failed to delete category.',
+          );
         }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'Category has been deleted.', 'success');
       }
     });
   };
