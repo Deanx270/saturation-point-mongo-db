@@ -539,7 +539,7 @@ const Login = () => {
           {forgotSuccess ? (
             <Box sx={{ py: 2, textAlign: 'center' }}>
               <Alert severity="success" sx={{ mb: 2, textAlign: 'left', fontSize: '0.9rem' }}>
-                Password reset link sent! Check your Mailtrap inbox for <strong>{forgotSentTo}</strong>.
+                Password reset link sent! Check your inbox for <strong>{forgotSentTo}</strong>.
               </Alert>
               <Typography
                 variant="body2"
@@ -549,7 +549,7 @@ const Login = () => {
                   lineHeight: 1.6,
                 }}
               >
-                Click the secure link in the email to define your new password. You may close this window.
+                Follow the link in the email to define your new password. You may safely close this window.
               </Typography>
             </Box>
           ) : (
@@ -563,7 +563,7 @@ const Login = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Enter the email address or username associated with your account. We will send a secure password reset link to your email via Mailtrap.
+                Enter the email address or username associated with your account. We will send you a link to reset your password.
               </Typography>
 
               <TextField
