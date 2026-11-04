@@ -124,6 +124,7 @@ const sendVerificationEmail = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { identifier } = req.body;
     if (!identifier || !identifier.trim()) {
@@ -139,8 +140,16 @@ const forgotPassword = async (req, res) => {
 
     const user = await User.findOne(query);
     if (!user) {
+      const targetDuration = 800 + Math.floor(Math.random() * 250);
+      const elapsed = Date.now() - startTime;
+      if (elapsed < targetDuration) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, targetDuration - elapsed),
+        );
+      }
       return res.status(200).json({
-        message: 'If an account matches that email or username, a password reset link has been sent.',
+        message:
+          'If an account matches that email or username, a password reset link has been sent.',
       });
     }
 
@@ -162,8 +171,16 @@ const forgotPassword = async (req, res) => {
       user.displayName,
     );
     if (sent) {
+      const targetDuration = 800 + Math.floor(Math.random() * 250);
+      const elapsed = Date.now() - startTime;
+      if (elapsed < targetDuration) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, targetDuration - elapsed),
+        );
+      }
       res.status(200).json({
-        message: 'If an account matches that email or username, a password reset link has been sent.',
+        message:
+          'If an account matches that email or username, a password reset link has been sent.',
       });
     } else {
       res
