@@ -256,7 +256,7 @@ const runSeeder = async () => {
       if (!existingProduct) {
         existingProduct = await Product.create(p);
         productsCreated++;
-        console.log(`+ Product created (12 target): ${p.name}`);
+        console.log(`+ Product created: ${p.name}`);
       } else {
         console.log(`= Product already exists: ${p.name}`);
       }
@@ -353,12 +353,11 @@ const runSeeder = async () => {
     }
 
     console.log('\n=============================================');
-    console.log('Seeder Run Finished:');
-    console.log(`- New Brands Added: ${brandsCreated}`);
-    console.log(`- New Users Added: ${usersCreated}`);
-    console.log(`- New Products Added: ${productsCreated} / 12`);
-    console.log(`- New Transactions Added: ${ordersCreated}`);
-    console.log('Categories left untouched as requested.');
+    console.log('Database Seeder Summary:');
+    console.log(`- Brands Added: ${brandsCreated}`);
+    console.log(`- Users Added: ${usersCreated}`);
+    console.log(`- Products Added: ${productsCreated}`);
+    console.log(`- Transactions Added: ${ordersCreated}`);
     console.log('=============================================\n');
 
     process.exit(0);
@@ -369,3 +368,4 @@ const runSeeder = async () => {
 };
 
 runSeeder();
+
