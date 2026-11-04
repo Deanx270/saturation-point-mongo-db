@@ -21,7 +21,20 @@ const apiLimiter = rateLimit({
   },
 });
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +45,7 @@ mongoose
   .then(() => console.log('Successfully connected to MongoDB Atlas!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
+const { renderLandingPage } = require('./utils/apiLandingPage');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -45,6 +59,9 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
+  if (req.accepts('html') && req.headers.accept?.includes('text/html')) {
+    return res.type('html').send(renderLandingPage());
+  }
   res.json({ message: 'The Saturation Point API is running' });
 });
 
