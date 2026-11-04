@@ -213,14 +213,25 @@ const updateUserRole = async (req, res) => {
     if (!['user', 'admin'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      { role },
-      { new: true },
-    );
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.role === 'user') {
+      return res
+        .status(403)
+        .json({ message: 'Cannot change the role of a customer.' });
+    }
+    if (req.mongoUser._id.toString() === req.params.id) {
+      return res
+        .status(400)
+        .json({ message: 'You cannot change your own role.' });
+    }
+    user.role = role;
+    await user.save();
     res.status(200).json({
       message: 'User role updated',
-      user: updatedUser,
+      user,
     });
   } catch (error) {
     res.status(500).json({
