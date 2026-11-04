@@ -1,7 +1,7 @@
 const renderLandingPage = () => {
   const currentYear = new Date().getFullYear();
   const currentTimestamp = new Date().toUTCString();
-  const clientUrl = process.env.CLIENT_URL || 'https://saturation-point-web.onrender.com';
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
   return `<!doctype html>
 <html lang="en">

@@ -98,8 +98,7 @@ const sendVerificationEmail = async (req, res) => {
     const rawVerificationUrl = await auth.generateEmailVerificationLink(email);
 
     const urlObj = new URL(rawVerificationUrl);
-    const clientUrl =
-      process.env.CLIENT_URL || 'https://saturation-point-web.onrender.com';
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const verificationUrl = `${clientUrl}/verify-email${urlObj.search}`;
 
     const sent = await sendEmailVerification(
