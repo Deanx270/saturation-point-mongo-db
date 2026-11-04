@@ -147,7 +147,7 @@ const ResetPassword = () => {
           </Box>
         ) : submitSuccess ? (
           <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <CheckCircleOutlineIcon sx={{ fontSize: '3rem', color: '#16A34A' }} />
+            <CheckCircleOutlinedIcon sx={{ fontSize: '3rem', color: '#16A34A' }} />
             <Typography
               variant="body1"
               sx={{
@@ -181,7 +181,7 @@ const ResetPassword = () => {
               color="textSecondary"
               sx={{ mb: 3, fontSize: '0.9rem' }}
             >
-              Enter a new secure password for <strong>{verifiedEmail}</strong>.
+              Enter a new password for <strong>{verifiedEmail}</strong>.
             </Typography>
 
             <Box
