@@ -1,6 +1,10 @@
 const Product = require('../models/Product');
 const { Filter } = require('bad-words');
 
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 exports.getProducts = async (req, res) => {
   try {
     const { keyword, category, minPrice, maxPrice, minRating, page, limit } =
@@ -9,11 +13,12 @@ exports.getProducts = async (req, res) => {
     let query = {};
 
     const kw = keyword || req.query.search || req.query.q;
-    if (kw) {
+    if (kw && kw.trim()) {
+      const sanitized = escapeRegex(kw.trim());
       query.$or = [
-        { name: { $regex: kw.trim(), $options: 'i' } },
-        { description: { $regex: kw.trim(), $options: 'i' } },
-        { brand: { $regex: kw.trim(), $options: 'i' } },
+        { name: { $regex: sanitized, $options: 'i' } },
+        { description: { $regex: sanitized, $options: 'i' } },
+        { brand: { $regex: sanitized, $options: 'i' } },
       ];
     }
 
@@ -62,12 +67,12 @@ exports.searchProducts = async (req, res) => {
     const { q } = req.query;
     if (!q || !q.trim()) return res.json([]);
 
-    const trimmed = q.trim();
+    const sanitized = escapeRegex(q.trim());
     const products = await Product.find({
       $or: [
-        { name: { $regex: trimmed, $options: 'i' } },
-        { brand: { $regex: trimmed, $options: 'i' } },
-        { category: { $regex: trimmed, $options: 'i' } },
+        { name: { $regex: sanitized, $options: 'i' } },
+        { brand: { $regex: sanitized, $options: 'i' } },
+        { category: { $regex: sanitized, $options: 'i' } },
       ],
     })
       .limit(5)
