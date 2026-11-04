@@ -709,7 +709,7 @@ const AdminProducts = () => {
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
 
-    const result = await Swal.fire({
+    Swal.fire({
       title: 'Delete Products?',
       text: `Are you sure you want to delete ${selectedIds.length} product(s)?`,
       icon: 'warning',
@@ -718,36 +718,37 @@ const AdminProducts = () => {
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
+        try {
+          const token = await currentUser.getIdToken();
+          await axios.post(
+            `${API_BASE_URL}/api/products/bulk-delete`,
+            { ids: selectedIds },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+          setProducts((prev) => prev.filter((p) => !selectedIds.includes(p._id)));
+          setSelectedIds([]);
+          return true;
+        } catch (error) {
+          Swal.showValidationMessage(
+            error.response?.data?.message ||
+              'Failed to delete. Make sure you are an admin.',
+          );
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'Products have been deleted.', 'success');
+      }
     });
-
-    if (!result.isConfirmed) return;
-
-    setDeleteLoading(true);
-    try {
-      const token = await currentUser.getIdToken();
-      await axios.post(
-        `${API_BASE_URL}/api/products/bulk-delete`,
-        { ids: selectedIds },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      setProducts((prev) => prev.filter((p) => !selectedIds.includes(p._id)));
-      setSelectedIds([]);
-      Swal.fire('Deleted!', 'Products have been deleted.', 'success');
-    } catch (error) {
-      console.error('Error bulk deleting', error);
-      Swal.fire(
-        'Error!',
-        'Failed to delete. Make sure you are an admin.',
-        'error',
-      );
-    }
-    setDeleteLoading(false);
   };
 
   const handleSingleDelete = async (id) => {
-    const result = await Swal.fire({
+    Swal.fire({
       title: 'Delete Product?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -756,24 +757,28 @@ const AdminProducts = () => {
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
+        try {
+          const token = await currentUser.getIdToken();
+          await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setProducts((prev) => prev.filter((p) => p._id !== id));
+          setSelectedIds((prev) => prev.filter((item) => item !== id));
+          return true;
+        } catch (error) {
+          Swal.showValidationMessage(
+            error.response?.data?.message || 'Failed to delete product.',
+          );
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'Product has been deleted.', 'success');
+      }
     });
-
-    if (!result.isConfirmed) return;
-
-    setDeleteLoading(true);
-    try {
-      const token = await currentUser.getIdToken();
-      await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts((prev) => prev.filter((p) => p._id !== id));
-      setSelectedIds((prev) => prev.filter((item) => item !== id));
-      Swal.fire('Deleted!', 'Product has been deleted.', 'success');
-    } catch (error) {
-      console.error('Error deleting product', error);
-      Swal.fire('Error!', 'Failed to delete product.', 'error');
-    }
-    setDeleteLoading(false);
   };
 
   const handleEditClick = (product) => {

@@ -150,8 +150,9 @@ const AdminUsers = () => {
       confirmButtonColor: isDisabling ? '#d97706' : '#16a34a',
       cancelButtonColor: '#78716C',
       confirmButtonText: `Yes, ${actionText} user!`,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
         try {
           const token = await currentUser.getIdToken();
           await axios.put(
@@ -166,19 +167,20 @@ const AdminUsers = () => {
               u._id === user._id ? { ...u, status: newStatus } : u,
             ),
           );
-          Swal.fire(
-            'Success',
-            `User account has been ${isDisabling ? 'disabled' : 'enabled'}.`,
-            'success',
-          );
+          return true;
         } catch (error) {
-          console.error('Error updating user status', error);
-          Swal.fire(
-            'Error',
+          Swal.showValidationMessage(
             error.response?.data?.message || 'Failed to update user status.',
-            'error',
           );
         }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire(
+          'Success',
+          `User account has been ${isDisabling ? 'disabled' : 'enabled'}.`,
+          'success',
+        );
       }
     });
   };
@@ -192,19 +194,25 @@ const AdminUsers = () => {
       confirmButtonColor: '#9f1239',
       cancelButtonColor: '#78716C',
       confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+      showLoaderOnConfirm: true,
+      allowOutsideClick: () => !Swal.isLoading(),
+      preConfirm: async () => {
         try {
           const token = await currentUser.getIdToken();
           await axios.delete(`${API_BASE_URL}/api/users/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers((prevUsers) => prevUsers.filter((u) => u._id !== id));
-          Swal.fire('Deleted!', 'User has been deleted.', 'success');
+          return true;
         } catch (error) {
-          console.error('Error deleting user', error);
-          Swal.fire('Error!', 'Failed to delete user.', 'error');
+          Swal.showValidationMessage(
+            error.response?.data?.message || 'Failed to delete user.',
+          );
         }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'User has been deleted.', 'success');
       }
     });
   };

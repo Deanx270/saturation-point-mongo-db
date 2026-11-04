@@ -19,7 +19,6 @@ import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlin
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
-import heroImg from '../assets/hero.png';
 import storyImg from '../../public/images/story_ink_flow.png';
 import bentoNib from '../../public/images/bento_nib_macro.png';
 import bentoInk from '../../public/images/bento_ink_bottle.png';
@@ -104,9 +103,11 @@ const Home = () => {
         sx={{
           width: '100%',
           minHeight: '80vh',
-          backgroundImage: `url(/images/hero_luxury_pen.png), url(${heroImg})`,
+          backgroundColor: '#1B263B',
+          backgroundImage: 'url(/images/hero_luxury_pen.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

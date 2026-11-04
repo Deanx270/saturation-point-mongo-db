@@ -139,9 +139,9 @@ const forgotPassword = async (req, res) => {
 
     const user = await User.findOne(query);
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: 'No account found with that email or username.' });
+      return res.status(200).json({
+        message: 'If an account matches that email or username, a password reset link has been sent.',
+      });
     }
 
     if (user.status === 'disabled') {
@@ -162,9 +162,9 @@ const forgotPassword = async (req, res) => {
       user.displayName,
     );
     if (sent) {
-      res
-        .status(200)
-        .json({ message: 'Password reset link sent to your email.' });
+      res.status(200).json({
+        message: 'If an account matches that email or username, a password reset link has been sent.',
+      });
     } else {
       res
         .status(500)
