@@ -34,8 +34,8 @@
 | **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L293-L308) | [`controllers/productController.js`](controllers/productController.js#L34-L39) | `$in` categories query |
 | **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L359-L370) | [`controllers/productController.js`](controllers/productController.js#L47-L49) | `$gte` minimum rating filter |
 | **Quiz 1: Reviews Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L329-L357) | [`controllers/productController.js`](controllers/productController.js#L51-L53) | `$gte` minimum review count filter, quick 1+ toggle |
-| **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L62-L95)<br>Chart: [`AdminDashboard.jsx#L177-L218`](client/src/pages/AdminDashboard.jsx#L177-L218) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
-| **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L96-L140)<br>Chart: [`AdminDashboard.jsx#L339-L370`](client/src/pages/AdminDashboard.jsx#L339-L370) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, dynamic date range aggregation |
+| **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100)<br>Chart: [`AdminDashboard.jsx#L205-L248`](client/src/pages/AdminDashboard.jsx#L205-L248) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
+| **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158)<br>Picker: [`BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)<br>Chart: [`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, luxury brand date picker, calendar boundary & year constraints (2020-2027) |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L180)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L430-L480) | [`middleware/auth.js`](middleware/auth.js#L14-L60) | Firebase OAuth popups, Google & Facebook providers |
 | **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L108-L135)<br>Target: [`Catalog.jsx#L606`](client/src/pages/Catalog.jsx#L606) | [`controllers/productController.js`](controllers/productController.js#L40-L55) | Native `IntersectionObserver`, `skip` & `limit` |
 | **Quiz 4: Redux State Management** | 15 | Store: [`redux/store.js`](client/src/redux/store.js#L1-L11)<br>Slice: [`redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L135)<br>Root: [`main.jsx`](client/src/main.jsx#L14-L26) | N/A (Client State Architecture) | Redux Toolkit (`configureStore`, `createSlice`, `createAsyncThunk`) |
@@ -343,16 +343,22 @@
 ### Quiz 2: Sales Charts & Analytics (25 Points Total)
 
 #### 1. Monthly Sales Line Chart - All 12 Months (10 Points)
-- **Frontend File**: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L62-L95) & [`client/src/pages/AdminDashboard.jsx:177-218`](client/src/pages/AdminDashboard.jsx#L177-L218)
+- **Frontend File**: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100) & [`client/src/pages/AdminDashboard.jsx:205-248`](client/src/pages/AdminDashboard.jsx#L205-L248)
   - Pre-populates all 12 calendar months (`Jan` through `Dec`) and maps delivered order amounts.
   - Renders Recharts `<LineChart>` with responsive container.
 - **Backend Controller**: [`controllers/orderController.js`](controllers/orderController.js#L73-L82)
   - Fetches orders for dashboard calculations.
 
 #### 2. Sales Chart with Date Range Filter (15 Points)
-- **Frontend File**: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L96-L140) & [`client/src/pages/AdminDashboard.jsx:339-370`](client/src/pages/AdminDashboard.jsx#L339-L370)
-  - `startDate` and `endDate` date pickers filtering sales aggregation.
-  - Renders Recharts `<BarChart>` displaying revenue grouped by date.
+- **Frontend Files**:
+  - Luxury Brand Date Picker: [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)
+  - Admin Dashboard Integration: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158) & [`client/src/pages/AdminDashboard.jsx:365-400`](client/src/pages/AdminDashboard.jsx#L365-L400)
+- **Validation & UX Enhancements**:
+  - **Custom Luxury Theme**: Replaces browser-default HTML inputs with an artisanal popover calendar matching the store palette (`#1C1917`, `#CA8A04`, `#FAF9F6`) and typography (`Lora`, `Montserrat`).
+  - **Impossible Date Elimination**: The read-only text input prevents typing corrupt dates (such as `02/31/0002` or `09/31/2026`). Month grids dynamically calculate exact days in the month (`new Date(year, month + 1, 0).getDate()`), guaranteeing 30 days for September and 28/29 days for February.
+  - **Year Boundaries (2020–2027)**: Month and year dropdowns strictly constrain selection between 2020 and 2027, preventing unrealistic ancient or distant future years.
+  - **Range & Infinite Loop Protection**: `minDate` and `maxDate` properties disable invalid days relative to selected start/end dates. The dashboard enforces `startDate <= endDate`, caps the date range to 730 days (2 years), displays an inline error alert banner if reversed, and limits day iteration loops (`iterations <= 730`) to protect against browser thread freezes.
+  - **Local Date Handling**: Replaced `.toISOString().split('T')[0]` with local `formatYMD` helper, eliminating 1-day timezone offset bugs in UTC+8.
 
 ---
 

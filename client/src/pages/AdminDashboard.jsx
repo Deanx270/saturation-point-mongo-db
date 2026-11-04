@@ -5,7 +5,7 @@ import {
   Paper,
   Grid,
   CircularProgress,
-  TextField,
+  Alert,
   Button,
 } from '@mui/material';
 import {
@@ -23,19 +23,27 @@ import {
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
+import BrandDatePicker from '../components/BrandDatePicker';
 
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const formatYMD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
   const today = new Date();
-  const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1)
-    .toISOString()
-    .split('T')[0];
-  const defaultEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    .toISOString()
-    .split('T')[0];
+  const defaultStart = formatYMD(
+    new Date(today.getFullYear(), today.getMonth(), 1),
+  );
+  const defaultEnd = formatYMD(
+    new Date(today.getFullYear(), today.getMonth() + 1, 0),
+  );
 
   const [startDate, setStartDate] = useState(defaultStart);
   const [endDate, setEndDate] = useState(defaultEnd);
@@ -90,24 +98,45 @@ const AdminDashboard = () => {
     return data;
   }, [orders]);
 
-  const filteredData = useMemo(() => {
-    if (!startDate || !endDate) return [];
+  const dateRangeError = useMemo(() => {
+    if (!startDate || !endDate) return null;
+    if (startDate > endDate) {
+      return 'Start date cannot be after end date.';
+    }
+    const startYear = parseInt(startDate.slice(0, 4), 10);
+    const endYear = parseInt(endDate.slice(0, 4), 10);
+    if (startYear < 2020 || endYear > 2027) {
+      return 'Selected dates must be between 2020 and 2027.';
+    }
+    return null;
+  }, [startDate, endDate]);
 
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
+  const filteredData = useMemo(() => {
+    if (!startDate || !endDate || startDate > endDate) return [];
+
+    const [sY, sM, sD] = startDate.split('-').map(Number);
+    const [eY, eM, eD] = endDate.split('-').map(Number);
+    if (!sY || !sM || !sD || !eY || !eM || !eD) return [];
+
+    const start = new Date(sY, sM - 1, sD, 0, 0, 0, 0);
+    const end = new Date(eY, eM - 1, eD, 23, 59, 59, 999);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return [];
+
+    const dayDiff = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    if (dayDiff > 730) return [];
 
     const dailySalesMap = {};
 
     let currDate = new Date(start);
-    while (currDate <= end) {
+    let iterations = 0;
+    while (currDate <= end && iterations <= 730) {
       const dateStr = currDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
       });
       dailySalesMap[dateStr] = 0;
       currDate.setDate(currDate.getDate() + 1);
+      iterations++;
     }
 
     orders.forEach((order) => {
@@ -251,57 +280,55 @@ const AdminDashboard = () => {
             <Box
               sx={{
                 display: 'flex',
-                gap: 3,
+                gap: 2,
                 alignItems: 'center',
                 flexWrap: 'wrap',
               }}
             >
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#44403C', fontWeight: 500 }}
-                >
-                  Start:
-                </Typography>
-                <TextField
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  size="small"
-                  sx={{ width: 180 }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#44403C', fontWeight: 500 }}
-                >
-                  End:
-                </Typography>
-                <TextField
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  size="small"
-                  sx={{ width: 180 }}
-                />
-              </Box>
+              <BrandDatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={setStartDate}
+                maxDate={endDate || undefined}
+                error={Boolean(dateRangeError)}
+              />
+              <BrandDatePicker
+                label="End Date"
+                value={endDate}
+                onChange={setEndDate}
+                minDate={startDate || undefined}
+                error={Boolean(dateRangeError)}
+              />
             </Box>
           </Box>
 
-          {!startDate || !endDate ? (
+          {dateRangeError ? (
+            <Box
+              sx={{
+                width: '100%',
+                height: 400,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                bgcolor: '#FEF2F2',
+                borderRadius: 2,
+                border: '1px solid #FECACA',
+                p: 3,
+              }}
+            >
+              <Alert
+                severity="error"
+                sx={{
+                  bgcolor: 'transparent',
+                  color: '#991B1B',
+                  fontWeight: 600,
+                  fontFamily: '"Montserrat", sans-serif',
+                }}
+              >
+                {dateRangeError}
+              </Alert>
+            </Box>
+          ) : !startDate || !endDate ? (
             <Box
               sx={{
                 width: '100%',
