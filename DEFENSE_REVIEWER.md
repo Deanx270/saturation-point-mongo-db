@@ -14,7 +14,7 @@
 | **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L200-L214) | MUI Checkbox, `$in` delete, instant local state |
 | **MP1: Live Hero Search Autocomplete** | + | [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) | [`controllers/productController.js`](controllers/productController.js#L60-L80)<br>[`routes/productRoutes.js`](routes/productRoutes.js#L19) | 250ms Debounced live search, dropdown routing |
 | **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L31)<br>[`controllers/userController.js`](controllers/userController.js#L66-L124) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
-| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L170) | [`controllers/userController.js`](controllers/userController.js#L81-L93) | Login via username or email lookup |
+| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L171) | [`controllers/userController.js`](controllers/userController.js#L81-L93) | Login via username or email lookup, username enumeration defense |
 | **MP2: Password Reset via Mailtrap** | + | Modal: [`Login.jsx`](client/src/pages/Login.jsx#L52-L74)<br>Page: [`ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L25-L100) | [`controllers/userController.js`](controllers/userController.js#L126-L196)<br>[`utils/emailService.js`](utils/emailService.js#L381-L441) | Firebase Admin action links, Mailtrap, timing defense |
 | **MP2: User Profile Update + Photo** | 5 | [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L100-L190) | [`controllers/userController.js`](controllers/userController.js#L19-L64) | Multer (`single`), Cloudinary CDN upload |
 | **MP2: Firebase Auth (Email/Pass)** | 10 | [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L99-L105) | [`middleware/auth.js`](middleware/auth.js#L4-L114) | Firebase Client SDK + Admin SDK `verifyIdToken` |
@@ -119,9 +119,11 @@
   - `sendVerificationEmail`: Generates verification link using Firebase Admin SDK and dispatches branded email via Mailtrap.
 
 #### 2. Username and Password Login
-- **Frontend File**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L170)
+- **Frontend File**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L171)
   - Input field `identifier` accepts **either an Email OR a Username**.
   - If `identifier` does not contain `@`, queries backend endpoint `GET /api/users/email-by-username/:username` to retrieve the associated email automatically.
+  - **User Enumeration & Timing Attack Defense**: If the username is not found in MongoDB, instead of disclosing `"User not found with that username"`, the client waits for 350ms to mirror Firebase network latency and throws `Firebase: auth/invalid-credential` ([`client/src/pages/Login.jsx:136-137`](client/src/pages/Login.jsx#L136-L137)).
+  - **Unified Credential Error**: Handled by `formatFirebaseError` ([`client/src/pages/Login.jsx:88-94`](client/src/pages/Login.jsx#L88-L94)), which uniformly displays `"Invalid email, username, or password. Please try again."` for all invalid email, username, or password attempts.
   - Authenticates via Firebase `signInWithEmailAndPassword`, checks `emailVerified`, and rejects unverified logins.
   - Fetches MongoDB profile and routes to `/admin/dashboard` or `/profile`.
 - **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L81-L93)
@@ -429,6 +431,7 @@
 | **JWT & Token Authentication** | Middleware: [`middleware/auth.js:14-16`](middleware/auth.js#L14-L16) | Uses Firebase Admin SDK `verifyIdToken(token)` to cryptographically verify RS256 JWT tokens on every protected API call. |
 | **Role-Based Access Control (RBAC)** | Middleware: [`middleware/auth.js:116-122`](middleware/auth.js#L116-L122)<br>Frontend: [`client/src/App.jsx:32-39`](client/src/App.jsx#L32-L39) | Protected routes check `mongoUser.role === 'admin'`. Unauthorized requests return HTTP 403 Forbidden on both backend and frontend. |
 | **Privilege Escalation Lock** | Controller: [`userController.js:220-224`](controllers/userController.js#L220-L224)<br>Frontend: [`AdminUsers.jsx:412-434`](client/src/pages/AdminUsers.jsx#L412-L434) | Replaced interactive role dropdowns with read-only badges. Backend enforces strict HTTP 403 blocking modification of customer roles. |
+| **Login User Enumeration Prevention** | Frontend: [`client/src/pages/Login.jsx:88-94, 136-137`](client/src/pages/Login.jsx#L88-L94) | Unifies login error messages to `"Invalid email, username, or password. Please try again."` and injects a 350ms delay on missing usernames to mirror Firebase roundtrip latency, eliminating account enumeration hints. |
 | **Side-Channel Timing Attack Mitigation** | Controller: [`controllers/userController.js:143-149, 174-180`](controllers/userController.js#L143-L149) | Normalized response latency (~800–1050ms) and generic success messages prevent attackers from enumerating valid registered emails via response time differences. |
 | **Multi-Tier Rate Limiting** | API Gateway: [`server.js:14-23`](server.js#L14-L23)<br>Auth Routes: [`routes/userRoutes.js:19-27`](routes/userRoutes.js#L19-L27) | Tier 1: 500 requests / 15 min across entire API with reverse proxy trust (`trust proxy: 1`). Tier 2: Dedicated strict limit of 5 requests / 15 min on email verification and password reset endpoints. |
 | **Stock Concurrency & Integrity** | Controller: [`orderController.js:41-43`](controllers/orderController.js#L41-L43) | Uses atomic MongoDB update operators `$inc: { stock: -quantity }` to prevent race conditions during checkout. |
@@ -469,10 +472,12 @@
 > 1. Frontend: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) & [`client/src/pages/AdminProducts.jsx:910-950`](client/src/pages/AdminProducts.jsx#L910-L950). Show the select-all checkbox, individual checkboxes, and the bulk delete handler sending an array of IDs.  
 > 2. Backend: [`controllers/productController.js`](controllers/productController.js#L200-L214). Show `Product.deleteMany({ _id: { $in: ids } })`.
 
-### Q6: "How does login with username work when Firebase only supports email/password?"
+### Q6: "How does login with username work when Firebase only supports email/password, and how is username enumeration prevented?"
 > **Answer & File to Show:**  
-> Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L127-L138) and [`controllers/userController.js`](controllers/userController.js#L81-L93).  
-> Explain that if the user inputs a username (no `@` symbol), the frontend queries `GET /api/users/email-by-username/:username` to fetch their registered email address from MongoDB, which is then used seamlessly with Firebase Auth's `signInWithEmailAndPassword`.
+> Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L127-L140) and [`client/src/pages/Login.jsx:88-94`](client/src/pages/Login.jsx#L88-L94).  
+> 1. Show lines 129–135: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L81-L93) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
+> 2. Show lines 136–137: If the username does not exist, the catch block adds a 350ms delay to match the network duration of a Firebase auth roundtrip and throws a standard `Firebase: auth/invalid-credential` error.  
+> 3. Show lines 88–94: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`. This ensures attackers cannot determine whether an account exists or whether a username is registered.
 
 ### Q7: "How is clickable column header sorting and search implemented in the admin datatables?"
 > **Answer & File to Show:**  
