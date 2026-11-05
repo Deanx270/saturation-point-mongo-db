@@ -25,14 +25,22 @@ const updateUserProfile = async (req, res) => {
     if (username) updateData.username = username;
     if (email && email.includes('@')) {
       const normalizedEmail = email.toLowerCase().trim();
-      const existing = await User.findOne({
-        email: normalizedEmail,
-        _id: { $ne: req.mongoUser._id },
-      });
-      if (existing) {
-        return res.status(400).json({ message: 'Email is already in use.' });
+      if (
+        req.mongoUser?.email &&
+        normalizedEmail !== req.mongoUser.email.toLowerCase()
+      ) {
+        if (!req.mongoUser.email.endsWith('@users.thesaturationpoint.com')) {
+          return res.status(400).json({ message: 'Email address cannot be changed.' });
+        }
+        const existing = await User.findOne({
+          email: normalizedEmail,
+          _id: { $ne: req.mongoUser._id },
+        });
+        if (existing) {
+          return res.status(400).json({ message: 'Email is already in use.' });
+        }
+        updateData.email = normalizedEmail;
       }
-      updateData.email = normalizedEmail;
     }
 
     if (req.file) {

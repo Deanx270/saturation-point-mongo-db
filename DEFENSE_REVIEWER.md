@@ -12,9 +12,9 @@
 | **MP1: Multiple Photo Upload** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`controllers/productController.js`](controllers/productController.js#L121-L206) | FormData, Multer (`array`), `imageOrder` |
 | **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L173-L190) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
 | **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L217-L231) | MUI Checkbox, `$in` delete, instant local state |
-| **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L32)<br>[`controllers/userController.js`](controllers/userController.js#L66-L124) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
-| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169)<br>Form UI: [`Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) | [`controllers/userController.js`](controllers/userController.js#L81-L93) | Login via username or email lookup, username enumeration defense |
-| **MP2: User Profile Update + Photo** | 5 | [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L153-L265) | [`controllers/userController.js`](controllers/userController.js#L19-L64) | Multer (`single`), Cloudinary CDN upload |
+| **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L32)<br>[`controllers/userController.js`](controllers/userController.js#L74-L132) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
+| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169)<br>Form UI: [`Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) | [`controllers/userController.js`](controllers/userController.js#L89-L101) | Login via username or email lookup, username enumeration defense |
+| **MP2: User Profile Update + Photo** | 5 | [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L153-L265) | [`controllers/userController.js`](controllers/userController.js#L19-L72) | Multer (`single`), Cloudinary CDN upload |
 | **MP2: Firebase Auth (Email/Pass)** | 10 | [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L98-L105) | [`middleware/auth.js`](middleware/auth.js#L4-L114) | Firebase Client SDK + Admin SDK `verifyIdToken` |
 | **MP3: Availed Purchase Check** | 10 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L76-L92) | [`controllers/orderController.js`](controllers/orderController.js#L135-L144) | Order history validation (`status === 'delivered'`) |
 | **MP3: Write / Update Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L104-L154) | [`controllers/productController.js`](controllers/productController.js#L233-L304) | Subdocument schema, average recalculation |
@@ -102,7 +102,7 @@
   - Asynchronous real-time debounced username uniqueness check (`/api/users/check-username`).
   - Submits user to Firebase, uploads profile picture to Cloudinary via backend `/api/users/profile`, and triggers a custom verification email via `/api/users/send-verification`.
 - **Backend Routes**: [`routes/userRoutes.js`](routes/userRoutes.js#L29-L32)
-- **Backend Controllers**: [`controllers/userController.js`](controllers/userController.js#L66-L124)
+- **Backend Controllers**: [`controllers/userController.js`](controllers/userController.js#L74-L132)
   - `checkUsername`: Checks username availability.
   - `sendVerificationEmail`: Generates verification link using Firebase Admin SDK and dispatches branded email via Mailtrap.
 
@@ -115,7 +115,7 @@
   - **Unified Credential Error**: Handled by `formatFirebaseError` ([`client/src/pages/Login.jsx#L84-L97`](client/src/pages/Login.jsx#L84-L97)), which uniformly displays `"Invalid email, username, or password. Please try again."` for all invalid email, username, or password attempts.
   - Authenticates via Firebase `signInWithEmailAndPassword`, checks `emailVerified`, and rejects unverified logins ([`Login.jsx#L141-L148`](client/src/pages/Login.jsx#L141-L148)).
   - Fetches MongoDB profile and routes to `/admin/dashboard` or `/profile` ([`Login.jsx#L150-L163`](client/src/pages/Login.jsx#L150-L163)).
-- **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L81-L93)
+- **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L89-L101)
   - `getEmailByUsername`: Finds user by username and returns their email.
 
 #### 3. User Profile Update with Photo Upload (5 Points)
@@ -126,7 +126,7 @@
   - Password change section using Firebase `updatePassword`.
 - **Backend Route**: [`routes/userRoutes.js`](routes/userRoutes.js#L35)
   - `router.put('/profile', verifyToken, upload.single('photo'), updateUserProfile);`
-- **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L19-L64)
+- **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L19-L72)
   - `updateUserProfile`: Updates `displayName`, `username`, `email` (with collision check), and saves Cloudinary `req.file.path` into `photoURL`.
 
 #### 4. Username and Password using Firebase Authentication (10 Points)
@@ -384,7 +384,7 @@
 
 | Security / Design Area | Implementation Location | Defense Talking Points |
 | :--- | :--- | :--- |
-| **NoSQL Injection Prevention** | Controllers: [`productController.js`](controllers/productController.js#L8-L231), [`orderController.js`](controllers/orderController.js#L5-L71), [`userController.js`](controllers/userController.js#L19-L64) | All queries use Mongoose prepared methods (`findById`, `findOne`, `create`, `deleteMany`) with strict schema typing, preventing arbitrary operator injection. |
+| **NoSQL Injection Prevention** | Controllers: [`productController.js`](controllers/productController.js#L8-L231), [`orderController.js`](controllers/orderController.js#L5-L71), [`userController.js`](controllers/userController.js#L19-L72) | All queries use Mongoose prepared methods (`findById`, `findOne`, `create`, `deleteMany`) with strict schema typing, preventing arbitrary operator injection. |
 | **Regex Injection & ReDoS Mitigation** | Controller: [`productController.js:4-6, 21, 80`](controllers/productController.js#L4-L6) | Sanitizes search queries using `escapeRegex` to neutralize regex metacharacters (`. * + ? ^ $ { } ( ) [ ] \`), eliminating wildcard manipulation, syntax compilation crashes, and catastrophic backtracking DoS. |
 | **JWT & Token Authentication** | Middleware: [`middleware/auth.js:14-16`](middleware/auth.js#L14-L16) | Uses Firebase Admin SDK `verifyIdToken(token)` to cryptographically verify RS256 JWT tokens on every protected API call. |
 | **Role-Based Access Control (RBAC)** | Middleware: [`middleware/auth.js:116-122`](middleware/auth.js#L116-L122)<br>Frontend: [`client/src/App.jsx:32-39`](client/src/App.jsx#L32-L39) | Protected routes check `mongoUser.role === 'admin'`. Unauthorized requests return HTTP 403 Forbidden on both backend and frontend. |
@@ -429,7 +429,7 @@
 ### Q6: "How does login with username work when Firebase only supports email/password?"
 > **Answer & File to Show:**  
 > Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L128-L142) and [`client/src/pages/Login.jsx:84-97`](client/src/pages/Login.jsx#L84-L97).  
-> 1. Show lines 129–135: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L81-L93) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
+> 1. Show lines 129–135: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L89-L101) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
 > 2. Show lines 136–137: If the username does not exist, the catch block adds a 350ms delay to match the network duration of a Firebase auth roundtrip and throws a standard `Firebase: auth/invalid-credential` error.  
 > 3. Show lines 84–97: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`.
 
