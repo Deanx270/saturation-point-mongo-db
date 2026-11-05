@@ -8,7 +8,7 @@
 
 | Category / Requirement | Pts | Frontend File & Line Range | Backend File & Line Range | Key Technologies |
 | :--- | :---: | :--- | :--- | :--- |
-| **MP1: Product Datatable** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L903-L1158) | [`controllers/productController.js`](controllers/productController.js#L8-L75) | MUI Table, Pagination, Search & `TableSortLabel` |
+| **MP1: Product Datatable** | 5 | UI: [`AdminProducts.jsx#L842-L1155`](client/src/pages/AdminProducts.jsx#L842-L1155)<br>Logic: [`AdminProducts.jsx#L630-L673`](client/src/pages/AdminProducts.jsx#L630-L673) | [`controllers/productController.js`](controllers/productController.js#L8-L75) | MUI Table, Pagination, Search & `TableSortLabel` |
 | **MP1: Multiple Photo Upload** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`controllers/productController.js`](controllers/productController.js#L121-L206) | FormData, Multer (`array`), `imageOrder` |
 | **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L173-L190) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
 | **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L217-L231) | MUI Checkbox, `$in` delete, instant local state |
@@ -43,14 +43,16 @@
 ### MP1: Product / Service CRUD (20 Points Total)
 
 #### 1. Datatables for Product CRUD (5 Points)
-- **Frontend File**: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L903-L1158)
-  - **Material UI `<Table>`**: Features sticky header with `#FAF9F6` background, image thumbnail, name, brand, category, price, stock, and action buttons (Edit, Delete).
-  - **Column Header Sorting**: Uses MUI `<TableSortLabel>` on `Name`, `Brand`, `Category`, `Price`, and `Stock` columns with ascending/descending toggling.
-  - **Real-Time Search Bar**: Instant client-side search across Name, Brand, Category, and Price with auto-reset to page `0` upon typing.
-  - **Height Alignment**: Search input height (`48px`) is mathematically matched with adjacent action buttons (`Bulk Delete`, `Add Product`).
-  - **Material UI `<TablePagination>`**: Supports dynamic page changes and rows per page (`5, 10, 25, 50`).
-  - **Optimistic State Updates**: Deletions immediately remove records from local React state (`setProducts(prev => prev.filter(...))`), preventing table reloading or screen flashing.
-  - **SweetAlert2 Async Feedback**: Uses `showLoaderOnConfirm: true` and `preConfirm` to render an inline loading spinner while awaiting the delete request.
+- **Frontend Files & Logic**:
+  - **Datatable UI & Controls**: [`client/src/pages/AdminProducts.jsx#L842-L1155`](client/src/pages/AdminProducts.jsx#L842-L1155)
+  - **Sorting, Filtering & Pagination State**: [`client/src/pages/AdminProducts.jsx#L630-L673`](client/src/pages/AdminProducts.jsx#L630-L673)
+  - **Material UI `<Table>` & Layout**: Features sticky header with `#FAF9F6` background, image thumbnail, name, brand, category, price, stock, and action buttons (Edit, Delete) in lines 903–1140.
+  - **Column Header Sorting**: Uses MUI `<TableSortLabel>` (lines 935–989) on `Name`, `Brand`, `Category`, `Price`, and `Stock` columns with ascending/descending toggling driven by `handleRequestSort` and `sortedProducts` (lines 636–673).
+  - **Real-Time Search Bar**: Instant client-side search `TextField` across Name, Brand, Category, and Price with auto-reset to page `0` upon typing (lines 851–874, 643–653).
+  - **Height Alignment**: Search input height (`48px`) is mathematically matched with adjacent action buttons (`Bulk Delete`, `Add Product`) in lines 851–900.
+  - **Material UI `<TablePagination>`**: Supports dynamic page changes and rows per page (`5, 10, 25, 50`) in lines 1142–1154.
+  - **Optimistic State Updates**: Deletions immediately remove records from local React state (`setProducts(prev => prev.filter(...))`), preventing table reloading or screen flashing (lines 733, 768).
+  - **SweetAlert2 Async Feedback**: Uses `showLoaderOnConfirm: true` and `preConfirm` to render an inline loading spinner while awaiting the delete request (lines 721–742, 760–776).
 - **Backend File**: [`controllers/productController.js`](controllers/productController.js#L8-L75)
   - `getProducts`: Query builder fetching products with search keyword, category/price/rating filters, and pagination (`skip` and `limit`).
   - **Regex Injection & ReDoS Defense**: User search input (`kw`) is sanitized via `escapeRegex` (`replace(/[.*+?^${}()|[\]\\]/g, '\\$&')`) before compiling into MongoDB `$regex` queries, neutralizing regex metacharacters, syntax crash vectors (e.g., unclosed parentheses), and wildcard manipulation.
@@ -433,8 +435,8 @@
 
 ### Q7: "How is clickable column header sorting and search implemented in the admin datatables?"
 > **Answer & File to Show:**  
-> Open [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L915-L980).  
-> Explain that MUI's native `<TableSortLabel>` is used for sortable headers with ascending/descending toggling. Show the `useMemo` filtering and sorting pipelines that handle case-insensitive string sorting, numeric price/stock sorting, and chronological date sorting across all admin tables. Show that search input height is locked to `48px` to match action buttons.
+> Open [`client/src/pages/AdminProducts.jsx#L636-L673`](client/src/pages/AdminProducts.jsx#L636-L673) for the sorting and filtering pipelines, and [`client/src/pages/AdminProducts.jsx#L911-L989`](client/src/pages/AdminProducts.jsx#L911-L989) for the MUI `<TableSortLabel>` header UI.  
+> Explain that MUI's native `<TableSortLabel>` is used for sortable headers with ascending/descending toggling. Show the `useMemo` filtering and sorting pipelines that handle case-insensitive string sorting, numeric price/stock sorting, and chronological date sorting across all admin tables. Show that search input height is locked to `48px` (lines 851–874) to match action buttons.
 
 ### Q8: "How does the system handle uploading multiple photos and storing them on Cloudinary?"
 > **Answer & File to Show:**  
