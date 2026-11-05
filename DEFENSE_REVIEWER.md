@@ -31,7 +31,7 @@
 | **Quiz 1: Ratings Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L359-L370) | [`controllers/productController.js`](controllers/productController.js#L47-L49) | `$gte` minimum rating filter |
 | **Quiz 1: Reviews Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L329-L357) | [`controllers/productController.js`](controllers/productController.js#L51-L53) | `$gte` minimum review count filter, quick 1+ toggle |
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100)<br>Chart: [`AdminDashboard.jsx#L205-L248`](client/src/pages/AdminDashboard.jsx#L205-L248) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
-| **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158)<br>Picker: [`BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)<br>Chart: [`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, luxury brand date picker, calendar boundary & year constraints (2020-2027) |
+| **Quiz 2: Date Range Sales Chart** | 15 | Pickers: [`AdminDashboard.jsx#L280-L303`](client/src/pages/AdminDashboard.jsx#L280-L303)<br>Logic: [`AdminDashboard.jsx#L101-L161`](client/src/pages/AdminDashboard.jsx#L101-L161)<br>Chart: [`AdminDashboard.jsx#L364-L400`](client/src/pages/AdminDashboard.jsx#L364-L400)<br>Component: [`BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, luxury brand date picker, calendar boundary & year constraints (2020-2027) |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L178)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L465-L510) | [`middleware/auth.js`](middleware/auth.js#L14-L90) | Firebase OAuth popups, Google & Facebook providers |
 | **Quiz 3: Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L118-L135)<br>Sentinel: [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)<br>Append Logic: [`Catalog.jsx#L85-L94`](client/src/pages/Catalog.jsx#L85-L94) | [`controllers/productController.js`](controllers/productController.js#L54-L71) | Native `IntersectionObserver`, `skip` & `limit`, Map deduplication |
 | **Quiz 4: Redux State Management** | 15 | Store: [`redux/store.js`](client/src/redux/store.js#L1-L12)<br>Slice: [`redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L130)<br>Root: [`main.jsx`](client/src/main.jsx#L14-L30) | N/A (Client State Architecture) | Redux Toolkit (`configureStore`, `createSlice`, `createAsyncThunk`) |
@@ -297,9 +297,11 @@
   - Fetches orders for dashboard calculations.
 
 #### 2. Sales Chart with Date Range Filter (15 Points)
-- **Frontend Files**:
-  - Luxury Brand Date Picker: [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)
-  - Admin Dashboard Integration: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158) & [`client/src/pages/AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400)
+- **Frontend Files & Implementation**:
+  - **Date Range State & Aggregation Logic**: [`client/src/pages/AdminDashboard.jsx#L48-L49`](client/src/pages/AdminDashboard.jsx#L48-L49) & [`client/src/pages/AdminDashboard.jsx#L101-L161`](client/src/pages/AdminDashboard.jsx#L101-L161)
+  - **Date Picker Filter Inputs**: [`client/src/pages/AdminDashboard.jsx#L280-L303`](client/src/pages/AdminDashboard.jsx#L280-L303)
+  - **Recharts `<BarChart>` Sales Display**: [`client/src/pages/AdminDashboard.jsx#L364-L400`](client/src/pages/AdminDashboard.jsx#L364-L400)
+  - **Luxury Brand Date Picker Component**: [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx) (Dynamic Days: [`L97-L99`](client/src/components/BrandDatePicker.jsx#L97-L99), Year Boundaries 2020–2027: [`L59-L60, L153-L159`](client/src/components/BrandDatePicker.jsx#L59-L60), Calendar Popover: [`L170-L474`](client/src/components/BrandDatePicker.jsx#L170-L474))
 - **Validation & UX Enhancements**:
   - **Custom Luxury Theme**: Replaces browser-default HTML inputs with an artisanal popover calendar matching the store palette (`#1C1917`, `#CA8A04`, `#FAF9F6`) and typography (`Lora`, `Montserrat`).
   - **Impossible Date Elimination**: The read-only text input prevents typing corrupt dates (such as `02/31/0002` or `09/31/2026`). Month grids dynamically calculate exact days in the month (`new Date(year, month + 1, 0).getDate()`), guaranteeing 30 days for September and 28/29 days for February.
@@ -456,7 +458,7 @@
 ### Q10: "How are the sales analytics charts implemented in Quiz 2?"
 > **Answer & File to Show:**  
 > 1. Monthly 12-Month Line Chart: Open [`client/src/pages/AdminDashboard.jsx#L70-L100`](client/src/pages/AdminDashboard.jsx#L70-L100) (pre-populating all 12 calendar months Jan–Dec) and lines 205–248 rendering the Recharts `<LineChart>`.  
-> 2. Custom Date Range Sales Chart: Open [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx) and [`client/src/pages/AdminDashboard.jsx#L102-L158`](client/src/pages/AdminDashboard.jsx#L102-L158). Show how impossible dates (Feb 31) are eliminated by dynamic day calculation, years are restricted to 2020–2027, day loops are guarded (`iterations <= 730`), and sales are aggregated on Recharts `<BarChart>` ([`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400)).
+> 2. Custom Date Range Sales Chart: Open [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx) (dynamic day clamping at lines 97–99, year boundaries 2020–2027 at lines 59–60 and 153–159, and popover at lines 170–474). In [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx), show the date picker inputs at lines 280–303, the aggregation and safety loop logic (`iterations <= 730`) at lines 101–161, and the Recharts `<BarChart>` at lines 364–400.
 
 ### Q11: "How does Facebook and Google login work using Firebase in Quiz 3?"
 > **Answer & File to Show:**  
