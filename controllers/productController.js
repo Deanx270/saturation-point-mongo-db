@@ -1,5 +1,4 @@
 const Product = require('../models/Product');
-const { Filter } = require('bad-words');
 
 const escapeRegex = (string) => {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -241,33 +240,6 @@ exports.createProductReview = async (req, res) => {
         .json({ message: 'Review must be at most 500 characters' });
     }
 
-    let sanitizedComment = comment;
-    if (sanitizedComment) {
-      const filter = new Filter();
-      filter.addWords(
-        'putangina',
-        'gago',
-        'tarantado',
-        'bobo',
-        'tangina',
-        'ulol',
-        'pota',
-        'puta',
-        'hayop',
-        'lintik',
-        'leche',
-        'pakyu',
-        'yawa',
-        'pisti',
-        'giatay',
-        'bwisit',
-        'punyeta',
-        'tae',
-        'kantot',
-      );
-      sanitizedComment = filter.clean(sanitizedComment);
-    }
-
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
@@ -277,13 +249,13 @@ exports.createProductReview = async (req, res) => {
 
     if (alreadyReviewed) {
       alreadyReviewed.rating = Number(rating);
-      alreadyReviewed.comment = sanitizedComment;
+      alreadyReviewed.comment = comment;
       alreadyReviewed.name = name;
     } else {
       const review = {
         name,
         rating: Number(rating),
-        comment: sanitizedComment,
+        comment,
         user: req.mongoUser._id,
       };
       product.reviews.push(review);

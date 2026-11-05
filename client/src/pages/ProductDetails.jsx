@@ -26,6 +26,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import Swal from 'sweetalert2';
 import { useCart } from '../context/CartContext';
+import { censorReview } from '../utils/censorReview';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -691,7 +692,7 @@ const ProductDetails = () => {
                       fontStyle: userReviewData.comment ? 'normal' : 'italic',
                     }}
                   >
-                    {userReviewData.comment || 'No comment provided.'}
+                    {censorReview(userReviewData.comment)}
                   </Typography>
                   <Typography
                     variant="caption"
@@ -996,7 +997,7 @@ const ProductDetails = () => {
                       pl: { xs: 0, sm: 7 },
                     }}
                   >
-                    {review.comment || 'No comment provided.'}
+                    {censorReview(review.comment)}
                   </Typography>
                   <Typography
                     variant="caption"
