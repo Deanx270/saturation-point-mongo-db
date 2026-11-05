@@ -31,13 +31,13 @@ import { censorReview } from '../utils/censorReview';
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, mongoUser } = useAuth();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewLoading, setReviewLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = mongoUser?.role === 'admin';
   const [quantity, setQuantity] = useState(1);
 
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -55,11 +55,6 @@ const ProductDetails = () => {
       }
 
       if (currentUser && found) {
-        const tokenResult = await currentUser.getIdTokenResult();
-        if (currentUser.email === 'admin@admin.com') {
-          setIsAdmin(true);
-        }
-
         const userReview = found.reviews.find(
           (r) =>
             r.name === currentUser.displayName || r.name === currentUser.email,
@@ -73,6 +68,11 @@ const ProductDetails = () => {
               ? ''
               : userReview.comment || '',
           });
+        } else {
+          setHasReviewed(false);
+          setUserReviewData(null);
+          setIsEditingReview(false);
+          formik.resetForm();
         }
 
         try {
@@ -190,7 +190,11 @@ const ProductDetails = () => {
       Swal.fire('Deleted!', 'Review has been deleted.', 'success');
       fetchProduct();
     } catch (error) {
-      Swal.fire('Error', 'Failed to delete review.', 'error');
+      Swal.fire(
+        'Error',
+        error.response?.data?.message || 'Failed to delete review.',
+        'error',
+      );
     }
   };
 
@@ -693,6 +697,18 @@ const ProductDetails = () => {
                     >
                       Edit
                     </Button>
+                    {isAdmin && (
+                      <Tooltip title="Delete Review (Admin)">
+                        <IconButton
+                          onClick={() => handleDeleteReview(userReviewData._id)}
+                          size="small"
+                          aria-label="Delete your review"
+                          sx={{ color: '#9f1239' }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
                   <Typography
                     variant="body1"
