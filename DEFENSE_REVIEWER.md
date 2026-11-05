@@ -1,6 +1,6 @@
 # "The Saturation Point" - System Defense Reviewer & Codebase Map
 
-> **Quick Tip for Defense:** When the panel or professor asks to see the implementation of any requirement, refer to the tables below. You can navigate directly to the exact file and line ranges listed.
+> **Quick Tip for Defense:** When the panel or professor asks to see the implementation of any requirement from the grading rubric, refer to the tables and sections below. You can navigate directly to the exact file and line ranges listed.
 
 ---
 
@@ -12,14 +12,10 @@
 | **MP1: Multiple Photo Upload** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`controllers/productController.js`](controllers/productController.js#L121-L206) | FormData, Multer (`array`), `imageOrder` |
 | **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L173-L190) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
 | **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L217-L231) | MUI Checkbox, `$in` delete, instant local state |
-| **MP1: Live Hero Search Autocomplete** | + | [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) | [`controllers/productController.js`](controllers/productController.js#L77-L97)<br>[`routes/productRoutes.js`](routes/productRoutes.js#L19) | 250ms Debounced live search, `escapeRegex` sanitize |
 | **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L32)<br>[`controllers/userController.js`](controllers/userController.js#L66-L124) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
 | **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169)<br>Form UI: [`Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) | [`controllers/userController.js`](controllers/userController.js#L81-L93) | Login via username or email lookup, username enumeration defense |
-| **MP2: Password Reset via Mailtrap** | + | Modal: [`Login.jsx`](client/src/pages/Login.jsx#L52-L81)<br>Page: [`ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L25-L100) | [`controllers/userController.js`](controllers/userController.js#L126-L196)<br>[`utils/emailService.js`](utils/emailService.js#L381-L441) | Firebase Admin action links, Mailtrap, timing defense |
 | **MP2: User Profile Update + Photo** | 5 | [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L153-L265) | [`controllers/userController.js`](controllers/userController.js#L19-L64) | Multer (`single`), Cloudinary CDN upload |
 | **MP2: Firebase Auth (Email/Pass)** | 10 | [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L98-L105) | [`middleware/auth.js`](middleware/auth.js#L4-L114) | Firebase Client SDK + Admin SDK `verifyIdToken` |
-| **MP2: User Account Enable / Disable** | + | [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L102-L178) | [`controllers/userController.js`](controllers/userController.js#L244-L281)<br>[`middleware/auth.js`](middleware/auth.js#L92-L98) | Token revocation, instant 403 logout, status badges |
-| **MP2: User Role Security (RBAC)** | + | [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L413-L433) | [`controllers/userController.js`](controllers/userController.js#L210-L242) | Read-only luxury badges, HTTP 403 escalation lock |
 | **MP3: Availed Purchase Check** | 10 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L76-L92) | [`controllers/orderController.js`](controllers/orderController.js#L135-L144) | Order history validation (`status === 'delivered'`) |
 | **MP3: Write / Update Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L104-L154) | [`controllers/productController.js`](controllers/productController.js#L233-L304) | Subdocument schema, average recalculation |
 | **MP3: Admin Delete Review** | 5 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L156-L183) | [`controllers/productController.js`](controllers/productController.js#L306-L334) | Admin delete + rating recalculation |
@@ -37,9 +33,8 @@
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100)<br>Chart: [`AdminDashboard.jsx#L205-L248`](client/src/pages/AdminDashboard.jsx#L205-L248) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
 | **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158)<br>Picker: [`BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)<br>Chart: [`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, luxury brand date picker, calendar boundary & year constraints (2020-2027) |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L178)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L465-L510) | [`middleware/auth.js`](middleware/auth.js#L14-L90) | Firebase OAuth popups, Google & Facebook providers |
-| **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L118-L135)<br>Sentinel: [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)<br>Append Logic: [`Catalog.jsx#L85-L94`](client/src/pages/Catalog.jsx#L85-L94) | [`controllers/productController.js`](controllers/productController.js#L54-L71) | Native `IntersectionObserver`, `skip` & `limit`, Map deduplication |
+| **Quiz 3: Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L118-L135)<br>Sentinel: [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)<br>Append Logic: [`Catalog.jsx#L85-L94`](client/src/pages/Catalog.jsx#L85-L94) | [`controllers/productController.js`](controllers/productController.js#L54-L71) | Native `IntersectionObserver`, `skip` & `limit`, Map deduplication |
 | **Quiz 4: Redux State Management** | 15 | Store: [`redux/store.js`](client/src/redux/store.js#L1-L12)<br>Slice: [`redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L130)<br>Root: [`main.jsx`](client/src/main.jsx#L14-L30) | N/A (Client State Architecture) | Redux Toolkit (`configureStore`, `createSlice`, `createAsyncThunk`) |
-| **Database Seeder & Cleanup** | + | Terminal: `npm run seed`<br>Cleanup: `npm run unseed` | [`seed-additional.js`](seed-additional.js#L1-L372)<br>[`unseed.js`](unseed.js#L1-L104) | Idempotent insertion, partial deletion detection |
 
 ---
 
@@ -47,7 +42,7 @@
 
 ### MP1: Product / Service CRUD (20 Points Total)
 
-#### 1. Datatables for Product CRUD
+#### 1. Datatables for Product CRUD (5 Points)
 - **Frontend File**: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L903-L1158)
   - **Material UI `<Table>`**: Features sticky header with `#FAF9F6` background, image thumbnail, name, brand, category, price, stock, and action buttons (Edit, Delete).
   - **Column Header Sorting**: Uses MUI `<TableSortLabel>` on `Name`, `Brand`, `Category`, `Price`, and `Stock` columns with ascending/descending toggling.
@@ -61,7 +56,7 @@
   - **Regex Injection & ReDoS Defense**: User search input (`kw`) is sanitized via `escapeRegex` (`replace(/[.*+?^${}()|[\]\\]/g, '\\$&')`) before compiling into MongoDB `$regex` queries, neutralizing regex metacharacters, syntax crash vectors (e.g., unclosed parentheses), and wildcard manipulation.
 - **Database Model**: [`models/Product.js`](models/Product.js#L1-L64)
 
-#### 2. Upload Multiple Photos
+#### 2. Upload Multiple Photos (5 Points)
 - **Frontend File**: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125)
   - Appends up to 5 image files to `FormData` under the key `images` alongside an `imageOrder` array.
   - File selection handler validating file types (JPEG, PNG, WEBP), file size (under 5MB), maximum count of 5, and controls for reordering images up/down.
@@ -72,7 +67,7 @@
   - `createProduct`: Maps uploaded files to an array of URLs: `req.files.map(file => file.path)`.
   - `updateProduct`: Processes newly uploaded files alongside existing image URLs based on the user-selected image order.
 
-#### 3. Cloudinary Integration
+#### 3. Cloudinary Integration (5 Points)
 - **Backend Utility**: [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)
   - Configures `cloudinary.v2` using environment variables (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`).
   - Sets up `CloudinaryStorage` with target folder `'saturation_point_new'` and formats `['jpg', 'png', 'jpeg', 'webp']`.
@@ -80,7 +75,7 @@
 - **Cloudinary Asset Deletion**: [`controllers/productController.js`](controllers/productController.js#L173-L190)
   - Automatically invokes `cloudinary.uploader.destroy(publicId)` when an admin replaces or removes an image during product update or deletion.
 
-#### 4. Bulk Delete Using Checkboxes
+#### 4. Bulk Delete Using Checkboxes (5 Points)
 - **Frontend File**: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748)
   - `selectedIds` state tracking selected product IDs.
   - `handleSelectAll` and `handleSelectOne` functions managing checkbox selections across sorted and filtered lists.
@@ -94,23 +89,11 @@
 - **Backend Controller**: [`controllers/productController.js`](controllers/productController.js#L217-L231)
   - Uses Mongoose prepared delete: `Product.deleteMany({ _id: { $in: ids } })`.
 
-#### 5. Live Hero Search Autocomplete
-- **Frontend File**: [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98)
-  - Features an interactive search bar in the hero section.
-  - Debounced at 250ms: automatically queries `GET /api/products/search?q=...` once the user types 2 or more characters.
-  - Real-time dropdown presents matching products with thumbnail images, names, categories, brands, and formatted prices.
-  - Clicking any search result navigates directly to [`/product/:id`](client/src/pages/ProductDetails.jsx).
-  - Pressing Enter or clicking search submits to [`/catalog?search=...`](client/src/pages/Catalog.jsx), syncing the query parameter into the catalog filter state.
-  - Hero image optimization: image preloaded via [`client/index.html:7`](client/index.html#L7) with dark background `#1B263B` to eliminate flashing placeholders.
-- **Backend Route & Controller**: [`routes/productRoutes.js:19`](routes/productRoutes.js#L19) & [`controllers/productController.js:77-97`](controllers/productController.js#L77-L97)
-  - `searchProducts`: Performs case-insensitive regex search across `name`, `brand`, and `category`, returning up to 5 quick results for autocomplete speed.
-  - **Regex Sanitization**: Query parameter `q` is sanitized through `escapeRegex` to prevent ReDoS and wildcard exploitation in real-time search queries.
-
 ---
 
 ### MP2: User Functions (20 Points Total)
 
-#### 1. User Registration (Matching Old-System Fields)
+#### 1. User Registration (Matching Old-System Fields) (2 Points)
 - **Frontend File**: [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235)
   - Initial values matching old-system: `firstName`, `lastName`, `username`, `email`, `password`, `confirmPassword`, `profilePicture`.
   - Yup validation rules for all fields (regex for names, minimum lengths, password match).
@@ -121,7 +104,7 @@
   - `checkUsername`: Checks username availability.
   - `sendVerificationEmail`: Generates verification link using Firebase Admin SDK and dispatches branded email via Mailtrap.
 
-#### 2. Username and Password Login
+#### 2. Username and Password Login (5 Points)
 - **Frontend File**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169) (Formik Logic) & [`client/src/pages/Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) (Form Fields)
   - Input field `identifier` accepts **either an Email OR a Username** ([`Login.jsx#L273-L297`](client/src/pages/Login.jsx#L273-L297)).
   - Password input field with visibility toggle and adornment ([`Login.jsx#L298-L345`](client/src/pages/Login.jsx#L298-L345)).
@@ -133,26 +116,7 @@
 - **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L81-L93)
   - `getEmailByUsername`: Finds user by username and returns their email.
 
-#### 3. Password Reset Flow (Mailtrap Integration & Timing Attack Mitigation)
-- **Frontend Login Modal**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L52-L81) & [`client/src/pages/Login.jsx:540-659`](client/src/pages/Login.jsx#L540-L659)
-  - Accessible via "Forgot password?" button on the login card.
-  - Accepts either registered username or email address.
-  - Tightened modal geometry (`pt: 0.5, pb: 0`) ensures clean visual spacing between confirmation instructions and the "Done" button.
-- **Dedicated Reset Page**: [`client/src/pages/ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L25-L100)
-  - Client-side route: `/reset-password?mode=resetPassword&oobCode=...` registered in [`client/src/App.jsx:122`](client/src/App.jsx#L122).
-  - Verifies cryptographic action code on mount via Firebase Client SDK `verifyPasswordResetCode(auth, oobCode)`.
-  - Formik and Yup validation ensuring new password meets minimum 6 characters and matches confirmation.
-  - Submits reset via `confirmPasswordReset(auth, oobCode, newPassword)` and redirects to Login.
-- **Backend Route**: [`routes/userRoutes.js:32`](routes/userRoutes.js#L32)
-  - Protected by dedicated `emailRateLimiter` (maximum 5 requests per 15 minutes per IP).
-- **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L126-L196)
-  - Resolves username or email to MongoDB record.
-  - Checks if user account is disabled: disabled users are blocked with HTTP 403.
-  - Generates cryptographically signed single-use reset URL via Firebase Admin SDK `auth.generatePasswordResetLink(user.email)`.
-  - Dispatches HTML formatted reset email via Mailtrap Nodemailer transport ([`utils/emailService.js:381-441`](utils/emailService.js#L381-L441)).
-  - **Side-Channel Timing Attack Mitigation**: Uses `setTimeout` normalization (target duration ~800–1050ms) across both existing and non-existing accounts, returning a uniform ambiguous message (`If an account matches that email or username, a password reset link has been sent.`).
-
-#### 4. User Profile Update with Photo Upload
+#### 3. User Profile Update with Photo Upload (5 Points)
 - **Frontend File**: [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L153-L265)
   - Formik form with Yup validation for updating personal info (first name, last name, username, email).
   - Submits `FormData` containing updated fields and optional avatar file to `PUT /api/users/profile`.
@@ -163,7 +127,7 @@
 - **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L19-L64)
   - `updateUserProfile`: Updates `displayName`, `username`, `email` (with collision check), and saves Cloudinary `req.file.path` into `photoURL`.
 
-#### 5. Firebase Authentication Integration
+#### 4. Username and Password using Firebase Authentication (10 Points)
 - **Client Firebase Initialization**: [`client/src/firebase.js`](client/src/firebase.js#L1-L15)
 - **Auth Context Wrapper**: [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L98-L205)
   - `signInWithEmailAndPassword` and `createUserWithEmailAndPassword`.
@@ -172,27 +136,11 @@
 - **Backend Token Verification Middleware**: [`middleware/auth.js`](middleware/auth.js#L4-L114)
   - Verifies bearer token using `auth.verifyIdToken(token)` and binds MongoDB user to `req.mongoUser`.
 
-#### 6. User Account Enable / Disable Action & RBAC Protection
-- **Frontend File**: [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L102-L178)
-  - Interactive **Enable / Disable** button with SweetAlert2 confirmation dialog and `showLoaderOnConfirm`.
-  - In-place state update: updates user status in local state without full page reload.
-  - Protected: Not applicable to admin accounts (`user.role !== 'admin'`).
-  - Real-time `Status` column with visual status chip: `Active` (green) or `Disabled` (rose).
-  - **Read-Only Luxury Role Badges**: Replaced interactive dropdown with read-only badges (`Admin` in charcoal/gold, `Customer` in neutral stone). Prevents accidental or arbitrary promotion of customers to administrators.
-  - **Column Width Alignment**: Shrunk `ID` column from 16% to 9% (`minWidth: 100px`) and expanded `Actions` column to 19% (`minWidth: 170px`) with flex spacing to eliminate button overlapping.
-- **Backend Route & Controller**: [`routes/userRoutes.js#L38-L39`](routes/userRoutes.js#L38-L39) & [`controllers/userController.js#L210-L281`](controllers/userController.js#L210-L281)
-  - `PUT /api/users/:id/status`: Updates `user.status` to `active` or `disabled`.
-  - `PUT /api/users/:id/role`: Enforces HTTP 403 guard (`Cannot change the role of a customer.`) and blocks self-role modification.
-  - Firebase synchronization: Calls `auth.updateUser(uid, { disabled: true })` and `auth.revokeRefreshTokens(uid)` to immediately invalidate refresh tokens and prevent logins.
-- **Middleware & Session Expiry**: [`middleware/auth.js`](middleware/auth.js#L92-L98) & [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L75-L93)
-  - `verifyToken` middleware instantly rejects disabled users with `403` and `isAccountDisabled: true`.
-  - Frontend auto-signs out disabled users immediately, expiring their session.
-
 ---
 
 ### MP3: Review & Ratings (20 Points Total)
 
-#### 1. Only Users Who Availed (Purchased) Can Review
+#### 1. Only Users Who Availed (Purchased) Can Review (10 Points)
 - **Frontend File**: [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L76-L92)
   - Queries `/api/orders/myorders` and validates that the logged-in user has an order with `status === 'delivered'` containing the current product:
     ```javascript
@@ -207,7 +155,7 @@
 - **Backend Controller**: [`controllers/orderController.js`](controllers/orderController.js#L135-L144)
   - `getMyOrders`: Fetches all orders belonging to the authenticated user.
 
-#### 2. Users Can Write and Update Their Own Review & Rating
+#### 2. Users Can Write and Update Their Own Review & Rating (5 Points)
 - **Frontend File**: [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L104-L154)
   - Pre-populates existing review if the user has already reviewed the product (`isEditingReview` mode).
   - Formik form submitting rating (1-5 stars) and comment to `POST /api/products/:id/reviews`.
@@ -216,7 +164,7 @@
   - Automatically recalculates product average `rating` and `numReviews`.
 - **Database Model**: [`models/Product.js`](models/Product.js#L35-L60)
 
-#### 3. Admin Can Delete Any Review
+#### 3. Admin Can Delete Any Review (5 Points)
 - **Frontend File**: [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L156-L183)
   - Admin click handler calling `DELETE /api/products/:id/reviews/:reviewId`.
   - Delete button conditionally rendered for administrators: `mongoUser?.role === 'admin'`.
@@ -266,7 +214,7 @@
     - Grand total summary
 
 #### 4. Attach PDF Receipt on Email (10 Points)
-- **Backend Utility**: [`utils/emailService.js`](utils/emailService.js#L4-L179) & [`utils/emailService.js:214-225`](utils/emailService.js#L214-L225)
+- **Backend Utility**: [`utils/emailService.js`](utils/emailService.js#L4-L179) & [`utils/emailService.js#L214-L225`](utils/emailService.js#L214-L225)
   - `shouldAttachReceipt = true`: **Every order confirmation and status update email** attaches the official PDF receipt buffer (`Receipt-${order._id}.pdf`).
   - Generated in memory via `PDFKit` streaming buffers without writing temporary files to disk.
   - Features store branding ("THE SATURATION POINT"), order ID, date, customer name, email, payment method, item table with unit prices and subtotals, shipping fee, and grand total.
@@ -290,16 +238,12 @@
   - Yup schema for names, username regex, valid email, minimum 6-character password, and password match.
 - **User Profile Update Form**: [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L170-L201)
   - Yup schema for updating profile attributes and password.
-- **Password Reset Form**: [`client/src/pages/ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L59-L73)
-  - Yup schema enforcing minimum 6 characters and password confirmation matching.
-- **Review Form**: [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L111-L116)
-  - Rating required (min 1 star) and comment validation.
 
 ---
 
 ### Unit 2: User Interface Design CSS and Material UI (20 Points Total)
 
-#### 1. Material UI Theme & Component System
+#### 1. Material UI Theme & Component System (20 Points)
 - **Theme Configuration**: [`client/src/theme.js`](client/src/theme.js#L1-L81)
   - Color palette definition (`primary: '#1C1917'`, `secondary: '#CA8A04'`, `background: '#FAF9F6'`).
   - Typography hierarchy using Lora / Cormorant headers and Montserrat body.
@@ -344,7 +288,7 @@
 ### Quiz 2: Sales Charts & Analytics (25 Points Total)
 
 #### 1. Monthly Sales Line Chart - All 12 Months (10 Points)
-- **Frontend File**: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100) & [`client/src/pages/AdminDashboard.jsx:205-248`](client/src/pages/AdminDashboard.jsx#L205-L248)
+- **Frontend File**: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100) & [`client/src/pages/AdminDashboard.jsx#L205-L248`](client/src/pages/AdminDashboard.jsx#L205-L248)
   - Pre-populates all 12 calendar months (`Jan` through `Dec`) and maps delivered order amounts.
   - Renders Recharts `<LineChart>` with responsive container.
 - **Backend Controller**: [`controllers/orderController.js`](controllers/orderController.js#L73-L82)
@@ -353,7 +297,7 @@
 #### 2. Sales Chart with Date Range Filter (15 Points)
 - **Frontend Files**:
   - Luxury Brand Date Picker: [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)
-  - Admin Dashboard Integration: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158) & [`client/src/pages/AdminDashboard.jsx:365-400`](client/src/pages/AdminDashboard.jsx#L365-L400)
+  - Admin Dashboard Integration: [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158) & [`client/src/pages/AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400)
 - **Validation & UX Enhancements**:
   - **Custom Luxury Theme**: Replaces browser-default HTML inputs with an artisanal popover calendar matching the store palette (`#1C1917`, `#CA8A04`, `#FAF9F6`) and typography (`Lora`, `Montserrat`).
   - **Impossible Date Elimination**: The read-only text input prevents typing corrupt dates (such as `02/31/0002` or `09/31/2026`). Month grids dynamically calculate exact days in the month (`new Date(year, month + 1, 0).getDate()`), guaranteeing 30 days for September and 28/29 days for February.
@@ -363,9 +307,9 @@
 
 ---
 
-### Quiz 3: Facebook & Gmail Login using Firebase (15 Points Total)
+### Quiz 3: OAuth Login & Infinite Scroll (30 Points Total)
 
-#### 1. OAuth Providers & Scope Configuration
+#### 1. Facebook or Gmail Login using Firebase (15 Points)
 - **Auth Context File**: [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L178)
   - `loginWithGoogle`: Instantiates `GoogleAuthProvider` with email and profile scopes.
   - `loginWithFacebook`: Instantiates `FacebookAuthProvider` with email and public profile scopes.
@@ -377,7 +321,7 @@
 - **Backend Synchronization**: [`middleware/auth.js`](middleware/auth.js#L14-L90)
   - Verifies token via Firebase Admin SDK, reads social credentials, and ensures a matching MongoDB user profile exists.
 
-#### 2. Alternative: Infinite Scroll via IntersectionObserver (15 Points)
+#### 2. Infinite Scroll on Products List in Catalog (15 Points)
 - **Frontend Files**:
   - Observer Hook: [`client/src/pages/Catalog.jsx#L118-L135`](client/src/pages/Catalog.jsx#L118-L135)
   - Sentinel Target & Loading Spinner: [`client/src/pages/Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)
@@ -434,24 +378,6 @@
 
 ---
 
-### Database Management & Seed Utilities
-
-#### 1. Database Seeder (`npm run seed`)
-- **Script File**: [`seed-additional.js`](seed-additional.js#L1-L372)
-  - Script command: `npm run seed` (defined in [`package.json:9`](package.json#L9)).
-  - Idempotent execution: checks for existing names/emails prior to insertion, preventing duplicate key errors.
-  - Injects 12 curated luxury fountain pens, inks, and paper products.
-  - Injects 3 authentic luxury brands (`Platinum`, `Ferris Wheel Press`, `Clairefontaine`).
-  - Injects 3 sample users and 6 completed transactions with delivered statuses for dashboard analytics and review verification.
-
-#### 2. Database Cleanup & Unseed (`npm run unseed`)
-- **Script File**: [`unseed.js`](unseed.js#L1-L104)
-  - Script command: `npm run unseed` (defined in [`package.json:11`](package.json#L11)).
-  - **Partial Deletion Detection**: Gracefully tracks which seeded records were already manually deleted by the administrator, reporting exact counts without throwing errors.
-  - **Selective Data Purge**: Targets strictly seeded records by name and email, guaranteeing that newly created customer accounts, custom products, or default store categories are preserved.
-
----
-
 ## 3. Architecture & Security Defense Checklist
 
 | Security / Design Area | Implementation Location | Defense Talking Points |
@@ -460,14 +386,10 @@
 | **Regex Injection & ReDoS Mitigation** | Controller: [`productController.js:4-6, 21, 80`](controllers/productController.js#L4-L6) | Sanitizes search queries using `escapeRegex` to neutralize regex metacharacters (`. * + ? ^ $ { } ( ) [ ] \`), eliminating wildcard manipulation, syntax compilation crashes, and catastrophic backtracking DoS. |
 | **JWT & Token Authentication** | Middleware: [`middleware/auth.js:14-16`](middleware/auth.js#L14-L16) | Uses Firebase Admin SDK `verifyIdToken(token)` to cryptographically verify RS256 JWT tokens on every protected API call. |
 | **Role-Based Access Control (RBAC)** | Middleware: [`middleware/auth.js:116-122`](middleware/auth.js#L116-L122)<br>Frontend: [`client/src/App.jsx:32-39`](client/src/App.jsx#L32-L39) | Protected routes check `mongoUser.role === 'admin'`. Unauthorized requests return HTTP 403 Forbidden on both backend and frontend. |
-| **Privilege Escalation Lock** | Controller: [`userController.js:220-224`](controllers/userController.js#L220-L224)<br>Frontend: [`AdminUsers.jsx:413-433`](client/src/pages/AdminUsers.jsx#L413-L433) | Replaced interactive role dropdowns with read-only badges. Backend enforces strict HTTP 403 blocking modification of customer roles. |
-| **Login User Enumeration Prevention** | Frontend: [`client/src/pages/Login.jsx:84-97, 136-137`](client/src/pages/Login.jsx#L84-L97) | Unifies login error messages to `"Invalid email, username, or password. Please try again."` and injects a 350ms delay on missing usernames to mirror Firebase roundtrip latency, eliminating account enumeration hints. |
-| **Side-Channel Timing Attack Mitigation** | Controller: [`controllers/userController.js:143-150, 174-181`](controllers/userController.js#L143-L181) | Normalized response latency (~800–1050ms) and generic success messages prevent attackers from enumerating valid registered emails via response time differences. |
-| **Multi-Tier Rate Limiting** | API Gateway: [`server.js:12-23`](server.js#L12-L23)<br>Auth Routes: [`routes/userRoutes.js:19-27`](routes/userRoutes.js#L19-L27) | Tier 1: 500 requests / 15 min across entire API with reverse proxy trust (`trust proxy: 1`). Tier 2: Dedicated strict limit of 5 requests / 15 min on email verification and password reset endpoints. |
 | **Stock Concurrency & Integrity** | Controller: [`orderController.js:41-43`](controllers/orderController.js#L41-L43) | Uses atomic MongoDB update operators `$inc: { stock: -quantity }` to prevent race conditions during checkout. |
-| **Cloudinary File Storage & Cleanup** | Storage: [`utils/cloudinary.js:12-34`](utils/cloudinary.js#L12-L34)<br>Cleanup: [`controllers/productController.js:150-175`](controllers/productController.js#L173-L190), [`controllers/userController.js:295-305`](controllers/userController.js#L295-L305) | Direct upload to Cloudinary CDN with MIME-type filtering; automatically destroys obsolete public assets when products or users are deleted. |
+| **Cloudinary File Storage & Cleanup** | Storage: [`utils/cloudinary.js:12-34`](utils/cloudinary.js#L12-L34)<br>Cleanup: [`controllers/productController.js:173-190`](controllers/productController.js#L173-L190) | Direct upload to Cloudinary CDN with MIME-type filtering; automatically destroys obsolete public assets when products are updated or removed. |
 | **In-Memory PDF Generation** | Utility: [`utils/emailService.js:4-179`](utils/emailService.js#L4-L179) | Uses streaming PDFKit buffers in memory, avoiding disk I/O vulnerabilities and temporary file storage issues. |
-| **Optimistic / In-Place UI Updates** | Frontend: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L749-L780), [`AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L134-L178) | Local state filtering eliminates table reloading, accompanied by SweetAlert2 `showLoaderOnConfirm` and `preConfirm` for seamless button interaction. |
+| **Optimistic / In-Place UI Updates** | Frontend: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L749-L780) | Local state filtering eliminates table reloading, accompanied by SweetAlert2 `showLoaderOnConfirm` and `preConfirm` for seamless button interaction. |
 | **Redux State Management** | Store: [`client/src/redux/store.js`](client/src/redux/store.js#L1-L12)<br>Slice: [`client/src/redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L130) | Unidirectional data flow using Redux Toolkit with pure reducers, async thunks for live stock verification, and centralized state. |
 
 ---
@@ -502,61 +424,46 @@
 > 1. Frontend: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) & [`client/src/pages/AdminProducts.jsx:915-980`](client/src/pages/AdminProducts.jsx#L915-L980). Show the select-all checkbox, individual checkboxes, and the bulk delete handler sending an array of IDs.  
 > 2. Backend: [`controllers/productController.js`](controllers/productController.js#L217-L231). Show `Product.deleteMany({ _id: { $in: ids } })`.
 
-### Q6: "How does login with username work when Firebase only supports email/password, and how is username enumeration prevented?"
+### Q6: "How does login with username work when Firebase only supports email/password?"
 > **Answer & File to Show:**  
 > Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L128-L142) and [`client/src/pages/Login.jsx:84-97`](client/src/pages/Login.jsx#L84-L97).  
 > 1. Show lines 129–135: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L81-L93) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
 > 2. Show lines 136–137: If the username does not exist, the catch block adds a 350ms delay to match the network duration of a Firebase auth roundtrip and throws a standard `Firebase: auth/invalid-credential` error.  
-> 3. Show lines 84–97: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`. This ensures attackers cannot determine whether an account exists or whether a username is registered.
+> 3. Show lines 84–97: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`.
 
 ### Q7: "How is clickable column header sorting and search implemented in the admin datatables?"
 > **Answer & File to Show:**  
 > Open [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L915-L980).  
-> Explain that MUI's native `<TableSortLabel>` is used for sortable headers with ascending/descending toggling. Show the `useMemo` filtering and sorting pipelines that handle case-insensitive string sorting, numeric price/stock sorting, and chronological date sorting across all 5 admin tables and user Order History. Show that search input height is locked to `48px` to match action buttons.
+> Explain that MUI's native `<TableSortLabel>` is used for sortable headers with ascending/descending toggling. Show the `useMemo` filtering and sorting pipelines that handle case-insensitive string sorting, numeric price/stock sorting, and chronological date sorting across all admin tables. Show that search input height is locked to `48px` to match action buttons.
 
-### Q8: "How is the system protected against DDoS, brute force, and API spamming?"
+### Q8: "How does the system handle uploading multiple photos and storing them on Cloudinary?"
 > **Answer & File to Show:**  
-> Open [`server.js:12-23`](server.js#L12-L23) and [`routes/userRoutes.js:19-27`](routes/userRoutes.js#L19-L27).  
-> Explain that the application uses a multi-layered defense strategy:  
-> 1. General API: [`server.js:12-23`](server.js#L12-L23) sets `trust proxy` to `1` (for reverse proxies like Render) and caps requests at 500 per 15 minutes per IP address, returning HTTP 429 Too Many Requests if exceeded.  
-> 2. Sensitive Auth Endpoints: [`routes/userRoutes.js:19-27`](routes/userRoutes.js#L19-L27) applies a strict second limiter (`emailRateLimiter`) restricting password reset requests and verification emails to 5 requests per 15 minutes per IP address, mitigating mail-bombing and enumeration attacks.
+> 1. Frontend: Open [`client/src/pages/AdminProducts.jsx#L85-L125`](client/src/pages/AdminProducts.jsx#L85-L125). Show how files are appended to `FormData` under the key `images` alongside the `imageOrder` array.  
+> 2. Route Middleware: Open [`routes/productRoutes.js#L26-L39`](routes/productRoutes.js#L26-L39). Show `upload.array('images', 5)` using `multer-storage-cloudinary` to validate formats and stream directly to Cloudinary.  
+> 3. Controller: Open [`controllers/productController.js#L121-L206`](controllers/productController.js#L121-L206). Show `req.files.map(f => f.path)` mapped into the product document, and lines 173–190 where replaced images trigger `cloudinary.uploader.destroy(publicId)`.
 
-### Q9: "How does the admin enable or disable normal users, and how does session expiry work?"
+### Q9: "Where are the Catalog filters implemented on the frontend and backend?"
 > **Answer & File to Show:**  
-> 1. Frontend: [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L102-L178). Show the `Status` column with `Active`/`Disabled` chips and the **Enable/Disable** button (restricted from operating on admins).  
-> 2. Backend Route: `PUT /api/users/:id/status` in [`routes/userRoutes.js:39`](routes/userRoutes.js#L39) and [`controllers/userController.js:244-281`](controllers/userController.js#L244-L281). Show how disabling a user sets `status: 'disabled'` in MongoDB, calls Firebase Admin `auth.updateUser(uid, { disabled: true })`, and calls `auth.revokeRefreshTokens(uid)` to invalidate all active tokens.  
-> 3. Middleware & Expiry: In [`middleware/auth.js:92-98`](middleware/auth.js#L92-L98), `verifyToken` rejects disabled users with HTTP 403 `isAccountDisabled: true`. In [`client/src/context/AuthContext.jsx:75-93`](client/src/context/AuthContext.jsx#L75-L93) and [`client/src/pages/Login.jsx:107-109`](client/src/pages/Login.jsx#L107-L109), detecting disabled status immediately triggers `signOut(auth)` to purge the session and blocks any new login attempt.
+> 1. Frontend: Open [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx).  
+>    - Price filter inputs: [`Catalog.jsx#L310-L327`](client/src/pages/Catalog.jsx#L310-L327)  
+>    - Category checkboxes: [`Catalog.jsx#L293-L308`](client/src/pages/Catalog.jsx#L293-L308)  
+>    - Ratings filter: [`Catalog.jsx#L359-L370`](client/src/pages/Catalog.jsx#L359-L370)  
+>    - Reviews filter & quick 1+ toggle: [`Catalog.jsx#L329-L357`](client/src/pages/Catalog.jsx#L329-L357)  
+> 2. Backend: Open [`controllers/productController.js#L34-L53`](controllers/productController.js#L34-L53). Show how queries for `$in` (categories), `$gte`/`$lte` (price), and `$gte` (rating & numReviews) are dynamically assembled into the MongoDB query object.
 
-### Q10: "How does the Password Reset system work, and how does it prevent security vulnerabilities?"
+### Q10: "How are the sales analytics charts implemented in Quiz 2?"
 > **Answer & File to Show:**  
-> 1. Frontend Trigger: Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L52-L81). The user clicks "Forgot password?", enters their email or username, and dispatches a request to `/api/users/forgot-password`.  
-> 2. Backend Generation: Open [`controllers/userController.js`](controllers/userController.js#L126-L196). If the user is disabled, it immediately aborts. Otherwise, Firebase Admin SDK's `auth.generatePasswordResetLink(user.email)` creates a single-use cryptographically signed link directed to our frontend client `/reset-password?mode=resetPassword&oobCode=...`.  
-> 3. Email Delivery: Dispatched via Mailtrap Nodemailer transport ([`utils/emailService.js:381-441`](utils/emailService.js#L381-L441)).  
-> 4. Side-Channel Timing Attack Mitigation: Show lines 143–150 and 174–181 in [`controllers/userController.js`](controllers/userController.js#L143-L181). Both existing and non-existing account paths are delayed to ~800–1050ms and return identical success responses, preventing attackers from probing valid accounts through network latency differences.  
-> 5. Dedicated Reset Page: Open [`client/src/pages/ResetPassword.jsx`](client/src/pages/ResetPassword.jsx#L25-L100). The token is verified on mount (`verifyPasswordResetCode`), and the new password is confirmed via `confirmPasswordReset`.
+> 1. Monthly 12-Month Line Chart: Open [`client/src/pages/AdminDashboard.jsx#L70-L100`](client/src/pages/AdminDashboard.jsx#L70-L100) (pre-populating all 12 calendar months Jan–Dec) and lines 205–248 rendering the Recharts `<LineChart>`.  
+> 2. Custom Date Range Sales Chart: Open [`client/src/components/BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx) and [`client/src/pages/AdminDashboard.jsx#L102-L158`](client/src/pages/AdminDashboard.jsx#L102-L158). Show how impossible dates (Feb 31) are eliminated by dynamic day calculation, years are restricted to 2020–2027, day loops are guarded (`iterations <= 730`), and sales are aggregated on Recharts `<BarChart>` ([`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400)).
 
-### Q11: "Why is the Role field read-only in User Management instead of an interactive dropdown?"
+### Q11: "How does Facebook and Google login work using Firebase in Quiz 3?"
 > **Answer & File to Show:**  
-> Open [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L413-L433) and [`controllers/userController.js`](controllers/userController.js#L210-L242).  
-> Explain that in modern security best practices and e-commerce architectures, normal customer accounts must never be arbitrarily promoted to administrators through a client-side table dropdown, which creates severe privilege escalation vulnerabilities. Customer roles are displayed using read-only luxury badges (`Admin` in charcoal/gold, `Customer` in neutral stone). Backend controller `updateUserRole` rejects any attempt to alter a customer's role with HTTP 403 `Cannot change the role of a customer.`.
+> 1. Open [`client/src/context/AuthContext.jsx#L150-L178`](client/src/context/AuthContext.jsx#L150-L178). Show `loginWithGoogle` with `GoogleAuthProvider` and `loginWithFacebook` with `FacebookAuthProvider`.  
+> 2. Show `trackPopup` preventing orphaned popup sessions, and `extractEmailFromCred` safely retrieving the social provider's email.  
+> 3. Show [`client/src/pages/Login.jsx#L465-L510`](client/src/pages/Login.jsx#L465-L510) and [`client/src/pages/Register.jsx#L755-L790`](client/src/pages/Register.jsx#L755-L790) rendering the branded social action buttons.  
+> 4. Backend: Open [`middleware/auth.js#L14-L90`](middleware/auth.js#L14-L90) verifying the token via Firebase Admin SDK and binding the MongoDB user profile.
 
-### Q12: "Why don't the admin tables reload or flicker when deleting an item?"
-> **Answer & File to Show:**  
-> Open [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L749-L780) and [`client/src/pages/AdminUsers.jsx`](client/src/pages/AdminUsers.jsx#L134-L178).  
-> Explain that instead of calling `fetchData()` which reloads the table and causes visual flickering, the system performs an in-place state removal: `setProducts((prev) => prev.filter((p) => p._id !== id))`. Furthermore, SweetAlert2's `showLoaderOnConfirm: true` and `preConfirm` hook are configured so that the modal itself presents an animated spinner while awaiting the backend API response, eliminating any perceived lag.
-
-### Q13: "How does the hero search bar work with live autocomplete, and how is regex injection prevented?"
-> **Answer & File to Show:**  
-> Open [`client/src/pages/Home.jsx`](client/src/pages/Home.jsx#L30-L98) and [`controllers/productController.js`](controllers/productController.js#L77-L97).  
-> Explain that the hero input uses a 250ms debounced `useEffect` that calls `GET /api/products/search?q=...` when 2 or more characters are entered. Show lines 4–6 in [`controllers/productController.js`](controllers/productController.js#L4-L6) for the `escapeRegex` helper (`string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')`), which sanitizes user input so that metacharacters (e.g. `.` or `*` or `(`) cannot manipulate regex logic, crash the database with syntax errors, or trigger ReDoS attacks. Clicking a result navigates immediately to [`/product/:id`](client/src/pages/ProductDetails.jsx), while submitting navigates to [`/catalog?search=...`](client/src/pages/Catalog.jsx).
-
-### Q14: "How do you run the database seeder and undo/unseed seeded data?"
-> **Answer & File to Show:**  
-> 1. Show [`package.json`](package.json#L9-L12) and [`START_GUIDE.txt`](START_GUIDE.txt): Run `npm run seed` to insert and `npm run unseed` to remove.  
-> 2. Show [`seed-additional.js`](seed-additional.js): Adds 12 curated products, 3 brands, 3 users, and 6 sample transactions idempotently.  
-> 3. Show [`unseed.js`](unseed.js): Safely removes seeded records while detecting if any were already deleted manually by the administrator, ensuring user-created products and core categories remain untouched.
-
-### Q15: "How is Infinite Scroll implemented, and how does it prevent duplicate products or runaway network requests?"
+### Q12: "How is Infinite Scroll implemented in Quiz 3?"
 > **Answer & File to Show:**  
 > 1. Frontend Observer: Open [`client/src/pages/Catalog.jsx#L118-L135`](client/src/pages/Catalog.jsx#L118-L135). Show the `IntersectionObserver` observing `observerTarget.current` (rendered at [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)). Explain the guard condition `if (entries[0].isIntersecting && !isFetchingMore && page < totalPages)` which guarantees no duplicate requests are triggered while a fetch is in-flight or when the catalog has reached the final page.  
 > 2. Deduplication & State Append: Show lines 85–94 in [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L85-L94). Explain how `new Map()` keyed by `product._id` is used when appending items (`append === true`) to eliminate duplicate product cards even if new products were created or modified concurrently.  
