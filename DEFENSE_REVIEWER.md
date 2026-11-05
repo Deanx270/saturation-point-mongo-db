@@ -37,7 +37,7 @@
 | **Quiz 2: 12-Month Sales Line Chart** | 10 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L70-L100)<br>Chart: [`AdminDashboard.jsx#L205-L248`](client/src/pages/AdminDashboard.jsx#L205-L248) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `LineChart`, all 12 calendar months |
 | **Quiz 2: Date Range Sales Chart** | 15 | [`client/src/pages/AdminDashboard.jsx`](client/src/pages/AdminDashboard.jsx#L102-L158)<br>Picker: [`BrandDatePicker.jsx`](client/src/components/BrandDatePicker.jsx)<br>Chart: [`AdminDashboard.jsx#L365-L400`](client/src/pages/AdminDashboard.jsx#L365-L400) | [`controllers/orderController.js`](controllers/orderController.js#L73-L82) | Recharts `BarChart`, luxury brand date picker, calendar boundary & year constraints (2020-2027) |
 | **Quiz 3: Facebook & Gmail Login** | 15 | Context: [`AuthContext.jsx`](client/src/context/AuthContext.jsx#L150-L178)<br>Buttons: [`Login.jsx`](client/src/pages/Login.jsx#L465-L510) | [`middleware/auth.js`](middleware/auth.js#L14-L90) | Firebase OAuth popups, Google & Facebook providers |
-| **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L118-L138)<br>Target: [`Catalog.jsx#L653`](client/src/pages/Catalog.jsx#L653) | [`controllers/productController.js`](controllers/productController.js#L40-L55) | Native `IntersectionObserver`, `skip` & `limit` |
+| **Quiz 3 (Alternative): Infinite Scroll** | 15 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L118-L135)<br>Sentinel: [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)<br>Append Logic: [`Catalog.jsx#L85-L94`](client/src/pages/Catalog.jsx#L85-L94) | [`controllers/productController.js`](controllers/productController.js#L54-L71) | Native `IntersectionObserver`, `skip` & `limit`, Map deduplication |
 | **Quiz 4: Redux State Management** | 15 | Store: [`redux/store.js`](client/src/redux/store.js#L1-L12)<br>Slice: [`redux/slices/cartSlice.js`](client/src/redux/slices/cartSlice.js#L1-L130)<br>Root: [`main.jsx`](client/src/main.jsx#L14-L30) | N/A (Client State Architecture) | Redux Toolkit (`configureStore`, `createSlice`, `createAsyncThunk`) |
 | **Database Seeder & Cleanup** | + | Terminal: `npm run seed`<br>Cleanup: `npm run unseed` | [`seed-additional.js`](seed-additional.js#L1-L372)<br>[`unseed.js`](unseed.js#L1-L104) | Idempotent insertion, partial deletion detection |
 
@@ -377,7 +377,19 @@
 - **Backend Synchronization**: [`middleware/auth.js`](middleware/auth.js#L14-L90)
   - Verifies token via Firebase Admin SDK, reads social credentials, and ensures a matching MongoDB user profile exists.
 
-*(Note: The catalog also includes the native **`IntersectionObserver` Infinite Scroll** under [`client/src/pages/Catalog.jsx:118-138`](client/src/pages/Catalog.jsx#L118-L138)).*
+#### 2. Alternative: Infinite Scroll via IntersectionObserver (15 Points)
+- **Frontend Files**:
+  - Observer Hook: [`client/src/pages/Catalog.jsx#L118-L135`](client/src/pages/Catalog.jsx#L118-L135)
+  - Sentinel Target & Loading Spinner: [`client/src/pages/Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)
+  - Paginated Fetch & Deduplicated Append: [`client/src/pages/Catalog.jsx#L56-L111`](client/src/pages/Catalog.jsx#L56-L111) (specifically lines 85–94)
+- **Key Implementation Details**:
+  - **Native `IntersectionObserver`**: Watches sentinel element `<Box ref={observerTarget}>` at the foot of the catalog with `threshold: 1.0`. When scrolled into view, if `!isFetchingMore && page < totalPages`, automatically increments `page + 1` and fetches the next batch.
+  - **Map-Based Key Deduplication**: Lines 86–91 use `new Map()` keyed by `product._id` to merge `prev` products and newly fetched page products, preventing duplicate keys or React re-render collisions.
+  - **End of Catalog Indicator**: Automatically unobserves or displays "End of catalog" once `page >= totalPages`.
+- **Backend File**: [`controllers/productController.js#L54-L71`](controllers/productController.js#L54-L71)
+  - Computes `skip = (pageNum - 1) * pageSize` with `limit = 9` (default 12 or passed limit).
+  - Queries `Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(pageSize)`.
+  - Returns `{ products, page, pages, total }` to control frontend pagination boundary.
 
 ---
 
@@ -543,3 +555,9 @@
 > 1. Show [`package.json`](package.json#L9-L12) and [`START_GUIDE.txt`](START_GUIDE.txt): Run `npm run seed` to insert and `npm run unseed` to remove.  
 > 2. Show [`seed-additional.js`](seed-additional.js): Adds 12 curated products, 3 brands, 3 users, and 6 sample transactions idempotently.  
 > 3. Show [`unseed.js`](unseed.js): Safely removes seeded records while detecting if any were already deleted manually by the administrator, ensuring user-created products and core categories remain untouched.
+
+### Q15: "How is Infinite Scroll implemented, and how does it prevent duplicate products or runaway network requests?"
+> **Answer & File to Show:**  
+> 1. Frontend Observer: Open [`client/src/pages/Catalog.jsx#L118-L135`](client/src/pages/Catalog.jsx#L118-L135). Show the `IntersectionObserver` observing `observerTarget.current` (rendered at [`Catalog.jsx#L651-L673`](client/src/pages/Catalog.jsx#L651-L673)). Explain the guard condition `if (entries[0].isIntersecting && !isFetchingMore && page < totalPages)` which guarantees no duplicate requests are triggered while a fetch is in-flight or when the catalog has reached the final page.  
+> 2. Deduplication & State Append: Show lines 85–94 in [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L85-L94). Explain how `new Map()` keyed by `product._id` is used when appending items (`append === true`) to eliminate duplicate product cards even if new products were created or modified concurrently.  
+> 3. Backend Pagination: Open [`controllers/productController.js#L54-L71`](controllers/productController.js#L54-L71). Show how `skip` and `limit` are calculated (`skip = (pageNum - 1) * pageSize`) and piped into Mongoose query builder (`queryBuilder.skip(skip).limit(pageSize)`), returning `page`, `pages`, and `total`.
