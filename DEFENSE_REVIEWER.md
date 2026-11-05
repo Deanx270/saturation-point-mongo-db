@@ -13,7 +13,7 @@
 | **MP1: Cloudinary Integration** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L85-L125) | [`utils/cloudinary.js`](utils/cloudinary.js#L1-L36)<br>[`controllers/productController.js`](controllers/productController.js#L173-L190) | `cloudinary.v2`, CloudinaryStorage, automatic destroy |
 | **MP1: Bulk Delete with Checkboxes** | 5 | [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L709-L748) | [`controllers/productController.js`](controllers/productController.js#L217-L231) | MUI Checkbox, `$in` delete, instant local state |
 | **MP2: User Registration** | 2 | [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L121-L235) | [`routes/userRoutes.js`](routes/userRoutes.js#L29-L32)<br>[`controllers/userController.js`](controllers/userController.js#L74-L132) | Formik, Yup, Cloudinary avatar, Mailtrap verify |
-| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169)<br>Form UI: [`Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) | [`controllers/userController.js`](controllers/userController.js#L89-L101) | Login via username or email lookup, username enumeration defense |
+| **MP2: Username & Password Login** | 5 | [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L115-L171)<br>Form UI: [`Login.jsx#L269-L347`](client/src/pages/Login.jsx#L269-L347) | [`controllers/userController.js`](controllers/userController.js#L89-L101) | Login via username or email lookup, username enumeration defense |
 | **MP2: User Profile Update + Photo** | 5 | [`client/src/pages/Profile.jsx`](client/src/pages/Profile.jsx#L153-L265) | [`controllers/userController.js`](controllers/userController.js#L19-L72) | Multer (`single`), Cloudinary CDN upload |
 | **MP2: Firebase Auth (Email/Pass)** | 10 | [`client/src/context/AuthContext.jsx`](client/src/context/AuthContext.jsx#L98-L105) | [`middleware/auth.js`](middleware/auth.js#L4-L114) | Firebase Client SDK + Admin SDK `verifyIdToken` |
 | **MP3: Availed Purchase Check** | 10 | [`client/src/pages/ProductDetails.jsx`](client/src/pages/ProductDetails.jsx#L76-L92) | [`controllers/orderController.js`](controllers/orderController.js#L135-L144) | Order history validation (`status === 'delivered'`) |
@@ -24,7 +24,7 @@
 | **Term Test: Customer Email Update** | 5 | *Triggered automatically on status update* | [`utils/emailService.js`](utils/emailService.js#L196-L318) | Nodemailer, Mailtrap, HTML itemized table |
 | **Term Test: PDF Receipt Attachment** | 10 | *Attached on all order and status emails* | [`utils/emailService.js`](utils/emailService.js#L4-L179)<br>[`utils/emailService.js#L214-L225`](utils/emailService.js#L214-L225) | PDFKit in-memory buffer (`Receipt-${order._id}.pdf`) |
 | **Unit 1: Bad-Words Filter** | 10 | *Backend review sanitation* | [`controllers/productController.js`](controllers/productController.js#L244-L268) | `bad-words` + Tagalog profanity dictionary |
-| **Unit 1: Yup / Formik Validation** | 10 | Products: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L68-L80)<br>Login: [`Login.jsx`](client/src/pages/Login.jsx#L113-L122)<br>Register: [`Register.jsx`](client/src/pages/Register.jsx#L130-L158)<br>Profile: [`Profile.jsx`](client/src/pages/Profile.jsx#L170-L201) | Handled on frontend with inline error messages | Yup schema + Formik state management |
+| **Unit 1: Yup / Formik Validation** | 10 | Products: [`AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L68-L80)<br>Login: [`Login.jsx`](client/src/pages/Login.jsx#L115-L124)<br>Register: [`Register.jsx`](client/src/pages/Register.jsx#L130-L158)<br>Profile: [`Profile.jsx`](client/src/pages/Profile.jsx#L170-L201) | Handled on frontend with inline error messages | Yup schema + Formik state management |
 | **Unit 2: Material UI & CSS** | 20 | [`client/src/theme.js`](client/src/theme.js#L1-L81) | N/A | Custom MUI Theme, Lora/Montserrat, `#FAF9F6` |
 | **Quiz 1: Price Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L310-L327) | [`controllers/productController.js`](controllers/productController.js#L41-L45) | `$gte`, `$lte` MongoDB queries |
 | **Quiz 1: Category Filter** | 5 | [`client/src/pages/Catalog.jsx`](client/src/pages/Catalog.jsx#L293-L308) | [`controllers/productController.js`](controllers/productController.js#L34-L39) | `$in` categories query |
@@ -107,14 +107,14 @@
   - `sendVerificationEmail`: Generates verification link using Firebase Admin SDK and dispatches branded email via Mailtrap.
 
 #### 2. Username and Password Login (5 Points)
-- **Frontend File**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L169) (Formik Logic) & [`client/src/pages/Login.jsx#L267-L345`](client/src/pages/Login.jsx#L267-L345) (Form Fields)
-  - Input field `identifier` accepts **either an Email OR a Username** ([`Login.jsx#L273-L297`](client/src/pages/Login.jsx#L273-L297)).
-  - Password input field with visibility toggle and adornment ([`Login.jsx#L298-L345`](client/src/pages/Login.jsx#L298-L345)).
-  - If `identifier` does not contain `@`, queries backend endpoint `GET /api/users/email-by-username/:username` to retrieve the associated email automatically ([`Login.jsx#L129-L135`](client/src/pages/Login.jsx#L129-L135)).
-  - **User Enumeration & Timing Attack Defense**: If the username is not found in MongoDB, instead of disclosing `"User not found with that username"`, the client waits for 350ms to mirror Firebase network latency and throws `Firebase: auth/invalid-credential` ([`client/src/pages/Login.jsx#L136-L137`](client/src/pages/Login.jsx#L136-L137)).
-  - **Unified Credential Error**: Handled by `formatFirebaseError` ([`client/src/pages/Login.jsx#L84-L97`](client/src/pages/Login.jsx#L84-L97)), which uniformly displays `"Invalid email, username, or password. Please try again."` for all invalid email, username, or password attempts.
-  - Authenticates via Firebase `signInWithEmailAndPassword`, checks `emailVerified`, and rejects unverified logins ([`Login.jsx#L141-L148`](client/src/pages/Login.jsx#L141-L148)).
-  - Fetches MongoDB profile and routes to `/admin/dashboard` or `/profile` ([`Login.jsx#L150-L163`](client/src/pages/Login.jsx#L150-L163)).
+- **Frontend File**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L115-L171) (Formik Logic) & [`client/src/pages/Login.jsx#L269-L347`](client/src/pages/Login.jsx#L269-L347) (Form Fields)
+  - Input field `identifier` accepts **either an Email OR a Username** ([`Login.jsx#L275-L299`](client/src/pages/Login.jsx#L275-L299)).
+  - Password input field with visibility toggle and adornment ([`Login.jsx#L300-L347`](client/src/pages/Login.jsx#L300-L347)).
+  - If `identifier` does not contain `@`, queries backend endpoint `GET /api/users/email-by-username/:username` to retrieve the associated email automatically ([`Login.jsx#L131-L137`](client/src/pages/Login.jsx#L131-L137)).
+  - **User Enumeration & Timing Attack Defense**: If the username is not found in MongoDB, instead of disclosing `"User not found with that username"`, the client waits for 350ms to mirror Firebase network latency and throws `Firebase: auth/invalid-credential` ([`client/src/pages/Login.jsx#L138-L139`](client/src/pages/Login.jsx#L138-L139)).
+  - **Unified Credential Error**: Handled by `formatFirebaseError` ([`client/src/pages/Login.jsx#L84-L99`](client/src/pages/Login.jsx#L84-L99)), which uniformly displays `"Invalid email, username, or password. Please try again."` for all invalid email, username, or password attempts.
+  - Authenticates via Firebase `signInWithEmailAndPassword`, checks `emailVerified`, and rejects unverified logins ([`Login.jsx#L143-L150`](client/src/pages/Login.jsx#L143-L150)).
+  - Fetches MongoDB profile and routes to `/admin/dashboard` or `/profile` ([`Login.jsx#L152-L165`](client/src/pages/Login.jsx#L152-L165)).
 - **Backend Controller**: [`controllers/userController.js`](controllers/userController.js#L89-L101)
   - `getEmailByUsername`: Finds user by username and returns their email.
 
@@ -234,7 +234,7 @@
 #### 2. Form Validation on Product and User Forms (Yup & Formik) (10 Points)
 - **Product Form (Admin)**: [`client/src/pages/AdminProducts.jsx`](client/src/pages/AdminProducts.jsx#L68-L80)
   - Yup validation schema checking name, description, positive price, brand, category, and integer stock.
-- **User Login Form**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L113-L122)
+- **User Login Form**: [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L115-L124)
   - Yup validation requiring identifier and password.
 - **User Registration Form**: [`client/src/pages/Register.jsx`](client/src/pages/Register.jsx#L130-L158)
   - Yup schema for names, username regex, valid email, minimum 6-character password, and password match.
@@ -428,10 +428,10 @@
 
 ### Q6: "How does login with username work when Firebase only supports email/password?"
 > **Answer & File to Show:**  
-> Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L128-L142) and [`client/src/pages/Login.jsx:84-97`](client/src/pages/Login.jsx#L84-L97).  
-> 1. Show lines 129–135: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L89-L101) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
-> 2. Show lines 136–137: If the username does not exist, the catch block adds a 350ms delay to match the network duration of a Firebase auth roundtrip and throws a standard `Firebase: auth/invalid-credential` error.  
-> 3. Show lines 84–97: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`.
+> Open [`client/src/pages/Login.jsx`](client/src/pages/Login.jsx#L130-L144) and [`client/src/pages/Login.jsx:84-99`](client/src/pages/Login.jsx#L84-L99).  
+> 1. Show lines 131–137: If the input lacks an `@`, the frontend calls `GET /api/users/email-by-username/:username` in [`controllers/userController.js`](controllers/userController.js#L89-L101) to retrieve the registered email, which is then passed to Firebase's `signInWithEmailAndPassword`.  
+> 2. Show lines 138–139: If the username does not exist, the catch block adds a 350ms delay to match the network duration of a Firebase auth roundtrip and throws a standard `Firebase: auth/invalid-credential` error.  
+> 3. Show lines 84–99: `formatFirebaseError` intercepts the error and outputs a generic message: `"Invalid email, username, or password. Please try again."`.
 
 ### Q7: "How is clickable column header sorting and search implemented in the admin datatables?"
 > **Answer & File to Show:**  

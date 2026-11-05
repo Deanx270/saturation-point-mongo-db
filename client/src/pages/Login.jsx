@@ -87,8 +87,10 @@ const Login = () => {
     const msg = raw.replace('Firebase: ', '').toLowerCase();
     if (
       msg.includes('auth/invalid-credential') ||
+      msg.includes('auth/invalid-login-credentials') ||
       msg.includes('auth/wrong-password') ||
-      msg.includes('auth/user-not-found')
+      msg.includes('auth/user-not-found') ||
+      msg.includes('auth/invalid-email')
     ) {
       return 'Invalid email, username, or password. Please try again.';
     }
@@ -124,7 +126,7 @@ const Login = () => {
       setLoading(true);
       setAuthError('');
       try {
-        let loginEmail = values.identifier;
+        let loginEmail = values.identifier.trim();
 
         if (!loginEmail.includes('@')) {
           try {
