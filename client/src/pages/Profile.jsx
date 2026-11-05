@@ -544,13 +544,16 @@ const Profile = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
-                helperText={formik.touched.email && formik.errors.email}
-                disabled={Boolean(
-                  currentUser?.email &&
-                    !mongoUser?.email?.endsWith(
-                      '@users.thesaturationpoint.com',
-                    ),
-                )}
+                helperText={
+                  !mongoUser?.email?.endsWith('@users.thesaturationpoint.com')
+                    ? 'Email address cannot be changed.'
+                    : formik.touched.email && formik.errors.email
+                }
+                disabled={
+                  !mongoUser?.email?.endsWith(
+                    '@users.thesaturationpoint.com',
+                  )
+                }
                 size="small"
                 InputLabelProps={{
                   style: { fontSize: '0.85rem' },
