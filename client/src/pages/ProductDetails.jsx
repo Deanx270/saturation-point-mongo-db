@@ -69,7 +69,9 @@ const ProductDetails = () => {
           setUserReviewData(userReview);
           formik.setValues({
             rating: userReview.rating,
-            comment: userReview.comment,
+            comment: /\*{3,}/.test(userReview.comment || '')
+              ? ''
+              : userReview.comment || '',
           });
         }
 
@@ -113,7 +115,16 @@ const ProductDetails = () => {
       rating: Yup.number()
         .min(1, 'Please provide a rating')
         .required('Rating is required'),
-      comment: Yup.string().max(500, 'Review must be at most 500 characters'),
+      comment: Yup.string()
+        .max(500, 'Review must be at most 500 characters')
+        .test(
+          'replace-legacy-censored-comment',
+          'Retype the original comment to replace the older censored copy.',
+          (value) =>
+            !hasReviewed ||
+            !/\*{3,}/.test(userReviewData?.comment || '') ||
+            Boolean(value?.trim()),
+        ),
     }),
     onSubmit: async (values, { resetForm }) => {
       setReviewLoading(true);
@@ -804,7 +815,12 @@ const ProductDetails = () => {
                       value={formik.values.comment}
                       onChange={formik.handleChange}
                       error={Boolean(formik.errors.comment)}
-                      helperText={formik.errors.comment}
+                      helperText={
+                        formik.errors.comment ||
+                        (hasReviewed && /\*{3,}/.test(userReviewData?.comment || '')
+                          ? 'This older review was saved with asterisks. Retype its comment to replace it.'
+                          : '')
+                      }
                       sx={{
                         mb: 4,
                         '& .MuiOutlinedInput-root': {
