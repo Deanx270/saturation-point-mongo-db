@@ -682,33 +682,37 @@ const ProductDetails = () => {
                         />
                       </Box>
                     </Box>
-                    <Button
-                      onClick={() => setIsEditingReview(true)}
-                      startIcon={<EditIcon />}
-                      size="small"
-                      sx={{
-                        color: '#78716C',
-                        textTransform: 'none',
-                        '&:hover': {
-                          color: '#CA8A04',
-                          bgcolor: 'transparent',
-                        },
-                      }}
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}
                     >
-                      Edit
-                    </Button>
-                    {isAdmin && (
-                      <Tooltip title="Delete Review (Admin)">
-                        <IconButton
-                          onClick={() => handleDeleteReview(userReviewData._id)}
-                          size="small"
-                          aria-label="Delete your review"
-                          sx={{ color: '#9f1239' }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
+                      <Button
+                        onClick={() => setIsEditingReview(true)}
+                        startIcon={<EditIcon />}
+                        size="small"
+                        sx={{
+                          color: '#78716C',
+                          textTransform: 'none',
+                          '&:hover': {
+                            color: '#CA8A04',
+                            bgcolor: 'transparent',
+                          },
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      {isAdmin && (
+                        <Tooltip title="Delete Review (Admin)">
+                          <IconButton
+                            onClick={() => handleDeleteReview(userReviewData._id)}
+                            size="small"
+                            aria-label="Delete your review"
+                            sx={{ color: '#9f1239' }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
                   </Box>
                   <Typography
                     variant="body1"
